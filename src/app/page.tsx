@@ -3,7 +3,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import QuickButtons from '@/components/quick-buttons/QuickButtons'
 import AICardFeed from '@/components/ai-cards/AICardFeed'
 import CheckupBanner from '@/components/ai-cards/CheckupBanner'
 import WeatherCard from '@/components/ai-cards/WeatherCard'
@@ -124,9 +123,41 @@ export default function HomePage() {
     if (type === 'feed') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setFeedSheetOpen(true) }; return }
     if (type === 'poop') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setPoopSheetOpen(true) }; return }
     if (type === 'temp') { setTempSheetOpen(true); return }
+    if (type === 'memo') { const e = await insertEvent(type, { tags: { category: 'medication' } }); if (e) setToast({ message: '투약 기록 완료!', undoId: e.id }); return }
     const e = await insertEvent(type)
     if (e) setToast({ message: type === 'sleep' ? '수면 시작!' : '소변 기록 완료!', undoId: e.id })
   }, [user, child, sleepActive, events, supabase]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // FAB 퀵버튼 이벤트 리스너 (BottomNav에서 dispatch)
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const type = (e as CustomEvent).detail?.type
+      if (type) handleRecord(type as EventType)
+    }
+    window.addEventListener('dodam-record', handler)
+    return () => window.removeEventListener('dodam-record', handler)
+  }, [handleRecord])
+
+  // Shake → 응급 모드
+  useEffect(() => {
+    let lastX = 0, lastY = 0, lastZ = 0, lastTime = 0
+    const THRESHOLD = 25
+    const handler = (e: DeviceMotionEvent) => {
+      const acc = e.accelerationIncludingGravity
+      if (!acc?.x || !acc?.y || !acc?.z) return
+      const now = Date.now()
+      if (now - lastTime < 200) return
+      const dx = Math.abs(acc.x - lastX)
+      const dy = Math.abs(acc.y - lastY)
+      const dz = Math.abs(acc.z - lastZ)
+      if (dx + dy + dz > THRESHOLD) {
+        router.push('/emergency')
+      }
+      lastX = acc.x; lastY = acc.y; lastZ = acc.z; lastTime = now
+    }
+    window.addEventListener('devicemotion', handler)
+    return () => window.removeEventListener('devicemotion', handler)
+  }, [router])
 
   const insertEvent = async (type: EventType, extra?: Record<string, unknown>) => {
     if (!user || !child) return null
@@ -281,7 +312,7 @@ export default function HomePage() {
 
       {/* 콘텐츠 영역 */}
       <div className="flex-1 overflow-y-auto bg-[#F7F8FA]">
-        <div className="max-w-lg mx-auto pt-3">
+        <div className="max-w-lg mx-auto pt-3 pb-24">
           {activeTab === 'record' ? (
             <>
               {/* 기록 탭 */}
@@ -314,9 +345,6 @@ export default function HomePage() {
           )}
         </div>
       </div>
-
-      {/* 퀵 버튼 (고정) */}
-      <QuickButtons onRecord={handleRecord} sleepActive={sleepActive} />
 
       {/* Toast */}
       {toast && (

@@ -1,80 +1,175 @@
 'use client'
 
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { HomeIcon, ChartIcon, AlertIcon, MapIcon, SettingsIcon } from '@/components/ui/Icons'
+import {
+  HomeIcon, ChartIcon, MapIcon, SettingsIcon,
+  PlusIcon, XIcon,
+  BottleIcon, MoonIcon, DropletIcon, ThermometerIcon, PillIcon,
+} from '@/components/ui/Icons'
 
 interface Tab {
   href: string
   label: string
   icon: React.FC<{ className?: string }>
-  isCenter?: boolean
 }
 
 const tabs: Tab[] = [
   { href: '/', icon: HomeIcon, label: '홈' },
   { href: '/growth', icon: ChartIcon, label: '성장' },
-  { href: '/emergency', icon: AlertIcon, label: '응급', isCenter: true },
   { href: '/map', icon: MapIcon, label: '동네' },
   { href: '/settings', icon: SettingsIcon, label: '설정' },
 ]
 
+const QUICK_BUTTONS = [
+  { type: 'feed', icon: BottleIcon, label: '수유', bg: '#C8F0D8', iconClass: 'text-[#3D8A5A]' },
+  { type: 'sleep', icon: MoonIcon, label: '수면', bg: '#E8E0F8', iconClass: 'text-[#6366F1]' },
+  { type: 'poop', icon: DropletIcon, label: '기저귀', bg: '#FEF0E8', iconClass: 'text-[#D89575]' },
+  { type: 'temp', icon: ThermometerIcon, label: '체온', bg: '#FDE8E8', iconClass: 'text-[#D08068]' },
+  { type: 'memo', icon: PillIcon, label: '투약', bg: '#E0F0F8', iconClass: 'text-[#4A90D9]' },
+]
+
+// 반원형 배치 좌표 (중앙 FAB 기준, px)
+const ARC_POSITIONS = [
+  { x: -120, y: -50 },   // 수유 (좌측 하단)
+  { x: -76, y: -115 },   // 수면 (좌측 상단)
+  { x: 0, y: -140 },     // 기저귀 (정중앙 상단)
+  { x: 76, y: -115 },    // 체온 (우측 상단)
+  { x: 120, y: -50 },    // 투약 (우측 하단)
+]
+
 export default function BottomNav() {
   const pathname = usePathname()
+  const [fabOpen, setFabOpen] = useState(false)
+
+  // 다른 페이지로 이동하면 FAB 닫기
+  useEffect(() => { setFabOpen(false) }, [pathname])
+
+  // ESC로 닫기
+  useEffect(() => {
+    if (!fabOpen) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setFabOpen(false) }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [fabOpen])
+
+  const handleQuickRecord = useCallback((type: string) => {
+    if (navigator.vibrate) navigator.vibrate(30)
+    window.dispatchEvent(new CustomEvent('dodam-record', { detail: { type } }))
+    setFabOpen(false)
+  }, [])
 
   if (pathname?.startsWith('/onboarding') || pathname?.startsWith('/invite')) {
     return null
   }
 
   return (
-    <nav className="absolute bottom-0 left-0 right-0 z-50 bg-white border-t border-[#ECECEC] pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-14">
-        {tabs.map((tab) => {
-          const isActive =
-            tab.href === '/'
-              ? pathname === '/'
-              : pathname?.startsWith(tab.href)
-          const Icon = tab.icon
+    <>
+      {/* 딤 오버레이 */}
+      {fabOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300"
+          onClick={() => setFabOpen(false)}
+        />
+      )}
 
-          if (tab.isCenter) {
-            return (
-              <Link
-                key={tab.href}
-                href={tab.href}
-                className="flex flex-col items-center justify-center -mt-4"
-              >
-                <div className="w-12 h-12 rounded-full bg-[#FF6F0F] flex items-center justify-center shadow-[0_2px_12px_rgba(255,111,15,0.35)] active:scale-95 transition-transform">
-                  <Icon className="w-5 h-5 text-white" />
+      {/* 반원형 퀵버튼 */}
+      {fabOpen && (
+        <div className="fixed z-[70] bottom-[60px] left-1/2" style={{ maxWidth: 430 }}>
+          <div className="relative" style={{ width: 0, height: 0 }}>
+            {QUICK_BUTTONS.map((btn, i) => {
+              const pos = ARC_POSITIONS[i]
+              const Icon = btn.icon
+              return (
+                <div
+                  key={btn.type}
+                  className="absolute flex flex-col items-center gap-1.5"
+                  style={{
+                    left: pos.x - 28,
+                    top: pos.y - 28,
+                    animation: `fabItemPop 0.25s ${i * 0.04}s both cubic-bezier(0.34, 1.56, 0.64, 1)`,
+                  }}
+                >
+                  <button
+                    onClick={() => handleQuickRecord(btn.type)}
+                    className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+                    style={{ backgroundColor: btn.bg }}
+                  >
+                    <Icon className={`w-6 h-6 ${btn.iconClass}`} />
+                  </button>
+                  <span className="text-[11px] font-semibold text-white whitespace-nowrap drop-shadow-sm">
+                    {btn.label}
+                  </span>
                 </div>
-                <span className="text-[10px] mt-0.5 font-semibold text-[#FF6F0F]">
-                  {tab.label}
-                </span>
-              </Link>
-            )
-          }
+              )
+            })}
+          </div>
+        </div>
+      )}
 
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className="flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1"
+      {/* BNB 바 */}
+      <nav className="absolute bottom-0 left-0 right-0 z-[65] bg-white border-t border-[#ECECEC] pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center justify-around h-14">
+          {/* 좌측 2탭 */}
+          {tabs.slice(0, 2).map((tab) => (
+            <NavTab key={tab.href} tab={tab} pathname={pathname} />
+          ))}
+
+          {/* 중앙 FAB */}
+          <button
+            onClick={() => setFabOpen((v) => !v)}
+            className={`flex flex-col items-center justify-center -mt-5 transition-transform duration-200 ${fabOpen ? 'scale-95' : ''}`}
+          >
+            <div
+              className={`w-14 h-14 rounded-full flex items-center justify-center shadow-[0_4px_16px_rgba(61,138,90,0.35)] active:scale-90 transition-all duration-200 ${
+                fabOpen ? 'bg-[#212124] rotate-0' : 'bg-[#3D8A5A]'
+              }`}
             >
-              <Icon
-                className={`w-5 h-5 transition-colors ${
-                  isActive ? 'text-[#212124]' : 'text-[#AEB1B9]'
-                }`}
-              />
-              <span
-                className={`text-[10px] transition-colors ${
-                  isActive ? 'text-[#212124] font-semibold' : 'text-[#AEB1B9]'
-                }`}
-              >
-                {tab.label}
-              </span>
-            </Link>
-          )
-        })}
-      </div>
-    </nav>
+              {fabOpen ? (
+                <XIcon className="w-6 h-6 text-white" />
+              ) : (
+                <PlusIcon className="w-6 h-6 text-white" />
+              )}
+            </div>
+            <span className={`text-[10px] mt-0.5 font-semibold ${fabOpen ? 'text-[#212124]' : 'text-[#3D8A5A]'}`}>
+              기록
+            </span>
+          </button>
+
+          {/* 우측 2탭 */}
+          {tabs.slice(2).map((tab) => (
+            <NavTab key={tab.href} tab={tab} pathname={pathname} />
+          ))}
+        </div>
+      </nav>
+
+      {/* 애니메이션 keyframes */}
+      <style jsx global>{`
+        @keyframes fabItemPop {
+          0% { opacity: 0; transform: scale(0.3) translateY(30px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
+    </>
+  )
+}
+
+function NavTab({ tab, pathname }: { tab: Tab; pathname: string | null }) {
+  const isActive = tab.href === '/'
+    ? pathname === '/'
+    : pathname?.startsWith(tab.href)
+  const Icon = tab.icon
+
+  return (
+    <Link
+      href={tab.href}
+      className="flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1"
+    >
+      <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-[#212124]' : 'text-[#AEB1B9]'}`} />
+      <span className={`text-[10px] transition-colors ${isActive ? 'text-[#212124] font-semibold' : 'text-[#AEB1B9]'}`}>
+        {tab.label}
+      </span>
+    </Link>
   )
 }
