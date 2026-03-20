@@ -59,7 +59,7 @@ export default function SettingsPage() {
         {/* 프로필 카드 */}
         <div className="m-4 p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a]">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0052FF] to-[#4A90D9] flex items-center justify-center overflow-hidden shrink-0">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6F0F] to-[#4A90D9] flex items-center justify-center overflow-hidden shrink-0">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -100,9 +100,9 @@ export default function SettingsPage() {
             className="flex items-center gap-3 px-4 py-3.5 border-t border-[#f0f0f0] dark:border-[#2a2a2a] active:bg-[#f5f5f5] dark:active:bg-[#2a2a2a] transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-[#f5f5f5] dark:bg-[#2a2a2a] flex items-center justify-center">
-              <span className="text-[#0052FF] text-lg font-light">+</span>
+              <span className="text-[#FF6F0F] text-lg font-light">+</span>
             </div>
-            <p className="text-sm font-medium text-[#0052FF]">아이 추가</p>
+            <p className="text-sm font-medium text-[#FF6F0F]">아이 추가</p>
           </Link>
         </div>
 
@@ -130,9 +130,9 @@ export default function SettingsPage() {
             <p className="text-xs font-semibold text-[#9B9B9B] uppercase tracking-wide">서비스</p>
           </div>
           {[
-            { label: '서비스 이용약관', href: '#' },
-            { label: '개인정보처리방침', href: '#' },
-            { label: '의견 보내기', href: '#' },
+            { label: '서비스 이용약관', href: '/terms' },
+            { label: '개인정보처리방침', href: '/privacy' },
+            { label: '의견 보내기', href: 'mailto:dodam@dodam.life' },
           ].map((item, i) => (
             <Link
               key={i}

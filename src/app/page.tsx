@@ -6,6 +6,10 @@ import Link from 'next/link'
 import QuickButtons from '@/components/quick-buttons/QuickButtons'
 import AICardFeed from '@/components/ai-cards/AICardFeed'
 import CheckupBanner from '@/components/ai-cards/CheckupBanner'
+import WeatherCard from '@/components/ai-cards/WeatherCard'
+import EmergencyCard from '@/components/ai-cards/EmergencyCard'
+import RewardBanner from '@/components/ai-cards/RewardBanner'
+import RoutineTimelapse from '@/components/ai-cards/RoutineTimelapse'
 import FeedSheet from '@/components/quick-buttons/FeedSheet'
 import PoopSheet from '@/components/quick-buttons/PoopSheet'
 import TempSheet from '@/components/quick-buttons/TempSheet'
@@ -24,13 +28,22 @@ function getAgeMonths(birthdate: string): number {
   return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth())
 }
 
+function getGreeting(): string {
+  const h = new Date().getHours()
+  if (h < 6) return '새벽이에요, 힘내세요'
+  if (h < 12) return '좋은 아침이에요'
+  if (h < 18) return '오후도 도담하게'
+  return '오늘도 수고했어요'
+}
+
 function getTodayRange() {
-  const start = new Date()
-  start.setHours(0, 0, 0, 0)
-  const end = new Date()
-  end.setHours(23, 59, 59, 999)
+  const start = new Date(); start.setHours(0, 0, 0, 0)
+  const end = new Date(); end.setHours(23, 59, 59, 999)
   return { start: start.toISOString(), end: end.toISOString() }
 }
+
+// --- 탭 타입 ---
+type HomeTab = 'record' | 'insight'
 
 export default function HomePage() {
   const [user, setUser] = useState<User | null>(null)
@@ -43,199 +56,115 @@ export default function HomePage() {
   const [poopSheetOpen, setPoopSheetOpen] = useState(false)
   const [tempSheetOpen, setTempSheetOpen] = useState(false)
   const [pendingEventId, setPendingEventId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<HomeTab>('record')
   const { isOnline, pendingCount, syncing } = useOfflineSync()
 
   const router = useRouter()
   const supabase = createClient()
 
-  // 초기 데이터 로딩
   useEffect(() => {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push('/onboarding')
-        return
-      }
+      if (!user) { router.push('/onboarding'); return }
       setUser(user)
 
-      // 아기 프로필 조회
       const { data: children, error: childError } = await supabase
-        .from('children')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true })
-        .limit(1)
+        .from('children').select('*').eq('user_id', user.id)
+        .order('created_at', { ascending: true }).limit(1)
 
       if (childError || !children || children.length === 0) {
-        router.push('/settings/children/add')
-        return
+        router.push('/settings/children/add'); return
       }
 
       const currentChild = children[0] as Child
       setChild(currentChild)
 
-      // 오늘의 이벤트 조회
       const { start, end } = getTodayRange()
       const { data: todayEvents } = await supabase
-        .from('events')
-        .select('*')
-        .eq('child_id', currentChild.id)
-        .gte('start_ts', start)
-        .lte('start_ts', end)
+        .from('events').select('*').eq('child_id', currentChild.id)
+        .gte('start_ts', start).lte('start_ts', end)
         .order('start_ts', { ascending: false })
 
-      if (todayEvents) {
-        setEvents(todayEvents as CareEvent[])
-      }
-
-      // 진행 중인 수면 확인
-      const activeSleep = todayEvents?.find(
-        (e) => e.type === 'sleep' && !e.end_ts
-      )
+      if (todayEvents) setEvents(todayEvents as CareEvent[])
+      const activeSleep = todayEvents?.find((e) => e.type === 'sleep' && !e.end_ts)
       if (activeSleep) setSleepActive(true)
-
       setLoading(false)
     }
-
     init()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Realtime 구독 (공동양육자 동기화)
+  // Realtime
   useEffect(() => {
     if (!child) return
-
-    const channel = supabase
-      .channel('events-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'events',
-          filter: `child_id=eq.${child.id}`,
-        },
+    const channel = supabase.channel('events-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events', filter: `child_id=eq.${child.id}` },
         (payload) => {
-          const newEvent = payload.new as CareEvent
-          // 본인이 방금 추가한 건 제외 (이미 로컬에 있음)
-          setEvents((prev) => {
-            if (prev.some((e) => e.id === newEvent.id)) return prev
-            return [newEvent, ...prev]
-          })
-        }
-      )
+          const n = payload.new as CareEvent
+          setEvents((prev) => prev.some((e) => e.id === n.id) ? prev : [n, ...prev])
+        })
       .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
+    return () => { supabase.removeChannel(channel) }
   }, [child]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 기록 핸들러
-  const handleRecord = useCallback(
-    async (type: EventType) => {
-      if (!user || !child) return
-
-      // 수면 종료
-      if (type === 'sleep' && sleepActive) {
-        const activeSleep = events.find((e) => e.type === 'sleep' && !e.end_ts)
-        if (activeSleep) {
-          const now = new Date().toISOString()
-          await supabase
-            .from('events')
-            .update({ end_ts: now })
-            .eq('id', activeSleep.id)
-
-          setEvents((prev) =>
-            prev.map((e) => (e.id === activeSleep.id ? { ...e, end_ts: now } : e))
-          )
-          setSleepActive(false)
-          setToast({ message: '수면 종료!' })
-        }
-        return
+  const handleRecord = useCallback(async (type: EventType) => {
+    if (!user || !child) return
+    if (type === 'sleep' && sleepActive) {
+      const active = events.find((e) => e.type === 'sleep' && !e.end_ts)
+      if (active) {
+        const now = new Date().toISOString()
+        await supabase.from('events').update({ end_ts: now }).eq('id', active.id)
+        setEvents((prev) => prev.map((e) => e.id === active.id ? { ...e, end_ts: now } : e))
+        setSleepActive(false)
+        setToast({ message: '수면 종료!' })
       }
+      return
+    }
+    if (type === 'sleep') setSleepActive(true)
+    if (type === 'feed') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setFeedSheetOpen(true) }; return }
+    if (type === 'poop') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setPoopSheetOpen(true) }; return }
+    if (type === 'temp') { setTempSheetOpen(true); return }
+    const e = await insertEvent(type)
+    if (e) setToast({ message: type === 'sleep' ? '수면 시작!' : '소변 기록 완료!', undoId: e.id })
+  }, [user, child, sleepActive, events, supabase]) // eslint-disable-line react-hooks/exhaustive-deps
 
-      if (type === 'sleep') setSleepActive(true)
-
-      // 수유/대변/체온은 바텀시트로 보조 입력
-      if (type === 'feed') {
-        const event = await insertEvent(type)
-        if (event) { setPendingEventId(event.id); setFeedSheetOpen(true) }
-        return
-      }
-      if (type === 'poop') {
-        const event = await insertEvent(type)
-        if (event) { setPendingEventId(event.id); setPoopSheetOpen(true) }
-        return
-      }
-      if (type === 'temp') {
-        setTempSheetOpen(true)
-        return
-      }
-
-      // 소변/수면은 바로 저장
-      const event = await insertEvent(type)
-      if (event) {
-        const labels: Record<string, string> = { sleep: '수면 시작!', pee: '소변 기록 완료!' }
-        setToast({ message: labels[type] || '기록 완료!', undoId: event.id })
-      }
-    },
-    [user, child, sleepActive, events, supabase] // eslint-disable-line react-hooks/exhaustive-deps
-  )
-
-  // 이벤트 INSERT 공통 함수 (오프라인 지원)
   const insertEvent = async (type: EventType, extra?: Record<string, unknown>) => {
     if (!user || !child) return null
-
-    const eventData = {
-      child_id: child.id,
-      recorder_id: user.id,
-      type,
-      start_ts: new Date().toISOString(),
-      source: 'quick_button' as const,
-      ...extra,
-    }
-
+    const eventData = { child_id: child.id, recorder_id: user.id, type, start_ts: new Date().toISOString(), source: 'quick_button' as const, ...extra }
     if (navigator.vibrate) navigator.vibrate(30)
-
-    // 오프라인이면 IndexedDB에 저장
     if (!navigator.onLine) {
-      const offlineEvent = { id: crypto.randomUUID(), ...eventData, synced: false, created_at: new Date().toISOString() }
-      await savePendingEvent(offlineEvent)
-      setEvents((prev) => [offlineEvent as CareEvent, ...prev])
-      return offlineEvent as CareEvent
+      const offline = { id: crypto.randomUUID(), ...eventData, synced: false, created_at: new Date().toISOString() }
+      await savePendingEvent(offline)
+      setEvents((prev) => [offline as CareEvent, ...prev])
+      return offline as CareEvent
     }
-
-    const { data, error } = await supabase
-      .from('events')
-      .insert(eventData)
-      .select()
-      .single()
-
+    const { data, error } = await supabase.from('events').insert(eventData).select().single()
     if (error) {
-      // 네트워크 에러 시 오프라인 저장 폴백
-      const offlineEvent = { id: crypto.randomUUID(), ...eventData, synced: false, created_at: new Date().toISOString() }
-      await savePendingEvent(offlineEvent)
-      setEvents((prev) => [offlineEvent as CareEvent, ...prev])
-      setToast({ message: '오프라인으로 저장했어요.', undoId: offlineEvent.id })
-      return offlineEvent as CareEvent
+      const offline = { id: crypto.randomUUID(), ...eventData, synced: false, created_at: new Date().toISOString() }
+      await savePendingEvent(offline)
+      setEvents((prev) => [offline as CareEvent, ...prev])
+      return offline as CareEvent
     }
-
     setEvents((prev) => [data as CareEvent, ...prev])
     return data as CareEvent
   }
 
-  // 수유량 선택 핸들러
+  const handleUndo = useCallback(async () => {
+    if (!toast?.undoId) return
+    await supabase.from('events').delete().eq('id', toast.undoId)
+    setEvents((prev) => prev.filter((e) => e.id !== toast.undoId))
+    setToast(null)
+  }, [toast, supabase])
+
   const handleFeedSelect = async (ml: number | null) => {
     setFeedSheetOpen(false)
     if (ml && pendingEventId) {
       await supabase.from('events').update({ amount_ml: ml }).eq('id', pendingEventId)
       setEvents((prev) => prev.map((e) => e.id === pendingEventId ? { ...e, amount_ml: ml } : e))
     }
-    setToast({ message: ml ? `수유 ${ml}ml 기록 완료!` : '수유 기록 완료!', undoId: pendingEventId || undefined })
+    setToast({ message: ml ? `수유 ${ml}ml 기록!` : '수유 기록 완료!', undoId: pendingEventId || undefined })
     setPendingEventId(null)
   }
-
-  // 대변 상태 선택 핸들러
   const handlePoopSelect = async (status: string | null) => {
     setPoopSheetOpen(false)
     if (status && pendingEventId) {
@@ -245,122 +174,156 @@ export default function HomePage() {
     setToast({ message: '대변 기록 완료!', undoId: pendingEventId || undefined })
     setPendingEventId(null)
   }
-
-  // 체온 입력 핸들러
   const handleTempSubmit = async (celsius: number) => {
     setTempSheetOpen(false)
-    const event = await insertEvent('temp', { tags: { celsius } })
-    if (event) {
-      const msg = celsius >= 38.5 ? `체온 ${celsius}°C 🚨 고열!` : celsius >= 37.5 ? `체온 ${celsius}°C 미열` : `체온 ${celsius}°C 기록 완료!`
-      setToast({ message: msg, undoId: event.id })
+    const e = await insertEvent('temp', { tags: { celsius } })
+    if (e) {
+      const msg = celsius >= 38.5 ? `체온 ${celsius}°C 🚨` : celsius >= 37.5 ? `체온 ${celsius}°C 미열` : `체온 ${celsius}°C`
+      setToast({ message: msg, undoId: e.id })
     }
   }
 
-  // 되돌리기
-  const handleUndo = useCallback(async () => {
-    if (!toast?.undoId) return
-
-    await supabase.from('events').delete().eq('id', toast.undoId)
-    setEvents((prev) => prev.filter((e) => e.id !== toast.undoId))
-    setToast(null)
-  }, [toast, supabase])
-
-  // 로딩
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[100dvh]">
+      <div className="flex items-center justify-center h-[100dvh] bg-white">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-[#0052FF]/20 border-t-[#0052FF] rounded-full animate-spin" />
-          <p className="text-sm text-[#9B9B9B]">도담이가 준비 중이에요</p>
+          <div className="w-10 h-10 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
+          <p className="text-[13px] text-[#868B94]">도담이가 준비 중이에요</p>
         </div>
       </div>
     )
   }
 
   const ageMonths = child ? getAgeMonths(child.birthdate) : 0
+  const todayFeedCount = events.filter((e) => e.type === 'feed').length
+  const todaySleepCount = events.filter((e) => e.type === 'sleep' && e.end_ts).length
+  const todayPoopCount = events.filter((e) => e.type === 'poop').length
 
   return (
-    <div className="flex flex-col h-[100dvh]">
+    <div className="flex flex-col h-[100dvh] bg-white">
       {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl">
-        <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
-          <Link href="/settings/children" className="flex items-center gap-2.5 active:opacity-70 transition-opacity">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0052FF] to-[#4A90D9] flex items-center justify-center overflow-hidden">
-              {user?.user_metadata?.avatar_url ? (
-                <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <span className="text-white text-xs font-bold">
-                  {child?.name?.charAt(0) || '도'}
-                </span>
-              )}
+      <header className="sticky top-0 z-40 bg-white">
+        <div className="px-5 pt-3 pb-2 max-w-lg mx-auto">
+          {/* 상단: 인사 + 알림 */}
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-[13px] text-[#868B94]">{getGreeting()} 👋</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-[18px] font-bold text-[#212124]">{child?.name || '도담이'}</span>
+                <span className="text-[13px] text-[#AEB1B9]">{ageMonths}개월</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">
-                {child?.name || '도담이'}
-              </span>
-              <span className="text-xs text-[#9B9B9B] font-medium">{ageMonths}개월</span>
-              <ChevronRightIcon className="w-3.5 h-3.5 text-[#9B9B9B]" />
+            <div className="flex items-center gap-2">
+              <Link href="/settings" className="w-9 h-9 rounded-full bg-[#F7F8FA] flex items-center justify-center active:bg-[#ECECEC]">
+                <BellIcon className="w-[18px] h-[18px] text-[#212124]" />
+              </Link>
+              <Link href="/settings/children" className="w-9 h-9 rounded-full bg-[#FF6F0F] flex items-center justify-center overflow-hidden active:opacity-80">
+                {user?.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-white text-[11px] font-bold">{child?.name?.charAt(0) || '도'}</span>
+                )}
+              </Link>
             </div>
-          </Link>
-          <button className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-[#f5f5f5] dark:hover:bg-[#2a2a2a] transition-colors active:scale-95">
-            <BellIcon className="w-5 h-5 text-[#0A0B0D] dark:text-white" />
-          </button>
+          </div>
+
+          {/* 오늘 요약 카드 */}
+          <div className="flex gap-2 mb-1">
+            {[
+              { label: '수유', count: todayFeedCount, unit: '회', color: 'text-[#FF6F0F]', bg: 'bg-[#FFF8F3]' },
+              { label: '수면', count: todaySleepCount, unit: '회', color: 'text-[#5B6DFF]', bg: 'bg-[#F0F2FF]' },
+              { label: '대변', count: todayPoopCount, unit: '회', color: 'text-[#C68A2E]', bg: 'bg-[#FFF8F0]' },
+            ].map((stat) => (
+              <div key={stat.label} className={`flex-1 ${stat.bg} rounded-2xl px-3 py-2.5`}>
+                <p className="text-[11px] text-[#868B94]">{stat.label}</p>
+                <p className={`text-[18px] font-bold ${stat.color}`}>
+                  {stat.count}<span className="text-[11px] font-normal text-[#AEB1B9] ml-0.5">{stat.unit}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 탭 전환 */}
+        <div className="flex border-b border-[#ECECEC] px-5 max-w-lg mx-auto">
+          {[
+            { key: 'record' as HomeTab, label: '기록' },
+            { key: 'insight' as HomeTab, label: '인사이트' },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex-1 py-2.5 text-[14px] font-semibold text-center border-b-2 transition-colors ${
+                activeTab === tab.key
+                  ? 'border-[#212124] text-[#212124]'
+                  : 'border-transparent text-[#AEB1B9]'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </header>
 
-      {/* 오프라인 배너 */}
+      {/* 배너 */}
       {!isOnline && (
-        <div className="bg-amber-50 dark:bg-amber-950 border-b border-amber-200 dark:border-amber-800 px-4 py-2">
-          <p className="text-xs text-amber-700 dark:text-amber-300 text-center font-medium">
-            📡 오프라인이에요. 기록은 저장되니 걱정 마세요.
-            {pendingCount > 0 && ` (${pendingCount}건 동기화 대기)`}
+        <div className="bg-[#FFF8F3] px-4 py-2">
+          <p className="text-[11px] text-[#FF6F0F] text-center font-medium">
+            📡 오프라인 · 기록은 저장돼요 {pendingCount > 0 && `(${pendingCount}건 대기)`}
           </p>
         </div>
       )}
       {syncing && (
-        <div className="bg-blue-50 dark:bg-blue-950 border-b border-blue-200 dark:border-blue-800 px-4 py-2">
-          <p className="text-xs text-blue-700 dark:text-blue-300 text-center font-medium">
-            ↻ 기록을 동기화하는 중이에요...
-          </p>
+        <div className="bg-[#F0F4FF] px-4 py-2">
+          <p className="text-[11px] text-[#5B6DFF] text-center font-medium">↻ 동기화 중...</p>
         </div>
       )}
 
-      {/* 타임라인 */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-lg mx-auto">
-          {/* 검진/접종 일정 */}
-          {child && <CheckupBanner birthdate={child.birthdate} />}
-
-          {/* AI 제안 카드 */}
-          <AICardFeed events={events} />
-
-          <div className="flex items-center justify-between px-4 py-4">
-            <h2 className="text-lg font-bold text-[#0A0B0D] dark:text-white">오늘의 기록</h2>
-            <Link
-              href={`/records/${new Date().toISOString().split('T')[0]}`}
-              className="flex items-center gap-0.5 text-xs font-semibold text-[#0052FF] active:opacity-70"
-            >
-              전체보기
-              <ChevronRightIcon className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-          <Timeline events={events} />
+      {/* 콘텐츠 영역 */}
+      <div className="flex-1 overflow-y-auto bg-[#F7F8FA]">
+        <div className="max-w-lg mx-auto pt-3">
+          {activeTab === 'record' ? (
+            <>
+              {/* 기록 탭 */}
+              <div className="flex items-center justify-between px-5 pb-2">
+                <p className="text-[13px] text-[#868B94]">오늘 {events.length}건</p>
+                <Link
+                  href={`/records/${new Date().toISOString().split('T')[0]}`}
+                  className="flex items-center gap-0.5 text-[12px] font-medium text-[#FF6F0F]"
+                >
+                  전체보기 <ChevronRightIcon className="w-3 h-3" />
+                </Link>
+              </div>
+              <Timeline events={events} />
+            </>
+          ) : (
+            <>
+              {/* 인사이트 탭 */}
+              <EmergencyCard events={events} />
+              <WeatherCard />
+              <RewardBanner events={events} />
+              <RoutineTimelapse events={events} />
+              {child && <CheckupBanner birthdate={child.birthdate} />}
+              <AICardFeed events={events} />
+              {events.length < 3 && (
+                <div className="px-5 py-8 text-center">
+                  <p className="text-[13px] text-[#AEB1B9]">기록이 쌓이면 AI 인사이트가 나타나요</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
-      {/* 퀵 버튼 */}
-      <div className="sticky bottom-16 z-30">
-        <div className="max-w-lg mx-auto">
-          <QuickButtons onRecord={handleRecord} sleepActive={sleepActive} />
-        </div>
-      </div>
+      {/* 퀵 버튼 (고정) */}
+      <QuickButtons onRecord={handleRecord} sleepActive={sleepActive} />
 
       {/* Toast */}
       {toast && (
         <Toast
           message={toast.message}
           action={toast.undoId ? { label: '되돌리기', onClick: handleUndo } : undefined}
-          duration={5000}
+          duration={1000}
           onDismiss={() => setToast(null)}
         />
       )}

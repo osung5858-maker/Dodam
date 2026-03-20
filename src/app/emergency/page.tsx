@@ -73,6 +73,21 @@ export default function EmergencyPage() {
         suggestion: `${userName}님이 응급 모드를 실행했어요. 확인해주세요.`,
       })
 
+      // 카카오톡 메시지 전송 시도
+      try {
+        await fetch('/api/kakao-message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            childName,
+            senderName: userName,
+            messageType: 'emergency',
+          }),
+        })
+      } catch {
+        // 카카오톡 실패해도 Realtime으로 전달되므로 무시
+      }
+
       setNotified(true)
     }
 
@@ -111,8 +126,7 @@ export default function EmergencyPage() {
   }
 
   const handleNavigate = (name: string, address: string) => {
-    const query = encodeURIComponent(`${name} ${address}`)
-    window.open(`https://map.kakao.com/link/search/${query}`, '_blank')
+    window.open(`https://map.kakao.com/link/search/${encodeURIComponent(name + ' ' + address)}`, '_blank')
   }
 
   return (
@@ -135,9 +149,9 @@ export default function EmergencyPage() {
       <div className="max-w-lg mx-auto -mt-2 pb-24">
         {/* 공동양육자 알림 배너 */}
         {notified && (
-          <div className="mx-4 mb-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-            <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">
-              ✅ 공동양육자에게 응급 알림을 보냈어요
+          <div className="mx-4 mb-2 p-3 rounded-xl bg-blue-50 border border-blue-200">
+            <p className="text-[12px] text-blue-700 font-medium">
+              ✅ 공동양육자에게 응급 알림을 보냈어요 (앱 내 알림 + 카카오톡)
             </p>
           </div>
         )}
@@ -177,7 +191,7 @@ export default function EmergencyPage() {
                 onClick={() => setRadius(5)}
                 className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   radius === 5
-                    ? 'bg-[#0052FF] text-white'
+                    ? 'bg-[#FF6F0F] text-white'
                     : 'bg-white dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[#0A0B0D] dark:text-white'
                 }`}
               >
@@ -187,7 +201,7 @@ export default function EmergencyPage() {
                 onClick={() => setRadius(10)}
                 className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   radius === 10
-                    ? 'bg-[#0052FF] text-white'
+                    ? 'bg-[#FF6F0F] text-white'
                     : 'bg-white dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[#0A0B0D] dark:text-white'
                 }`}
               >

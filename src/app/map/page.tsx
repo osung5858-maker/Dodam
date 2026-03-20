@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import KakaoMap from '@/components/map/KakaoMap'
 import { MapIcon } from '@/components/ui/Icons'
 
@@ -36,6 +36,14 @@ export default function MapPage() {
     setLoading(false)
   }, [])
 
+  const router = useRouter()
+
+  const handlePlaceTap = (place: MapPlace) => {
+    // 장소 데이터를 sessionStorage에 저장 후 상세 페이지로 이동
+    sessionStorage.setItem(`place-${place.id}`, JSON.stringify(place))
+    router.push(`/map/${place.id}`)
+  }
+
   const handleCategoryChange = (cat: typeof CATEGORIES[number]) => {
     setSelectedCategory(cat)
     setLoading(true)
@@ -45,9 +53,9 @@ export default function MapPage() {
     if (phone) window.location.href = `tel:${phone}`
   }
 
-  const handleNavigate = (name: string, address: string) => {
-    const query = encodeURIComponent(`${name} ${address}`)
-    window.open(`https://map.kakao.com/link/search/${query}`, '_blank')
+  const handleNavigate = (place: { name: string; lat: number; lng: number }) => {
+    // 카카오맵 길찾기 (좌표 기반)
+    window.open(`https://map.kakao.com/link/to/${encodeURIComponent(place.name)},${place.lat},${place.lng}`, '_blank')
   }
 
   return (
@@ -85,7 +93,7 @@ export default function MapPage() {
               onClick={() => handleCategoryChange(cat)}
               className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 ${
                 selectedCategory.keyword === cat.keyword
-                  ? 'bg-[#0052FF] text-white shadow-[0_2px_8px_rgba(0,82,255,0.2)]'
+                  ? 'bg-[#FF6F0F] text-white shadow-[0_2px_8px_rgba(0,82,255,0.2)]'
                   : 'bg-white dark:bg-[#1a1a1a] text-[#6B6B6B] dark:text-[#9B9B9B] border border-[#f0f0f0] dark:border-[#2a2a2a]'
               }`}
             >
@@ -99,7 +107,7 @@ export default function MapPage() {
       <div className="flex-1 max-w-lg mx-auto w-full pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="w-8 h-8 border-3 border-[#0052FF]/20 border-t-[#0052FF] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
           </div>
         ) : places.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
@@ -114,40 +122,51 @@ export default function MapPage() {
             {places.map((place) => (
               <div
                 key={place.id}
-                className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a]"
+                className="p-4 rounded-2xl bg-white border border-[#ECECEC]"
               >
-                <div className="flex items-start justify-between mb-1">
-                  <h3 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">
-                    {selectedCategory.emoji} {place.name}
-                  </h3>
-                  {place.distance && (
-                    <span className="text-xs font-semibold text-[#0052FF] shrink-0 ml-2">
-                      {place.distance}
-                    </span>
+                {/* 클릭 가능한 장소 정보 영역 */}
+                <button
+                  onClick={() => handlePlaceTap(place)}
+                  className="w-full text-left active:opacity-70 transition-opacity"
+                >
+                  <div className="flex items-start justify-between mb-1">
+                    <h3 className="text-[15px] font-bold text-[#212124]">
+                      {selectedCategory.emoji} {place.name}
+                    </h3>
+                    {place.distance && (
+                      <span className="text-[12px] font-semibold text-[#FF6F0F] shrink-0 ml-2">
+                        {place.distance}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[12px] text-[#868B94] mb-0.5">{place.address}</p>
+                  {place.phone && (
+                    <p className="text-[12px] text-[#6B6B6B]">{place.phone}</p>
                   )}
-                </div>
-
-                <p className="text-xs text-[#9B9B9B] mb-0.5">{place.address}</p>
-                {place.phone && (
-                  <p className="text-xs text-[#6B6B6B] dark:text-[#9B9B9B]">{place.phone}</p>
-                )}
-                <p className="text-[10px] text-[#c0c0c0] mt-1">{place.category}</p>
+                  <p className="text-[10px] text-[#AEB1B9] mt-1">{place.category}</p>
+                </button>
 
                 {/* 액션 버튼 */}
                 <div className="flex gap-2 mt-3">
                   {place.phone && (
                     <button
                       onClick={() => handleCall(place.phone)}
-                      className="flex-1 h-10 rounded-xl text-xs font-semibold border border-[#0052FF] text-[#0052FF] active:scale-95 transition-transform flex items-center justify-center gap-1"
+                      className="flex-1 h-10 rounded-xl text-[12px] font-semibold border border-[#FF6F0F] text-[#FF6F0F] active:scale-95 transition-transform flex items-center justify-center gap-1"
                     >
                       📞 전화
                     </button>
                   )}
                   <button
-                    onClick={() => handleNavigate(place.name, place.address)}
-                    className="flex-1 h-10 rounded-xl text-xs font-semibold bg-[#0052FF] text-white active:scale-95 transition-transform flex items-center justify-center gap-1"
+                    onClick={() => handleNavigate(place)}
+                    className="flex-1 h-10 rounded-xl text-[12px] font-semibold bg-[#FF6F0F] text-white active:scale-95 transition-transform flex items-center justify-center gap-1"
                   >
                     🗺️ 길찾기
+                  </button>
+                  <button
+                    onClick={() => handlePlaceTap(place)}
+                    className="h-10 px-3 rounded-xl text-[12px] font-semibold border border-[#ECECEC] text-[#868B94] active:scale-95 transition-transform flex items-center justify-center"
+                  >
+                    리뷰
                   </button>
                 </div>
               </div>

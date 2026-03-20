@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import type { CareEvent } from '@/types'
 import { predictNextEvent, detectAnomalies } from '@/lib/ai/prediction-engine'
 
@@ -73,29 +73,52 @@ export default function AICardFeed({ events }: Props) {
       })
     })
 
-    // 감정 리포트 (기록 5건 이상이면)
-    if (events.length >= 5 && anomalies.length === 0) {
-      const todayCount = events.filter((e) => {
-        const d = new Date(e.start_ts)
-        const today = new Date()
-        return d.toDateString() === today.toDateString()
-      }).length
+    return result
+  }, [events])
 
-      if (todayCount >= 3) {
-        result.push({
-          id: 'emotion',
+  // Gemini AI 감정 카드 (비동기)
+  const [aiCard, setAiCard] = useState<AICard | null>(null)
+
+  useEffect(() => {
+    if (events.length < 5) return
+    const todayCount = events.filter((e) => new Date(e.start_ts).toDateString() === new Date().toDateString()).length
+    if (todayCount < 3) return
+
+    fetch('/api/ai-card', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ageMonths: 0, // 부모 컴포넌트에서 전달 필요 시 추가
+        cardType: 'emotion',
+        context: `오늘 ${todayCount}건 기록, 수유 ${events.filter(e => e.type === 'feed').length}회, 수면 ${events.filter(e => e.type === 'sleep').length}회`,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.text) {
+          setAiCard({
+            id: 'ai-emotion',
+            type: 'emotion',
+            colorBar: 'bg-green-500',
+            icon: '🤖',
+            body: data.text,
+          })
+        }
+      })
+      .catch(() => {
+        // 폴백: 템플릿
+        setAiCard({
+          id: 'ai-emotion',
           type: 'emotion',
           colorBar: 'bg-green-500',
           icon: '💛',
           body: '오늘 기록이 꾸준해요. 도담하게 잘하고 있어요!',
         })
-      }
-    }
-
-    return result
+      })
   }, [events])
 
-  const visibleCards = cards.filter((c) => !dismissed.has(c.id)).slice(0, 5)
+  const allCards = aiCard ? [...cards, aiCard] : cards
+  const visibleCards = allCards.filter((c) => !dismissed.has(c.id)).slice(0, 5)
 
   if (visibleCards.length === 0) return null
 

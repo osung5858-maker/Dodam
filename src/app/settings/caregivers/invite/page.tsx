@@ -94,7 +94,7 @@ export default function InvitePage() {
             {/* 공유 버튼 */}
             <button
               onClick={handleShareKakao}
-              className="w-full h-[52px] rounded-xl font-semibold text-[15px] bg-[#0052FF] text-white shadow-[0_4px_12px_rgba(0,82,255,0.3)] active:scale-[0.98] transition-transform"
+              className="w-full h-[52px] rounded-xl font-semibold text-[15px] bg-[#FF6F0F] text-white shadow-[0_4px_12px_rgba(0,82,255,0.3)] active:scale-[0.98] transition-transform"
             >
               공유하기
             </button>
@@ -109,7 +109,7 @@ export default function InvitePage() {
           </div>
         ) : (
           <div className="mt-8">
-            <div className="w-6 h-6 border-2 border-[#0052FF]/20 border-t-[#0052FF] rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
           </div>
         )}
 

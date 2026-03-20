@@ -27,26 +27,26 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-white dark:bg-[#0A0B0D]">
+    <div className="min-h-[100dvh] flex flex-col bg-white">
       {/* 상단 여백 + 로고 영역 */}
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         {/* 로고 */}
-        <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#0052FF] to-[#4A90D9] flex items-center justify-center shadow-[0_8px_30px_rgba(0,82,255,0.2)]">
+        <div className="w-20 h-20 rounded-full bg-[#FF6F0F] flex items-center justify-center shadow-[0_4px_20px_rgba(255,111,15,0.25)]">
           <span className="text-3xl font-bold text-white">도</span>
         </div>
 
         {/* 서비스명 */}
-        <h1 className="mt-6 text-3xl font-bold text-[#0A0B0D] dark:text-white">
+        <h1 className="mt-6 text-[28px] font-bold text-[#212124]">
           도담
         </h1>
 
         {/* 슬로건 */}
-        <p className="mt-2 text-base text-[#6B6B6B] dark:text-[#9B9B9B] text-center">
+        <p className="mt-2 text-[15px] text-[#868B94] text-center">
           오늘도 도담하게, 우리 동네에서
         </p>
 
         {/* 설명 */}
-        <p className="mt-8 text-sm text-[#9B9B9B] text-center leading-relaxed max-w-[280px]">
+        <p className="mt-8 text-[13px] text-[#AEB1B9] text-center leading-relaxed max-w-[260px]">
           아이의 하루 리듬을 이해하고<br />
           동네 육아 인프라까지 연결해주는<br />
           AI 케어 파트너
@@ -57,7 +57,7 @@ export default function OnboardingPage() {
       <div className="px-6 pb-12 pt-6">
         {/* 에러 메시지 */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950 text-sm text-red-600 dark:text-red-400 text-center">
+          <div className="mb-4 p-3 rounded-2xl bg-[#FFF0E6] text-[13px] text-[#FF6F0F] text-center font-medium">
             {error}
           </div>
         )}
@@ -66,7 +66,7 @@ export default function OnboardingPage() {
         <button
           onClick={handleKakaoLogin}
           disabled={loading}
-          className="w-full h-[52px] rounded-xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
+          className="w-full h-[52px] rounded-2xl font-semibold text-[15px] flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
           style={{ backgroundColor: '#FEE500', color: '#191919' }}
         >
           {loading ? (
@@ -87,9 +87,9 @@ export default function OnboardingPage() {
         {/* 약관 안내 */}
         <p className="mt-4 text-xs text-[#9B9B9B] text-center leading-relaxed">
           시작하면{' '}
-          <button className="underline">서비스 이용약관</button>,{' '}
-          <button className="underline">개인정보처리방침</button>,{' '}
-          <button className="underline">아동 개인정보 수집·이용</button>에
+          <a href="/terms" className="underline">서비스 이용약관</a>,{' '}
+          <a href="/privacy" className="underline">개인정보처리방침</a>,{' '}
+          <a href="/privacy#child" className="underline">아동 개인정보 수집·이용</a>에
           동의하게 됩니다.
         </p>
       </div>

@@ -71,7 +71,7 @@ export default function AddChildPage() {
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col px-6 pt-8 max-w-lg mx-auto w-full">
         {/* 프로필 아바타 */}
         <div className="flex justify-center mb-8">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#0052FF] to-[#4A90D9] flex items-center justify-center shadow-[0_8px_30px_rgba(0,82,255,0.15)]">
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#FF6F0F] to-[#4A90D9] flex items-center justify-center shadow-[0_8px_30px_rgba(0,82,255,0.15)]">
             <span className="text-4xl">👶</span>
           </div>
         </div>
@@ -87,21 +87,21 @@ export default function AddChildPage() {
             onChange={(e) => setName(e.target.value)}
             placeholder="도담이"
             maxLength={20}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white placeholder-[#9B9B9B] focus:outline-none focus:border-[#0052FF] focus:ring-1 focus:ring-[#0052FF] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white placeholder-[#9B9B9B] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
         {/* 생년월일 */}
         <div className="mb-6">
           <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-2 uppercase tracking-wide">
-            생년월일 <span className="text-[#0052FF]">*</span>
+            생년월일 <span className="text-[#FF6F0F]">*</span>
           </label>
           <input
             type="date"
             value={birthdate}
             onChange={(e) => setBirthdate(e.target.value)}
             max={new Date().toISOString().split('T')[0]}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#0052FF] focus:ring-1 focus:ring-[#0052FF] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
@@ -122,7 +122,7 @@ export default function AddChildPage() {
                 onClick={() => setSex(option.value)}
                 className={`flex-1 h-11 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   sex === option.value
-                    ? 'bg-[#0052FF] text-white shadow-[0_4px_12px_rgba(0,82,255,0.2)]'
+                    ? 'bg-[#FF6F0F] text-white shadow-[0_4px_12px_rgba(0,82,255,0.2)]'
                     : 'bg-[#f5f5f5] dark:bg-[#1a1a1a] text-[#6B6B6B] dark:text-[#9B9B9B] border border-[#f0f0f0] dark:border-[#2a2a2a]'
                 }`}
               >
@@ -147,7 +147,7 @@ export default function AddChildPage() {
           <button
             type="submit"
             disabled={loading || !birthdate}
-            className="w-full h-[52px] rounded-xl font-semibold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40 bg-[#0052FF] text-white shadow-[0_4px_12px_rgba(0,82,255,0.3)]"
+            className="w-full h-[52px] rounded-xl font-semibold text-[15px] transition-all active:scale-[0.98] disabled:opacity-40 bg-[#FF6F0F] text-white shadow-[0_4px_12px_rgba(0,82,255,0.3)]"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto" />

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { ChevronRightIcon } from '@/components/ui/Icons'
-import GrowthTimelapse from '@/components/growth-chart/GrowthTimelapse'
+import CommunityComparison from '@/components/growth-chart/CommunityComparison'
 import type { Child, GrowthRecord } from '@/types'
 
 // WHO 표준 성장 곡선 데이터 (남아 몸무게 kg, 3rd/50th/97th percentile)
@@ -85,7 +85,7 @@ export default function GrowthPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[100dvh]">
-        <div className="w-8 h-8 border-3 border-[#0052FF]/20 border-t-[#0052FF] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
       </div>
     )
   }
@@ -102,12 +102,17 @@ export default function GrowthPage() {
       <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl border-b border-[#f0f0f0] dark:border-[#2a2a2a]">
         <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto">
           <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">성장 기록</h1>
-          <Link
-            href="/growth/add"
-            className="text-sm font-semibold text-[#0052FF] active:opacity-70"
-          >
-            + 기록 추가
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/timelapse" className="text-[11px] font-semibold text-[#868B94] active:opacity-70">
+              ▶ 타임랩스
+            </Link>
+            <Link href="/growth/analyze" className="text-[11px] font-semibold text-[#5B6DFF] active:opacity-70">
+              🤖 검진분석
+            </Link>
+            <Link href="/growth/add" className="text-[11px] font-semibold text-[#FF6F0F] active:opacity-70">
+              + 추가
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -115,7 +120,7 @@ export default function GrowthPage() {
         {/* 아이 요약 */}
         <div className="m-4 p-5 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a]">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0052FF] to-[#4A90D9] flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6F0F] to-[#4A90D9] flex items-center justify-center">
               <span className="text-2xl">👶</span>
             </div>
             <div>
@@ -134,7 +139,7 @@ export default function GrowthPage() {
                     <span className="text-sm font-normal text-[#9B9B9B] ml-0.5">kg</span>
                   </p>
                   {weightPercentile !== null && (
-                    <p className="text-xs text-[#0052FF] font-medium mt-1">상위 {100 - weightPercentile}%</p>
+                    <p className="text-xs text-[#FF6F0F] font-medium mt-1">상위 {100 - weightPercentile}%</p>
                   )}
                 </div>
               )}
@@ -164,10 +169,29 @@ export default function GrowthPage() {
           )}
         </div>
 
-        {/* 성장 타임랩스 */}
-        <div className="mx-4">
-          <GrowthTimelapse records={records} childName={child?.name || '도담이'} />
-        </div>
+        {/* 타임랩스 바로가기 */}
+        <Link
+          href="/timelapse"
+          className="mx-4 p-4 rounded-2xl bg-[#FFF8F3] border border-[#FFE4CC] flex items-center gap-3 active:scale-[0.99] transition-transform"
+        >
+          <div className="w-10 h-10 rounded-xl bg-[#FF6F0F] flex items-center justify-center shrink-0">
+            <span className="text-lg text-white">▶</span>
+          </div>
+          <div className="flex-1">
+            <p className="text-[14px] font-bold text-[#212124]">타임랩스</p>
+            <p className="text-[12px] text-[#868B94]">사진 · 성장 · 루틴 변화를 한눈에</p>
+          </div>
+          <span className="text-[#AEB1B9] text-sm">→</span>
+        </Link>
+
+        {/* 커뮤니티 비교 */}
+        {child && (
+          <CommunityComparison
+            childId={child.id}
+            ageMonths={ageMonths}
+            sex={child.sex ?? undefined}
+          />
+        )}
 
         {/* 면책 */}
         {records.length > 0 && (
@@ -191,7 +215,7 @@ export default function GrowthPage() {
               <p className="text-xs text-[#9B9B9B] mt-1">첫 측정을 기록해볼까요?</p>
               <Link
                 href="/growth/add"
-                className="inline-block mt-4 px-6 py-2.5 rounded-xl bg-[#0052FF] text-white text-sm font-semibold active:scale-95 transition-transform"
+                className="inline-block mt-4 px-6 py-2.5 rounded-xl bg-[#FF6F0F] text-white text-sm font-semibold active:scale-95 transition-transform"
               >
                 성장 기록 추가
               </Link>

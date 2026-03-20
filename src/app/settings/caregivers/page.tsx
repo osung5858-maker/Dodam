@@ -89,9 +89,9 @@ export default function CaregiversPage() {
             className="flex items-center gap-3 px-4 py-3.5 border-t border-[#f0f0f0] dark:border-[#2a2a2a] active:bg-[#f5f5f5] dark:active:bg-[#2a2a2a] transition-colors"
           >
             <div className="w-9 h-9 rounded-full bg-[#f5f5f5] dark:bg-[#2a2a2a] flex items-center justify-center">
-              <span className="text-[#0052FF] text-lg font-light">+</span>
+              <span className="text-[#FF6F0F] text-lg font-light">+</span>
             </div>
-            <p className="text-sm font-medium text-[#0052FF]">가족 초대하기</p>
+            <p className="text-sm font-medium text-[#FF6F0F]">가족 초대하기</p>
             <div className="flex-1" />
             <ChevronRightIcon className="w-4 h-4 text-[#9B9B9B]" />
           </Link>

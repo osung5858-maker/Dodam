@@ -1,0 +1,60 @@
+'use client'
+
+import { useMemo } from 'react'
+import type { CareEvent } from '@/types'
+
+interface Props {
+  events: CareEvent[]
+}
+
+function getConsecutiveDays(events: CareEvent[]): number {
+  const dates = new Set(events.map((e) => new Date(e.start_ts).toISOString().split('T')[0]))
+  let streak = 0
+  const today = new Date()
+
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today)
+    d.setDate(d.getDate() - i)
+    const key = d.toISOString().split('T')[0]
+    if (dates.has(key)) streak++
+    else break
+  }
+  return streak
+}
+
+export default function RewardBanner({ events }: Props) {
+  const streak = useMemo(() => getConsecutiveDays(events), [events])
+
+  if (streak < 1) return null
+
+  const badges = [
+    { days: 3, label: '꾸준한 도담상 🌱', desc: '3일 연속 기록!' },
+    { days: 7, label: '일주일 도담상 🌿', desc: '7일 연속 기록 달성!' },
+    { days: 14, label: '보름 도담상 🌳', desc: '2주 연속 기록!' },
+    { days: 30, label: '한 달 도담상 🏆', desc: '30일 연속 기록 달성!' },
+  ]
+
+  const nextBadge = badges.find((b) => b.days > streak)
+  const currentBadge = [...badges].reverse().find((b) => b.days <= streak)
+
+  return (
+    <div className="mx-4 mb-3 p-3.5 rounded-2xl bg-[#FFF8F3] border border-[#FFE4CC]">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[14px] font-bold text-[#FF6F0F]">🔥 {streak}일 연속 기록 중</span>
+          </div>
+          {currentBadge && (
+            <p className="text-[11px] text-[#C68A2E] mt-0.5">{currentBadge.label}</p>
+          )}
+        </div>
+        {nextBadge && (
+          <div className="text-right">
+            <p className="text-[10px] text-[#AEB1B9]">다음 배지까지</p>
+            <p className="text-[13px] font-bold text-[#FF6F0F]">{nextBadge.days - streak}일</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}

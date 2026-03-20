@@ -77,6 +77,28 @@ export function detectAnomalies(events: CareEvent[]): {
     }
   }
 
+  // 체온 이상 감지
+  const tempEvents = events.filter((e) => e.type === 'temp' && e.tags?.celsius)
+  if (tempEvents.length > 0) {
+    const latest = tempEvents.reduce((a, b) =>
+      new Date(a.start_ts) > new Date(b.start_ts) ? a : b
+    )
+    const celsius = latest.tags?.celsius as number
+    if (celsius >= 38.5) {
+      anomalies.push({
+        metric: 'temperature',
+        message: `체온 ${celsius}°C — 고열이에요! 가까운 소아과를 확인해보세요.`,
+        severity: 'critical',
+      })
+    } else if (celsius >= 37.5) {
+      anomalies.push({
+        metric: 'temperature',
+        message: `체온 ${celsius}°C — 미열이에요. 경과를 살펴보세요.`,
+        severity: 'major',
+      })
+    }
+  }
+
   // 기록 공백 감지
   if (events.length > 0) {
     const latest = events.reduce((a, b) =>

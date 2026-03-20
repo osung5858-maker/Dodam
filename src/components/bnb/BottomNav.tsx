@@ -27,8 +27,8 @@ export default function BottomNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-[#1a1a1a] border-t border-[#f0f0f0] dark:border-[#2a2a2a] pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#ECECEC] pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-around h-14 max-w-lg mx-auto">
         {tabs.map((tab) => {
           const isActive =
             tab.href === '/'
@@ -41,12 +41,12 @@ export default function BottomNav() {
               <Link
                 key={tab.href}
                 href={tab.href}
-                className="flex flex-col items-center justify-center -mt-5"
+                className="flex flex-col items-center justify-center -mt-4"
               >
-                <div className="w-14 h-14 rounded-2xl bg-[#0052FF] flex items-center justify-center shadow-[0_4px_12px_rgba(0,82,255,0.3)] active:scale-95 transition-transform">
-                  <Icon className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-full bg-[#FF6F0F] flex items-center justify-center shadow-[0_2px_12px_rgba(255,111,15,0.35)] active:scale-95 transition-transform">
+                  <Icon className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-[10px] mt-1 font-semibold text-[#0052FF]">
+                <span className="text-[10px] mt-0.5 font-semibold text-[#FF6F0F]">
                   {tab.label}
                 </span>
               </Link>
@@ -57,16 +57,16 @@ export default function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className="flex flex-col items-center justify-center gap-1 min-w-[56px] py-1"
+              className="flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1"
             >
               <Icon
-                className={`w-6 h-6 transition-colors ${
-                  isActive ? 'text-[#0A0B0D] dark:text-white' : 'text-[#9B9B9B]'
+                className={`w-5 h-5 transition-colors ${
+                  isActive ? 'text-[#212124]' : 'text-[#AEB1B9]'
                 }`}
               />
               <span
-                className={`text-[10px] font-medium transition-colors ${
-                  isActive ? 'text-[#0A0B0D] dark:text-white' : 'text-[#9B9B9B]'
+                className={`text-[10px] transition-colors ${
+                  isActive ? 'text-[#212124] font-semibold' : 'text-[#AEB1B9]'
                 }`}
               >
                 {tab.label}

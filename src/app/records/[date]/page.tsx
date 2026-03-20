@@ -99,7 +99,7 @@ export default function RecordDetailPage() {
           </button>
           <p className="text-sm font-semibold text-[#0A0B0D] dark:text-white">
             {formatDateKr(dateStr)}
-            {isToday && <span className="text-[#0052FF] ml-1">오늘</span>}
+            {isToday && <span className="text-[#FF6F0F] ml-1">오늘</span>}
           </p>
           <button
             onClick={() => canGoNext && router.push(`/records/${nextDate}`)}
@@ -146,7 +146,7 @@ export default function RecordDetailPage() {
         <div className="mx-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-16">
-              <div className="w-8 h-8 border-3 border-[#0052FF]/20 border-t-[#0052FF] rounded-full animate-spin" />
+              <div className="w-8 h-8 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
             </div>
           ) : (
             <Timeline events={events} onEventTap={handleDelete} />

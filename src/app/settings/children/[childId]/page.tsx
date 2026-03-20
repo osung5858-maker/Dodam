@@ -68,7 +68,7 @@ export default function EditChildPage() {
   if (!child) {
     return (
       <div className="flex items-center justify-center h-[100dvh]">
-        <div className="w-8 h-8 border-3 border-[#0052FF]/20 border-t-[#0052FF] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
       </div>
     )
   }
@@ -82,7 +82,7 @@ export default function EditChildPage() {
           <button
             onClick={handleSave}
             disabled={loading}
-            className="text-sm font-semibold text-[#0052FF] disabled:opacity-40"
+            className="text-sm font-semibold text-[#FF6F0F] disabled:opacity-40"
           >
             {loading ? '저장 중...' : '저장'}
           </button>
@@ -91,7 +91,7 @@ export default function EditChildPage() {
 
       <div className="flex-1 px-6 pt-8 max-w-lg mx-auto w-full">
         <div className="flex justify-center mb-8">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#0052FF] to-[#4A90D9] flex items-center justify-center shadow-[0_8px_30px_rgba(0,82,255,0.15)]">
+          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#FF6F0F] to-[#4A90D9] flex items-center justify-center shadow-[0_8px_30px_rgba(0,82,255,0.15)]">
             <span className="text-4xl">👶</span>
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function EditChildPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={20}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#0052FF] focus:ring-1 focus:ring-[#0052FF] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
@@ -116,7 +116,7 @@ export default function EditChildPage() {
             value={birthdate}
             onChange={(e) => setBirthdate(e.target.value)}
             max={new Date().toISOString().split('T')[0]}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#0052FF] focus:ring-1 focus:ring-[#0052FF] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#f0f0f0] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
@@ -135,7 +135,7 @@ export default function EditChildPage() {
                 onClick={() => setSex(option.value)}
                 className={`flex-1 h-11 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   sex === option.value
-                    ? 'bg-[#0052FF] text-white'
+                    ? 'bg-[#FF6F0F] text-white'
                     : 'bg-[#f5f5f5] dark:bg-[#1a1a1a] text-[#6B6B6B] dark:text-[#9B9B9B] border border-[#f0f0f0] dark:border-[#2a2a2a]'
                 }`}
               >
