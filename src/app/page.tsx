@@ -3,12 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import AICardFeed from '@/components/ai-cards/AICardFeed'
-import CheckupBanner from '@/components/ai-cards/CheckupBanner'
-import WeatherCard from '@/components/ai-cards/WeatherCard'
-import EmergencyCard from '@/components/ai-cards/EmergencyCard'
-import RewardBanner from '@/components/ai-cards/RewardBanner'
-import RoutineTimelapse from '@/components/ai-cards/RoutineTimelapse'
+import InsightHub from '@/components/insight/InsightHub'
 import FeedSheet from '@/components/quick-buttons/FeedSheet'
 import PoopSheet from '@/components/quick-buttons/PoopSheet'
 import TempSheet from '@/components/quick-buttons/TempSheet'
@@ -56,7 +51,7 @@ export default function HomePage() {
   const [poopSheetOpen, setPoopSheetOpen] = useState(false)
   const [tempSheetOpen, setTempSheetOpen] = useState(false)
   const [pendingEventId, setPendingEventId] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<HomeTab>('record')
+  const [activeTab, setActiveTab] = useState<HomeTab>('insight')
   const { isOnline, pendingCount, syncing } = useOfflineSync()
 
   const router = useRouter()
@@ -289,9 +284,9 @@ export default function HomePage() {
         {/* 탭 전환 */}
         <div className="flex border-b border-[#ECECEC] px-5 max-w-lg mx-auto">
           {[
+            { key: 'insight' as HomeTab, label: '인사이트' },
             { key: 'record' as HomeTab, label: '기록' },
             { key: 'diary' as HomeTab, label: '일기' },
-            { key: 'insight' as HomeTab, label: '인사이트' },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -324,8 +319,14 @@ export default function HomePage() {
 
       {/* 콘텐츠 영역 */}
       <div className="flex-1 overflow-y-auto bg-[#F7F8FA]">
-        <div className="max-w-lg mx-auto pt-3 pb-24">
-          {activeTab === 'record' ? (
+        <div className="max-w-lg mx-auto pt-3 pb-44">
+          {activeTab === 'insight' ? (
+            <InsightHub
+              events={events}
+              birthdate={child?.birthdate}
+              childName={child?.name || '도담이'}
+            />
+          ) : activeTab === 'record' ? (
             <>
               {/* 기록 탭 */}
               <div className="flex items-center justify-between px-5 pb-2">
@@ -339,23 +340,8 @@ export default function HomePage() {
               </div>
               <Timeline events={events} />
             </>
-          ) : activeTab === 'diary' ? (
-            <DiaryView events={events} childName={child?.name || '도담이'} />
           ) : (
-            <>
-              {/* 인사이트 탭 */}
-              <EmergencyCard events={events} />
-              <WeatherCard />
-              <RewardBanner events={events} />
-              <RoutineTimelapse events={events} />
-              {child && <CheckupBanner birthdate={child.birthdate} />}
-              <AICardFeed events={events} />
-              {events.length < 3 && (
-                <div className="px-5 py-8 text-center">
-                  <p className="text-[13px] text-[#AEB1B9]">기록이 쌓이면 AI 인사이트가 나타나요</p>
-                </div>
-              )}
-            </>
+            <DiaryView events={events} childName={child?.name || '도담이'} />
           )}
         </div>
       </div>
