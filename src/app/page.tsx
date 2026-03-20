@@ -50,7 +50,7 @@ export default function HomePage() {
   const [child, setChild] = useState<Child | null>(null)
   const [events, setEvents] = useState<CareEvent[]>([])
   const [loading, setLoading] = useState(true)
-  const [toast, setToast] = useState<{ message: string; undoId?: string } | null>(null)
+  const [toast, setToast] = useState<{ message: string; undoId?: string; action?: { label: string; href: string } } | null>(null)
   const [sleepActive, setSleepActive] = useState(false)
   const [feedSheetOpen, setFeedSheetOpen] = useState(false)
   const [poopSheetOpen, setPoopSheetOpen] = useState(false)
@@ -120,13 +120,18 @@ export default function HomePage() {
       }
       return
     }
-    if (type === 'sleep') setSleepActive(true)
+    if (type === 'sleep') {
+      setSleepActive(true)
+      const e = await insertEvent(type)
+      if (e) setToast({ message: '수면 시작! 🌙 자장가 틀까요?', undoId: e.id, action: { label: '자장가 듣기', href: '/lullaby' } })
+      return
+    }
     if (type === 'feed') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setFeedSheetOpen(true) }; return }
     if (type === 'poop') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setPoopSheetOpen(true) }; return }
     if (type === 'temp') { setTempSheetOpen(true); return }
     if (type === 'memo') { const e = await insertEvent(type, { tags: { category: 'medication' } }); if (e) setToast({ message: '투약 기록 완료!', undoId: e.id }); return }
     const e = await insertEvent(type)
-    if (e) setToast({ message: type === 'sleep' ? '수면 시작!' : '소변 기록 완료!', undoId: e.id })
+    if (e) setToast({ message: '소변 기록 완료!', undoId: e.id })
   }, [user, child, sleepActive, events, supabase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // FAB 퀵버튼 이벤트 리스너 (BottomNav에서 dispatch)
@@ -246,6 +251,11 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {(new Date().getHours() >= 20 || new Date().getHours() < 6) && (
+                <Link href="/lullaby" className="w-9 h-9 rounded-full bg-[#1A1918] flex items-center justify-center active:opacity-80">
+                  <span className="text-[14px]">🌙</span>
+                </Link>
+              )}
               <Link href="/settings" className="w-9 h-9 rounded-full bg-[#F7F8FA] flex items-center justify-center active:bg-[#ECECEC]">
                 <BellIcon className="w-[18px] h-[18px] text-[#212124]" />
               </Link>
@@ -354,8 +364,14 @@ export default function HomePage() {
       {toast && (
         <Toast
           message={toast.message}
-          action={toast.undoId ? { label: '되돌리기', onClick: handleUndo } : undefined}
-          duration={1000}
+          action={
+            toast.action
+              ? { label: toast.action.label, onClick: () => router.push(toast.action!.href) }
+              : toast.undoId
+                ? { label: '되돌리기', onClick: handleUndo }
+                : undefined
+          }
+          duration={toast.action ? 5000 : 1000}
           onDismiss={() => setToast(null)}
         />
       )}
