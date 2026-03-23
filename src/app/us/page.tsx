@@ -4,6 +4,13 @@ import Link from 'next/link'
 
 const MENU_GROUPS = [
   {
+    label: '커뮤니티',
+    items: [
+      { href: '/community', icon: '💬', bg: 'bg-[#F0F9F4]', title: '같은 달 맘', desc: '같은 월령 부모들과 소통해요' },
+      { href: '/community', icon: '📍', bg: 'bg-[#E0F0F8]', title: '우리 동네', desc: '동네 부모들의 이야기' },
+    ],
+  },
+  {
     label: '가족',
     items: [
       { href: '/settings/caregivers', icon: '👥', bg: 'bg-[#C8F0D8]', title: '공동양육자', desc: '가족 초대 · 기록 공유' },
