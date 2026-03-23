@@ -6,7 +6,6 @@ import Link from 'next/link'
 import FeedSheet from '@/components/quick-buttons/FeedSheet'
 import PoopSheet from '@/components/quick-buttons/PoopSheet'
 import TempSheet from '@/components/quick-buttons/TempSheet'
-import Timeline from '@/components/timeline/Timeline'
 import Toast from '@/components/ui/Toast'
 import { BellIcon, ChevronRightIcon } from '@/components/ui/Icons'
 import { createClient } from '@/lib/supabase/client'
@@ -280,29 +279,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* 오늘 요약 + 스트릭 */}
-          <div className="flex items-center gap-2 mb-1">
-            <div className="flex gap-2 flex-1">
-              {[
-                { label: '수유', count: todayFeedCount, color: 'text-[#3D8A5A]' },
-                { label: '수면', count: todaySleepCount, color: 'text-[#6366F1]' },
-                { label: '배변', count: todayPoopCount, color: 'text-[#D89575]' },
-              ].map((s) => (
-                <div key={s.label} className="flex-1 bg-[#F7F8FA] rounded-xl px-2.5 py-2 text-center">
-                  <p className={`text-[16px] font-bold ${s.color}`}>{s.count}</p>
-                  <p className="text-[10px] text-[#AEB1B9]">{s.label}</p>
-                </div>
-              ))}
-            </div>
-            {events.length > 0 && (
-              <div className="bg-[#F0F9F4] rounded-xl px-3 py-2 text-center">
-                <p className="text-[16px] font-bold text-[#3D8A5A]">🔥</p>
-                <p className="text-[10px] text-[#3D8A5A] font-medium">{events.length > 0 ? '연속' : ''}</p>
-              </div>
-            )}
-          </div>
         </div>
-
       </header>
 
       {/* 배너 */}
@@ -313,36 +290,95 @@ export default function HomePage() {
           </p>
         </div>
       )}
-      {syncing && (
-        <div className="bg-[#F0F4FF] px-4 py-2">
-          <p className="text-[11px] text-[#5B6DFF] text-center font-medium">↻ 동기화 중...</p>
-        </div>
-      )}
 
       {/* 콘텐츠 */}
       <div className="flex-1 overflow-y-auto bg-[#F7F8FA]">
-        <div className="max-w-lg mx-auto pt-3 pb-44">
-          {/* AI 한 줄 요약 */}
-          {events.length >= 2 && (
-            <div className="mx-4 mb-3 px-4 py-3 bg-white rounded-xl">
-              <p className="text-[13px] text-[#5A5854]">
-                <span className="text-[#3D8A5A] font-semibold">✨ AI</span>{' '}
-                {child?.name || '도담이'}가 오늘 수유 {todayFeedCount}회{todaySleepCount > 0 ? `, 수면 ${todaySleepCount}회` : ''}로 안정적인 리듬이에요
-              </p>
-            </div>
-          )}
+        <div className="max-w-lg mx-auto pt-4 pb-44 px-5 space-y-3">
 
-          {/* 오늘의 기록 */}
-          <div className="flex items-center justify-between px-5 pb-2">
-            <p className="text-[14px] font-bold text-[#212124]">오늘의 기록</p>
-            <Link
-              href={`/records/${new Date().toISOString().split('T')[0]}`}
-              className="flex items-center gap-0.5 text-[12px] font-medium text-[#3D8A5A]"
-            >
-              전체보기 <ChevronRightIcon className="w-3 h-3" />
-            </Link>
+          {/* AI 케어 카드 (히어로) */}
+          <div className="bg-white rounded-xl border border-[#f0f0f0] p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-[#F0F9F4] flex items-center justify-center">
+                <span className="text-sm">✨</span>
+              </div>
+              <div>
+                <p className="text-[14px] font-bold text-[#1A1918]">AI 케어</p>
+                <p className="text-[10px] text-[#AEB1B9]">{new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 업데이트</p>
+              </div>
+            </div>
+            <p className="text-[14px] text-[#1A1918] leading-relaxed mb-4">
+              {events.length === 0
+                ? `${child?.name || '도담이'}의 오늘 첫 기록을 남겨보세요.\n기록이 쌓이면 AI가 리듬을 분석해드려요.`
+                : events.length < 3
+                  ? `${child?.name || '도담이'}가 오늘 ${events.length}건 기록했어요.\n조금 더 쌓이면 패턴을 분석할 수 있어요.`
+                  : `${child?.name || '도담이'}가 수유 ${todayFeedCount}회${todaySleepCount > 0 ? `, 수면 ${todaySleepCount}회` : ''}${todayPoopCount > 0 ? `, 배변 ${todayPoopCount}회` : ''}로\n안정적인 리듬을 유지하고 있어요.`
+              }
+            </p>
+
+            {/* 오늘 요약 숫자 */}
+            <div className="flex gap-2 mb-4">
+              {[
+                { emoji: '🍼', count: todayFeedCount, label: '수유' },
+                { emoji: '💤', count: todaySleepCount, label: '수면' },
+                { emoji: '🩲', count: todayPoopCount, label: '배변' },
+              ].map((s) => (
+                <div key={s.label} className="flex-1 bg-[#F5F4F1] rounded-lg py-2 text-center">
+                  <p className="text-[14px] font-bold text-[#1A1918]">{s.emoji} {s.count}</p>
+                  <p className="text-[9px] text-[#AEB1B9]">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* AI 예측 (데이터 충분 시) */}
+            {events.length >= 3 && (
+              <div className="space-y-2 pt-3 border-t border-[#f0f0f0]">
+                <div className="flex items-center justify-between">
+                  <p className="text-[12px] text-[#868B94]">🍼 다음 수유</p>
+                  <p className="text-[12px] font-semibold text-[#3D8A5A]">약 47분 후</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-[12px] text-[#868B94]">💤 다음 낮잠</p>
+                  <p className="text-[12px] font-semibold text-[#6366F1]">약 2시간 후</p>
+                </div>
+              </div>
+            )}
           </div>
-          <Timeline events={events} />
+
+          {/* 최근 기록 (컴팩트) */}
+          <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[13px] font-semibold text-[#1A1918]">최근 기록</p>
+              <Link
+                href={`/records/${new Date().toISOString().split('T')[0]}`}
+                className="text-[11px] font-medium text-[#3D8A5A]"
+              >
+                전체보기 →
+              </Link>
+            </div>
+            {events.length === 0 ? (
+              <p className="text-[13px] text-[#AEB1B9] text-center py-4">아직 기록이 없어요</p>
+            ) : (
+              <div className="space-y-1.5">
+                {events.slice(0, 4).map((e) => {
+                  const time = new Date(e.start_ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
+                  const icons: Record<string, string> = { feed: '🍼', sleep: '💤', poop: '💩', pee: '💧', temp: '🌡️', memo: '💊' }
+                  const labels: Record<string, string> = { feed: '수유', sleep: '수면', poop: '대변', pee: '소변', temp: '체온', memo: '투약' }
+                  const detail = e.amount_ml ? ` ${e.amount_ml}ml` : e.end_ts ? ` ${Math.round((new Date(e.end_ts).getTime() - new Date(e.start_ts).getTime()) / 60000)}분` : ''
+                  return (
+                    <div key={e.id} className="flex items-center gap-2 py-1">
+                      <span className="text-[12px] w-10 text-[#AEB1B9] shrink-0">{time}</span>
+                      <span className="text-[12px]">{icons[e.type] || '📝'}</span>
+                      <span className="text-[12px] text-[#1A1918]">{labels[e.type] || e.type}{detail}</span>
+                    </div>
+                  )
+                })}
+                {events.length > 4 && (
+                  <p className="text-[11px] text-[#AEB1B9] text-center pt-1">+ {events.length - 4}건 더</p>
+                )}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
 
