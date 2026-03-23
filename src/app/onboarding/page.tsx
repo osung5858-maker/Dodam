@@ -53,7 +53,9 @@ export default function OnboardingPage() {
 
   const handleModeSelect = (mode: Mode) => {
     localStorage.setItem('dodam_mode', mode)
-    if (mode === 'pregnant') {
+    if (mode === 'preparing') {
+      router.push('/preparing')
+    } else if (mode === 'pregnant') {
       router.push('/pregnant')
     } else {
       router.push('/settings/children/add')
