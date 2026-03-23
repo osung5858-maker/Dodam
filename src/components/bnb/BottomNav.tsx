@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  HomeIcon, ChartIcon, MapIcon, SettingsIcon,
+  SunIcon, HeartIcon, ShieldIcon, UsersIcon,
   PlusIcon, XIcon,
   BottleIcon, MoonIcon, DropletIcon, ThermometerIcon, PillIcon,
 } from '@/components/ui/Icons'
@@ -16,10 +16,10 @@ interface Tab {
 }
 
 const tabs: Tab[] = [
-  { href: '/', icon: HomeIcon, label: '홈' },
-  { href: '/growth', icon: ChartIcon, label: '성장' },
-  { href: '/map', icon: MapIcon, label: '동네' },
-  { href: '/lullaby', icon: MoonIcon, label: '자장가' },
+  { href: '/', icon: SunIcon, label: '오늘' },
+  { href: '/memory', icon: HeartIcon, label: '추억' },
+  { href: '/care', icon: ShieldIcon, label: '케어' },
+  { href: '/us', icon: UsersIcon, label: '우리' },
 ]
 
 const QUICK_BUTTONS = [
@@ -60,7 +60,7 @@ export default function BottomNav() {
     setFabOpen(false)
   }, [])
 
-  if (pathname?.startsWith('/onboarding') || pathname?.startsWith('/invite') || pathname?.startsWith('/lullaby')) {
+  if (pathname?.startsWith('/onboarding') || pathname?.startsWith('/invite')) {
     return null
   }
 
