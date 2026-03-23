@@ -39,14 +39,14 @@ const BAD_FOODS = [
 ]
 
 const APPOINTMENTS = [
-  { id: 'basic', title: '🩸 기본 혈액검사', priority: 'high' },
-  { id: 'rubella', title: '💉 풍진 항체검사', priority: 'high' },
-  { id: 'amh', title: '🔬 AMH 검사', priority: 'high' },
-  { id: 'dental', title: '🦷 치과 검진', priority: 'medium' },
-  { id: 'pap', title: '🏥 자궁경부암 검사', priority: 'medium' },
-  { id: 'std', title: '🧪 성병 검사', priority: 'medium' },
-  { id: 'genetic', title: '🧬 유전 상담', priority: 'low' },
-  { id: 'sperm', title: '🔎 정액 검사', priority: 'low' },
+  { id: 'basic', title: '🩸 기본 혈액검사', priority: 'high', desc: '빈혈 · 갑상선 · 간기능 · 혈당 · 혈액형', where: '산부인과 또는 보건소 (무료)', why: '임신 전 몸 상태 확인. 빈혈이 있으면 임신이 어려울 수 있어요' },
+  { id: 'rubella', title: '💉 풍진 항체검사', priority: 'high', desc: '풍진 면역 여부 확인', where: '산부인과 또는 보건소 (무료)', why: '임신 중 풍진 감염 시 태아 기형 위험. 항체 없으면 접종 후 1개월 피임 필요' },
+  { id: 'amh', title: '🔬 AMH 검사', priority: 'high', desc: '난소 기능 · 잔여 난자 수 예측', where: '산부인과 (유료 5~10만원)', why: '35세 이상 필수. 난소 나이를 확인해 임신 계획에 도움' },
+  { id: 'dental', title: '🦷 치과 검진', priority: 'medium', desc: '충치 · 잇몸 치료', where: '치과', why: '임신 중 치과 치료 제한됨. 미리 치료해야 해요' },
+  { id: 'pap', title: '🏥 자궁경부암 검사', priority: 'medium', desc: '자궁경부 세포 검사', where: '산부인과 또는 보건소 (만 20세+ 무료)', why: '2년 이내 미실시 시 필수' },
+  { id: 'std', title: '🧪 성병 검사', priority: 'medium', desc: '클라미디아 · 매독 · HIV', where: '산부인과 또는 보건소', why: '무증상 감염도 있어 임신 전 확인 필요' },
+  { id: 'genetic', title: '🧬 유전 상담', priority: 'low', desc: '유전 질환 가족력 확인', where: '대학병원 유전 상담 센터', why: '가족 중 유전 질환이 있을 경우 상담 권장' },
+  { id: 'sperm', title: '🔎 정액 검사', priority: 'low', desc: '정자 수 · 운동성 · 형태', where: '비뇨기과 또는 난임 클리닉', why: '6개월 이상 임신 안 될 때. 남성 요인이 40%' },
 ]
 
 const STRESS_TIPS = [
@@ -225,15 +225,29 @@ export default function PreparingPage() {
     }
   }, [!!cycle]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 히스토리 저장 유틸
+  const saveHistory = (type: 'mood' | 'suppl', value: any) => {
+    const key = `dodam_${type}_history`
+    const history = JSON.parse(localStorage.getItem(key) || '[]')
+    const today = new Date().toISOString().split('T')[0]
+    const existing = history.findIndex((h: any) => h.date === today)
+    if (existing >= 0) history[existing] = { date: today, value }
+    else history.unshift({ date: today, value })
+    localStorage.setItem(key, JSON.stringify(history.slice(0, 90))) // 90일 보관
+  }
+
   // 핸들러
   const toggleSupplement = (key: string) => {
     const today = new Date().toISOString().split('T')[0]
     const next = { ...supplements, [key]: !supplements[key] }
     setSupplements(next); localStorage.setItem(`dodam_suppl_${today}`, JSON.stringify(next))
+    // 히스토리 저장
+    saveHistory('suppl', Object.values(next).filter(Boolean).length)
   }
   const saveMood = (mood: string) => {
     const today = new Date().toISOString().split('T')[0]
     setTodayMood(mood); localStorage.setItem(`dodam_mood_${today}`, mood)
+    saveHistory('mood', mood)
   }
   const togglePartnerCheck = (key: string) => {
     const next = { ...partnerChecks, [key]: !partnerChecks[key] }
@@ -425,6 +439,22 @@ export default function PreparingPage() {
                 {({ hopeful: '희망찬 하루! 그 마음이 좋은 에너지가 돼요 ✨', calm: '평온한 마음, 아이에게도 전해질 거예요 🌿', anxious: '괜찮아요. 불안한 건 그만큼 간절하기 때문이에요 💚', tired: '지친 날도 있는 거예요. 오늘은 푹 쉬세요 🫂', excited: '설레는 마음, 그대로 간직하세요! 💕' } as Record<string, string>)[todayMood]}
               </p>
             )}
+            {/* 7일 감정 미니 히스토리 */}
+            {(() => {
+              const moodEmojis: Record<string, string> = { hopeful: '😊', calm: '😌', anxious: '😰', tired: '😢', excited: '🥰' }
+              const history = JSON.parse(localStorage.getItem('dodam_mood_history') || '[]').slice(0, 7)
+              if (history.length < 2) return null
+              return (
+                <div className="flex items-center justify-center gap-1 mt-2">
+                  {history.reverse().map((h: any, i: number) => (
+                    <div key={i} className="text-center">
+                      <span className="text-[12px]">{moodEmojis[h.value] || '·'}</span>
+                      <p className="text-[7px] text-[#AEB1B9]">{h.date.slice(5)}</p>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
           </div>
         </div>
 
@@ -472,37 +502,56 @@ export default function PreparingPage() {
           </div>
         </div>
 
-        {/* ━━━ 4. AI 오늘 식단 (풀사이즈) ━━━ */}
+        {/* ━━━ 4. AI 오늘 식단 (시간대 맞춤) ━━━ */}
         <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[14px] font-bold text-[#1A1918]">🍽️ AI 오늘 식단</p>
+            <div>
+              <p className="text-[14px] font-bold text-[#1A1918]">🍽️ {new Date().getHours() < 10 ? '아침' : new Date().getHours() < 14 ? '점심' : new Date().getHours() < 18 ? '간식' : '저녁'} 뭐 먹지?</p>
+              <p className="text-[10px] text-[#868B94]">{getCyclePhase() === 'fertile' ? '가임기' : getCyclePhase() === 'tww' ? '착상기' : '난포기'} 맞춤</p>
+            </div>
             {aiMeal && <button onClick={() => fetchAIMeal(true)} className="text-[10px] text-[#3D8A5A]">다른 추천</button>}
           </div>
           {aiMeal ? (
             <div className="space-y-2.5">
-              {[
-                { label: '아침', icon: '🌅', data: aiMeal.breakfast },
-                { label: '점심', icon: '☀️', data: aiMeal.lunch },
-                { label: '저녁', icon: '🌙', data: aiMeal.dinner },
-                { label: '간식', icon: '🍎', data: aiMeal.snack },
-              ].map((m) => m.data && (
-                <div key={m.label} className="flex items-start gap-2.5">
-                  <span className="text-sm mt-0.5">{m.icon}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-[#AEB1B9] w-6">{m.label}</span>
-                      <p className="text-[13px] font-semibold text-[#1A1918]">{m.data.menu}</p>
+              {(() => {
+                const hour = new Date().getHours()
+                const currentMeal = hour < 10 ? 'breakfast' : hour < 14 ? 'lunch' : hour < 18 ? 'snack' : 'dinner'
+                return [
+                  { key: 'breakfast', label: '아침', icon: '🌅', data: aiMeal.breakfast },
+                  { key: 'lunch', label: '점심', icon: '☀️', data: aiMeal.lunch },
+                  { key: 'dinner', label: '저녁', icon: '🌙', data: aiMeal.dinner },
+                  { key: 'snack', label: '간식', icon: '🍎', data: aiMeal.snack },
+                ].map((m) => m.data && (
+                  <div key={m.label} className={`flex items-start gap-2.5 ${m.key === currentMeal ? 'bg-[#F0F9F4] -mx-2 px-2 py-1.5 rounded-lg' : ''}`}>
+                    <span className="text-sm mt-0.5">{m.icon}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] w-6 ${m.key === currentMeal ? 'text-[#3D8A5A] font-bold' : 'text-[#AEB1B9]'}`}>{m.label}</span>
+                        <p className="text-[13px] font-semibold text-[#1A1918]">{m.data.menu}</p>
+                        {m.key === currentMeal && <span className="text-[8px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
+                      </div>
+                      <p className="text-[10px] text-[#868B94] ml-8">{m.data.reason}</p>
                     </div>
-                    <p className="text-[10px] text-[#868B94] ml-8">{m.data.reason}</p>
                   </div>
-                </div>
-              ))}
+                ))
+              })()}
               {aiMeal.keyNutrient && (
                 <div className="bg-[#F0F9F4] rounded-lg p-2.5 mt-1">
-                  <p className="text-[11px] text-[#3D8A5A]">핵심 영양소: <span className="font-semibold">{aiMeal.keyNutrient}</span></p>
+                  <p className="text-[11px] text-[#3D8A5A]">핵심: <span className="font-semibold">{aiMeal.keyNutrient}</span></p>
                   {aiMeal.avoid && <p className="text-[11px] text-[#D08068] mt-0.5">주의: {aiMeal.avoid}</p>}
                 </div>
               )}
+              {/* 근처 식당 검색 */}
+              {(() => {
+                const hour = new Date().getHours()
+                const currentMeal = hour < 10 ? aiMeal.breakfast : hour < 14 ? aiMeal.lunch : hour < 18 ? aiMeal.snack : aiMeal.dinner
+                if (!currentMeal?.menu) return null
+                return (
+                  <a href={`/map?q=${encodeURIComponent(currentMeal.menu)}`} className="flex items-center gap-2 mt-1 text-[11px] text-[#3D8A5A] font-medium">
+                    📍 근처에서 "{currentMeal.menu}" 찾기 →
+                  </a>
+                )
+              })()}
             </div>
           ) : (
             <>
@@ -535,7 +584,10 @@ export default function PreparingPage() {
           onClick={() => setMoreOpen(!moreOpen)}
           className="w-full bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center justify-between"
         >
-          <p className="text-[13px] font-semibold text-[#1A1918]">가이드 · 리마인더 · 스트레스 관리</p>
+          <div>
+            <p className="text-[13px] font-semibold text-[#1A1918]">더 알아보기</p>
+            <p className="text-[10px] text-[#868B94]">검사 가이드 · 파트너 건강 · 식단 · 마음 관리</p>
+          </div>
           <span className={`text-[#AEB1B9] text-sm transition-transform ${moreOpen ? 'rotate-180' : ''}`}>▼</span>
         </button>
 
@@ -561,17 +613,26 @@ export default function PreparingPage() {
               </div>
             </div>
 
-            {/* 검사 리마인더 */}
+            {/* 검사 가이드 */}
             <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
-              <p className="text-[13px] font-bold text-[#1A1918] mb-2">🏥 검사 리마인더</p>
+              <p className="text-[13px] font-bold text-[#1A1918] mb-3">🏥 산전 검사 가이드</p>
               {APPOINTMENTS.filter(a => !(a.id === 'amh' && motherAge > 0 && motherAge < 35)).map((a) => (
-                <button key={a.id} onClick={() => toggleAppointment(a.id)} className="w-full flex items-center gap-2 py-1.5">
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${appointments[a.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
-                    {appointments[a.id] && <span className="text-white text-[8px]">✓</span>}
-                  </div>
-                  <span className={`text-[12px] ${appointments[a.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{a.title}</span>
-                  {a.priority === 'high' && !appointments[a.id] && <span className="text-[8px] px-1 rounded bg-[#FDE8E8] text-[#D08068]">필수</span>}
-                </button>
+                <div key={a.id} className="mb-3 last:mb-0">
+                  <button onClick={() => toggleAppointment(a.id)} className="w-full flex items-start gap-2.5 active:bg-[#F5F4F1] rounded-lg -mx-1 px-1 py-1">
+                    <div className={`w-5 h-5 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${appointments[a.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : a.priority === 'high' ? 'border-[#D08068]' : 'border-[#AEB1B9]'}`}>
+                      {appointments[a.id] && <span className="text-white text-[10px]">✓</span>}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[13px] font-semibold ${appointments[a.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{a.title}</span>
+                        {a.priority === 'high' && !appointments[a.id] && <span className="text-[8px] px-1 rounded bg-[#FDE8E8] text-[#D08068]">필수</span>}
+                      </div>
+                      <p className="text-[11px] text-[#868B94] mt-0.5">{a.desc}</p>
+                      <p className="text-[10px] text-[#3D8A5A] mt-0.5">📍 {a.where}</p>
+                      <p className="text-[10px] text-[#868B94] mt-0.5 italic">{a.why}</p>
+                    </div>
+                  </button>
+                </div>
               ))}
             </div>
 
