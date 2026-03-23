@@ -12,11 +12,23 @@ function isSameDay(a: Date, b: Date): boolean { return formatDate(a) === formatD
 
 function getCycleInfo(lastPeriodStart: string, cycleLength: number) {
   const start = new Date(lastPeriodStart)
+  // 현재 주기 + 다음 주기까지 계산 (캘린더 다음 달 표시용)
+  const cycles: { ovulation: string; fertileStart: string; fertileEnd: string; periodStart: string }[] = []
+  for (let i = 0; i < 3; i++) {
+    const cycleStart = addDays(start, cycleLength * i)
+    const ov = addDays(cycleStart, cycleLength - 14)
+    const fs = addDays(ov, -5)
+    const fe = addDays(ov, 1)
+    cycles.push({
+      ovulation: formatDate(ov),
+      fertileStart: formatDate(fs),
+      fertileEnd: formatDate(fe),
+      periodStart: formatDate(cycleStart),
+    })
+  }
   const ovulationDay = addDays(start, cycleLength - 14)
-  const fertileStart = addDays(ovulationDay, -5)
-  const fertileEnd = addDays(ovulationDay, 1)
   const nextPeriod = addDays(start, cycleLength)
-  return { ovulationDay, fertileStart, fertileEnd, nextPeriod }
+  return { ovulationDay, nextPeriod, cycles }
 }
 
 const CHECKLIST = [
@@ -31,9 +43,9 @@ const CHECKLIST = [
 ]
 
 const GOV_SUPPORTS = [
-  { title: '난임 시술비 지원', desc: '체외수정 최대 110만원', link: 'https://www.gov.kr/portal/rcvfvrSvc/dtlEx/148000000045' },
-  { title: '산전검사 무료 쿠폰', desc: '보건소 기본 산전검사', link: 'https://www.childcare.go.kr' },
-  { title: '엽산/철분제 무료', desc: '보건소 등록 시', link: 'https://www.childcare.go.kr' },
+  { title: '난임부부 시술비 지원', desc: '체외수정·인공수정 시술비 지원', link: 'https://www.gov.kr/portal/service/serviceInfo/SME000000100' },
+  { title: '임신 사전건강관리', desc: '보건소 무료 산전검사·상담', link: 'https://www.e-health.go.kr/gh/caSrvcGud/selectMdclSupGudInfo.do?heBiz=PG00003&menuId=200097' },
+  { title: '엽산제·철분제 무료 지원', desc: '보건소 등록 임산부 대상', link: 'https://www.gov.kr/portal/service/serviceInfo/SD0000016094' },
 ]
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
@@ -106,8 +118,10 @@ export default function WaitingPage() {
     if (!cycle) return 'none'
     const ds = formatDate(date)
     if (periodRecords[ds]) return 'period'
-    if (isSameDay(date, cycle.ovulationDay)) return 'ovulation'
-    if (date >= cycle.fertileStart && date <= cycle.fertileEnd) return 'fertile'
+    for (const c of cycle.cycles) {
+      if (ds === c.ovulation) return 'ovulation'
+      if (ds >= c.fertileStart && ds <= c.fertileEnd) return 'fertile'
+    }
     return 'none'
   }
 
