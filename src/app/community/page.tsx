@@ -86,7 +86,7 @@ export default function CommunityPage() {
   const [commentText, setCommentText] = useState('')
   const [commentLoading, setCommentLoading] = useState(false)
 
-  // 나눔 등록
+  // 도담장터 등록
   const [marketOpen, setMarketOpen] = useState(false)
   const [mTitle, setMTitle] = useState('')
   const [mDesc, setMDesc] = useState('')
@@ -245,14 +245,14 @@ export default function CommunityPage() {
             onClick={() => tab === 'feed' ? setWriteOpen(true) : setMarketOpen(true)}
             className="text-[12px] font-semibold text-white bg-[#3D8A5A] px-3 py-1.5 rounded-lg active:opacity-80"
           >
-            {tab === 'feed' ? '글쓰기' : '나눔 등록'}
+            {tab === 'feed' ? '글쓰기' : '도담장터 등록'}
           </button>
         </div>
 
         <div className="flex px-5 pb-2 max-w-lg mx-auto gap-2">
           {[
             { key: 'feed' as MainTab, label: '이야기' },
-            { key: 'market' as MainTab, label: '나눔' },
+            { key: 'market' as MainTab, label: '도담장터' },
           ].map((t) => (
             <button
               key={t.key}
@@ -371,13 +371,13 @@ export default function CommunityPage() {
           </>
         )}
 
-        {/* ===== 나눔 탭 ===== */}
+        {/* ===== 도담장터 탭 ===== */}
         {tab === 'market' && (
           <div className="mt-3 space-y-2">
             {items.length === 0 ? (
               <div className="bg-white rounded-xl p-8 border border-[#f0f0f0] text-center">
                 <p className="text-2xl mb-2">🎁</p>
-                <p className="text-[13px] text-[#868B94]">아직 나눔이 없어요</p>
+                <p className="text-[13px] text-[#868B94]">아직 도담장터이 없어요</p>
                 <p className="text-[11px] text-[#AEB1B9] mt-1">쓰지 않는 육아용품을 나눠보세요!</p>
               </div>
             ) : items.map((item) => (
@@ -438,13 +438,13 @@ export default function CommunityPage() {
         </div>
       )}
 
-      {/* 나눔 등록 모달 */}
+      {/* 도담장터 등록 모달 */}
       {marketOpen && (
         <div className="fixed inset-0 z-[100] bg-black/40" onClick={() => setMarketOpen(false)}>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white rounded-t-2xl pb-[env(safe-area-inset-bottom)] max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-5 py-3 border-b border-[#f0f0f0] sticky top-0 bg-white">
               <button onClick={() => setMarketOpen(false)} className="text-[13px] text-[#868B94]">취소</button>
-              <p className="text-[14px] font-bold text-[#1A1918]">나눔 등록</p>
+              <p className="text-[14px] font-bold text-[#1A1918]">도담장터 등록</p>
               <button onClick={handleMarketPost} disabled={!mTitle.trim() || posting} className={`text-[13px] font-semibold ${mTitle.trim() ? 'text-[#3D8A5A]' : 'text-[#AEB1B9]'}`}>
                 {posting ? '등록 중...' : '등록'}
               </button>
