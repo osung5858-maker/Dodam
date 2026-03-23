@@ -1,0 +1,296 @@
+'use client'
+
+import { useState, useMemo, useCallback } from 'react'
+import Link from 'next/link'
+
+// ===== 주기 계산 =====
+function addDays(date: Date, days: number): Date {
+  const d = new Date(date); d.setDate(d.getDate() + days); return d
+}
+function formatDate(d: Date): string { return d.toISOString().split('T')[0] }
+function isSameDay(a: Date, b: Date): boolean { return formatDate(a) === formatDate(b) }
+
+function getCycleInfo(lastPeriodStart: string, cycleLength: number) {
+  const start = new Date(lastPeriodStart)
+  const ovulationDay = addDays(start, cycleLength - 14)
+  const fertileStart = addDays(ovulationDay, -5)
+  const fertileEnd = addDays(ovulationDay, 1)
+  const nextPeriod = addDays(start, cycleLength)
+  return { ovulationDay, fertileStart, fertileEnd, nextPeriod }
+}
+
+const CHECKLIST = [
+  { id: 'folic', icon: '💊', title: '엽산 복용', desc: '임신 3개월 전부터' },
+  { id: 'checkup', icon: '🏥', title: '산전 건강검진', desc: '혈액·소변·풍진항체' },
+  { id: 'dental', icon: '🦷', title: '치과 검진', desc: '임신 중 치료 어려우니 미리' },
+  { id: 'vaccine', icon: '💉', title: '예방접종 확인', desc: '풍진·수두·A형간염' },
+  { id: 'weight', icon: '⚖️', title: '적정 체중', desc: 'BMI 18.5~24.9' },
+  { id: 'nosmoking', icon: '🚭', title: '금연·금주', desc: '3개월 전부터' },
+  { id: 'exercise', icon: '🏃‍♀️', title: '규칙적 운동', desc: '주 3회' },
+  { id: 'stress', icon: '🧘', title: '스트레스 관리', desc: '충분한 수면·명상' },
+]
+
+const GOV_SUPPORTS = [
+  { title: '난임 시술비 지원', desc: '체외수정 최대 110만원' },
+  { title: '산전검사 무료 쿠폰', desc: '보건소 기본 산전검사' },
+  { title: '엽산/철분제 무료', desc: '보건소 등록 시' },
+]
+
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
+
+export default function WaitingPage() {
+  const [lastPeriod] = useState<string>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('dodam_last_period') || ''
+    return ''
+  })
+  const [cycleLength] = useState<number>(() => {
+    if (typeof window !== 'undefined') return Number(localStorage.getItem('dodam_cycle_length')) || 28
+    return 28
+  })
+  const [periodRecords] = useState<Record<string, string>>(() => {
+    if (typeof window !== 'undefined') {
+      const s = localStorage.getItem('dodam_period_records'); return s ? JSON.parse(s) : {}
+    }
+    return {}
+  })
+  const [bbtRecords, setBbtRecords] = useState<Record<string, number>>(() => {
+    if (typeof window !== 'undefined') {
+      const s = localStorage.getItem('dodam_bbt_records'); return s ? JSON.parse(s) : {}
+    }
+    return {}
+  })
+  const [ovulationTests, setOvulationTests] = useState<Record<string, boolean>>(() => {
+    if (typeof window !== 'undefined') {
+      const s = localStorage.getItem('dodam_ovulation_tests'); return s ? JSON.parse(s) : {}
+    }
+    return {}
+  })
+  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
+    if (typeof window !== 'undefined') {
+      const s = localStorage.getItem('dodam_preparing_checks'); return s ? JSON.parse(s) : {}
+    }
+    return {}
+  })
+  const [letters, setLetters] = useState<{ text: string; date: string; from: string; reply: string }[]>(() => {
+    if (typeof window !== 'undefined') {
+      const s = localStorage.getItem('dodam_letters'); return s ? JSON.parse(s) : []
+    }
+    return []
+  })
+  const [letterText, setLetterText] = useState('')
+  const [letterOpen, setLetterOpen] = useState(false)
+  const [pregTests, setPregTests] = useState<{ date: string; result: string; dpo: number }[]>(() => {
+    if (typeof window !== 'undefined') {
+      const s = localStorage.getItem('dodam_preg_tests'); return s ? JSON.parse(s) : []
+    }
+    return []
+  })
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+
+  const cycle = useMemo(() => {
+    if (!lastPeriod) return null
+    return getCycleInfo(lastPeriod, cycleLength)
+  }, [lastPeriod, cycleLength])
+
+  const now = new Date()
+  const [calMonth, setCalMonth] = useState(now.getMonth())
+  const [calYear, setCalYear] = useState(now.getFullYear())
+  const calDates = useMemo(() => {
+    const dates: Date[] = []; const d = new Date(calYear, calMonth, 1)
+    while (d.getMonth() === calMonth) { dates.push(new Date(d)); d.setDate(d.getDate() + 1) }
+    return dates
+  }, [calYear, calMonth])
+  const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay()
+
+  const getDateStatus = (date: Date): string => {
+    if (!cycle) return 'none'
+    const ds = formatDate(date)
+    if (periodRecords[ds]) return 'period'
+    if (isSameDay(date, cycle.ovulationDay)) return 'ovulation'
+    if (date >= cycle.fertileStart && date <= cycle.fertileEnd) return 'fertile'
+    return 'none'
+  }
+
+  const generateReply = (text: string): string => {
+    const replies = [
+      '엄마 아빠, 마음이 느껴져요. 빨리 만나고 싶어요 🌱',
+      '따뜻한 마음 고마워요. 건강하게 준비하고 있을게요 💛',
+      '사랑이 가득한 편지네요. 덕분에 용기가 나요 ☺️',
+      '매일 저를 생각해주시는 거 알아요. 곧 만나요! 🤗',
+    ]
+    if (text.includes('건강')) return '건강하게 자라고 있을게요! 🌿'
+    if (text.includes('사랑')) return '저도 많이 사랑해요 💕'
+    return replies[Math.floor(Math.random() * replies.length)]
+  }
+
+  const saveLetter = () => {
+    if (!letterText.trim()) return
+    const reply = generateReply(letterText)
+    const next = [{ text: letterText.trim(), date: new Date().toISOString(), from: '엄마', reply }, ...letters]
+    setLetters(next); localStorage.setItem('dodam_letters', JSON.stringify(next))
+    setLetterText(''); setLetterOpen(false)
+  }
+
+  const toggleCheck = (id: string) => {
+    const next = { ...checked, [id]: !checked[id] }; setChecked(next)
+    localStorage.setItem('dodam_preparing_checks', JSON.stringify(next))
+  }
+
+  const recordBBT = useCallback((date: string, temp: number) => {
+    const next = { ...bbtRecords, [date]: temp }; setBbtRecords(next)
+    localStorage.setItem('dodam_bbt_records', JSON.stringify(next))
+  }, [bbtRecords])
+
+  const recordOvulationTest = useCallback((date: string, positive: boolean) => {
+    const next = { ...ovulationTests, [date]: positive }; setOvulationTests(next)
+    localStorage.setItem('dodam_ovulation_tests', JSON.stringify(next))
+  }, [ovulationTests])
+
+  const addPregTest = (result: string) => {
+    const dpo = cycle ? Math.floor((Date.now() - cycle.ovulationDay.getTime()) / 86400000) : 0
+    const next = [{ date: new Date().toISOString().split('T')[0], result, dpo }, ...pregTests]
+    setPregTests(next); localStorage.setItem('dodam_preg_tests', JSON.stringify(next))
+  }
+
+  return (
+    <div className="min-h-[100dvh] bg-[#F5F4F1]">
+      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
+        <div className="flex items-center h-14 px-5 max-w-lg mx-auto">
+          <h1 className="text-[17px] font-bold text-[#1A1918]">기다림</h1>
+        </div>
+      </header>
+
+      <div className="max-w-lg mx-auto px-5 pt-4 pb-28 space-y-3">
+
+        {/* 편지 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[14px] font-bold text-[#1A1918]">✉️ 아이에게 보내는 편지</p>
+            <p className="text-[11px] text-[#868B94]">{letters.length}통</p>
+          </div>
+          <div className="text-center py-3 mb-3 bg-[#F5F4F1] rounded-xl">
+            <div className="text-3xl mb-1">{letters.length >= 30 ? '🌳' : letters.length >= 10 ? '🌿' : '🌱'}</div>
+            <p className="text-[12px] text-[#3D8A5A] font-medium">
+              {letters.length === 0 ? '첫 편지를 보내보세요' : `${letters.length}통의 사랑을 받고 자라고 있어요`}
+            </p>
+          </div>
+          {letters.slice(0, 2).map((l, i) => (
+            <div key={i} className="mb-2">
+              <div className="p-3 bg-[#F0F9F4] rounded-xl rounded-bl-sm">
+                <p className="text-[12px] text-[#1A1918]">{l.text}</p>
+                <p className="text-[9px] text-[#AEB1B9] mt-1 text-right">{l.from} · {new Date(l.date).toLocaleDateString('ko-KR')}</p>
+              </div>
+              <div className="p-3 bg-[#FFF8F3] rounded-xl rounded-tr-sm mt-1 ml-6">
+                <p className="text-[12px] text-[#1A1918]">💌 {l.reply}</p>
+                <p className="text-[9px] text-[#AEB1B9] mt-1">아이의 답장</p>
+              </div>
+            </div>
+          ))}
+          {letterOpen ? (
+            <div>
+              <textarea value={letterText} onChange={(e) => setLetterText(e.target.value.slice(0, 500))} placeholder="아이에게 하고 싶은 말..." className="w-full h-20 text-[13px] p-3 bg-[#F5F4F1] rounded-xl resize-none focus:outline-none" autoFocus />
+              <div className="flex justify-between mt-2">
+                <button onClick={() => setLetterOpen(false)} className="text-[12px] text-[#868B94]">취소</button>
+                <button onClick={saveLetter} disabled={!letterText.trim()} className={`text-[12px] font-semibold px-3 py-1 rounded-lg ${letterText.trim() ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}>보내기</button>
+              </div>
+            </div>
+          ) : (
+            <button onClick={() => setLetterOpen(true)} className="w-full py-2.5 text-[13px] font-semibold text-[#3D8A5A] bg-[#F0F9F4] rounded-xl">오늘의 편지 쓰기 ✉️</button>
+          )}
+        </div>
+
+        {/* 주기 캘린더 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <button onClick={() => { if (calMonth === 0) { setCalMonth(11); setCalYear(calYear - 1) } else setCalMonth(calMonth - 1) }} className="text-[#868B94] px-2">←</button>
+            <p className="text-[14px] font-bold text-[#1A1918]">{calYear}년 {calMonth + 1}월</p>
+            <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(calYear + 1) } else setCalMonth(calMonth + 1) }} className="text-[#868B94] px-2">→</button>
+          </div>
+          <div className="grid grid-cols-7 gap-1 mb-1">
+            {WEEKDAYS.map((d) => <div key={d} className="text-center text-[9px] text-[#AEB1B9]">{d}</div>)}
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {Array.from({ length: firstDayOfWeek }, (_, i) => <div key={`e-${i}`} className="aspect-square" />)}
+            {calDates.map((date) => {
+              const status = getDateStatus(date)
+              const isToday = formatDate(date) === formatDate(now)
+              const ds = formatDate(date)
+              return (
+                <button key={ds} onClick={() => setSelectedDate(ds === selectedDate ? null : ds)}
+                  className={`aspect-square rounded-lg flex items-center justify-center text-[10px] font-medium ${
+                    isToday ? 'ring-2 ring-[#3D8A5A]' : status === 'period' ? 'bg-[#FDE8E8] text-[#D08068]' : status === 'ovulation' ? 'bg-[#3D8A5A] text-white' : status === 'fertile' ? 'bg-[#C8F0D8] text-[#3D8A5A]' : 'bg-[#F7F8FA] text-[#1A1918]'
+                  }`}>{date.getDate()}</button>
+              )
+            })}
+          </div>
+          <div className="flex items-center justify-center gap-3 mt-3">
+            <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-sm bg-[#FDE8E8]" /><span className="text-[9px] text-[#868B94]">생리</span></div>
+            <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-sm bg-[#C8F0D8]" /><span className="text-[9px] text-[#868B94]">가임기</span></div>
+            <div className="flex items-center gap-1"><div className="w-2.5 h-2.5 rounded-sm bg-[#3D8A5A]" /><span className="text-[9px] text-[#868B94]">배란일</span></div>
+          </div>
+        </div>
+
+        {selectedDate && (
+          <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+            <p className="text-[13px] font-semibold text-[#1A1918] mb-3">{selectedDate}</p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-[#868B94]">기초체온</span>
+                <input type="number" step="0.01" min="35" max="38" value={bbtRecords[selectedDate] || ''} onChange={(e) => recordBBT(selectedDate, Number(e.target.value))} placeholder="36.50" className="w-20 h-8 rounded-lg border border-[#f0f0f0] px-2 text-[12px] text-right" />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] text-[#868B94]">배란 테스트</span>
+                <div className="flex gap-1.5">
+                  <button onClick={() => recordOvulationTest(selectedDate, true)} className={`px-3 py-1 rounded-lg text-[11px] ${ovulationTests[selectedDate] === true ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#868B94]'}`}>양성</button>
+                  <button onClick={() => recordOvulationTest(selectedDate, false)} className={`px-3 py-1 rounded-lg text-[11px] ${ovulationTests[selectedDate] === false ? 'bg-[#D08068] text-white' : 'bg-[#F0F0F0] text-[#868B94]'}`}>음성</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 임신 테스트 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[14px] font-bold text-[#1A1918] mb-3">임신 테스트</p>
+          <div className="flex gap-2 mb-3">
+            <button onClick={() => addPregTest('양성')} className="flex-1 py-2 rounded-xl bg-[#F0F9F4] text-[12px] font-semibold text-[#3D8A5A]">양성 ✚</button>
+            <button onClick={() => addPregTest('음성')} className="flex-1 py-2 rounded-xl bg-[#F5F4F1] text-[12px] font-semibold text-[#868B94]">음성 −</button>
+          </div>
+          {pregTests.slice(0, 3).map((t, i) => (
+            <div key={i} className="flex justify-between py-1.5">
+              <span className="text-[12px]">{t.date}</span>
+              <span className={`text-[12px] font-semibold ${t.result === '양성' ? 'text-[#3D8A5A]' : 'text-[#868B94]'}`}>{t.result}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* 체크리스트 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <div className="flex justify-between mb-3">
+            <p className="text-[14px] font-bold text-[#1A1918]">준비 체크리스트</p>
+            <p className="text-[11px] text-[#868B94]">{CHECKLIST.filter((c) => checked[c.id]).length}/{CHECKLIST.length}</p>
+          </div>
+          {CHECKLIST.map((item) => (
+            <button key={item.id} onClick={() => toggleCheck(item.id)} className="w-full flex items-center gap-3 py-2 rounded-lg active:bg-[#F5F4F1]">
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${checked[item.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
+                {checked[item.id] && <span className="text-white text-[10px]">✓</span>}
+              </div>
+              <span className={`text-[13px] ${checked[item.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{item.icon} {item.title}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* 정부 지원 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[14px] font-bold text-[#1A1918] mb-3">정부 지원</p>
+          {GOV_SUPPORTS.map((item) => (
+            <div key={item.title} className="p-3 bg-[#F5F4F1] rounded-xl mb-2 last:mb-0">
+              <p className="text-[13px] font-semibold text-[#1A1918]">{item.title}</p>
+              <p className="text-[11px] text-[#868B94]">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}

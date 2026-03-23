@@ -29,7 +29,8 @@ const TABS_BY_MODE: Record<string, Tab[]> = {
     { href: '/us', icon: UsersIcon, label: '우리' },
   ],
   preparing: [
-    { href: '/preparing', icon: SunIcon, label: '준비' },
+    { href: '/preparing', icon: SunIcon, label: '오늘' },
+    { href: '/waiting', icon: HeartIcon, label: '기다림' },
     { href: '/community', icon: ShieldIcon, label: '소통' },
     { href: '/us', icon: UsersIcon, label: '우리' },
   ],
