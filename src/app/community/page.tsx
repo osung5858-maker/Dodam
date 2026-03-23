@@ -115,7 +115,7 @@ export default function CommunityPage() {
 
       const [postsRes, itemsRes] = await Promise.all([
         supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(30),
-        supabase.from('market_items').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30),
+        supabase.from('market_items').select('*').order('created_at', { ascending: false }).limit(30),
       ])
       setPosts((postsRes.data as Post[]) || [])
       setItems((itemsRes.data as MarketItem[]) || [])
@@ -383,13 +383,14 @@ export default function CommunityPage() {
             {items.length === 0 ? (
               <div className="bg-white rounded-xl p-8 border border-[#f0f0f0] text-center">
                 <p className="text-2xl mb-2">🎁</p>
-                <p className="text-[13px] text-[#868B94]">아직 도담장터이 없어요</p>
-                <p className="text-[11px] text-[#AEB1B9] mt-1">쓰지 않는 육아용품을 나눠보세요!</p>
+                <p className="text-[13px] text-[#868B94]">아직 등록된 물품이 없어요</p>
+                <p className="text-[11px] text-[#AEB1B9] mt-1">쓰지 않는 육아용품을 등록해보세요!</p>
               </div>
             ) : items.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl p-4 border border-[#f0f0f0]">
-                <div className="flex items-start gap-3">
-                  <div className="w-16 h-16 rounded-xl bg-[#F5F4F1] flex items-center justify-center shrink-0 overflow-hidden">
+              <div key={item.id} className="bg-white rounded-xl border border-[#f0f0f0] overflow-hidden">
+                {/* 썸네일 + 기본 정보 */}
+                <div className="flex items-start gap-3 p-4">
+                  <div className="w-20 h-20 rounded-xl bg-[#F5F4F1] flex items-center justify-center shrink-0 overflow-hidden">
                     {item.photos && item.photos.length > 0 ? (
                       <img src={item.photos[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -397,28 +398,95 @@ export default function CommunityPage() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-[#1A1918] truncate">{item.title}</p>
-                    <p className="text-[11px] text-[#868B94] mt-0.5">
-                      {item.baby_age_months}개월 · {item.region}
-                    </p>
-                    <div className="flex items-center justify-between mt-2">
-                      <p className={`text-[14px] font-bold ${item.price === 0 ? 'text-[#3D8A5A]' : 'text-[#1A1918]'}`}>
-                        {item.price === 0 ? '무료 나눔' : `${item.price.toLocaleString()}원`}
-                      </p>
-                      <div className="flex items-center gap-2">
-                        {item.status === 'reserved' && (
-                          <span className="text-[9px] font-semibold text-[#D89575] bg-[#FEF0E8] px-1.5 py-0.5 rounded">예약중</span>
-                        )}
-                        <p className="text-[10px] text-[#AEB1B9]">{timeAgo(item.created_at)}</p>
-                      </div>
+                    <div className="flex items-center gap-1.5">
+                      {item.status === 'reserved' && (
+                        <span className="text-[9px] font-semibold text-white bg-[#D89575] px-1.5 py-0.5 rounded">예약중</span>
+                      )}
+                      {item.status === 'done' && (
+                        <span className="text-[9px] font-semibold text-white bg-[#AEB1B9] px-1.5 py-0.5 rounded">거래완료</span>
+                      )}
+                      <p className={`text-[14px] font-semibold truncate ${item.status === 'done' ? 'text-[#AEB1B9]' : 'text-[#1A1918]'}`}>{item.title}</p>
                     </div>
+                    <p className="text-[11px] text-[#868B94] mt-0.5">{CATEGORY_LABELS[item.category] || item.category} · {item.baby_age_months}개월</p>
+                    <p className="text-[10px] text-[#AEB1B9] mt-0.5">📍 {item.region} · {timeAgo(item.created_at)}</p>
+                    <p className={`text-[15px] font-bold mt-1 ${item.price === 0 ? 'text-[#3D8A5A]' : 'text-[#1A1918]'}`}>
+                      {item.price === 0 ? '무료 나눔' : `${item.price.toLocaleString()}원`}
+                    </p>
                   </div>
                 </div>
-                {item.user_id === userId && (
-                  <div className="flex justify-end mt-2 pt-2 border-t border-[#f0f0f0]">
-                    <button onClick={() => handleDeleteItem(item.id)} className="text-[10px] text-[#AEB1B9]">삭제</button>
+
+                {/* 설명 (있으면) */}
+                {item.description && (
+                  <div className="px-4 pb-3">
+                    <p className="text-[12px] text-[#868B94] line-clamp-2">{item.description}</p>
                   </div>
                 )}
+
+                {/* 사진 여러장 (있으면) */}
+                {item.photos && item.photos.length > 1 && (
+                  <div className="flex gap-1 px-4 pb-3 overflow-x-auto">
+                    {item.photos.map((url: string, i: number) => (
+                      <div key={i} className="w-14 h-14 rounded-lg bg-[#F5F4F1] shrink-0 overflow-hidden">
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 액션 버튼 */}
+                <div className="flex border-t border-[#f0f0f0]">
+                  {item.user_id === userId ? (
+                    <>
+                      {/* 내 글: 상태 변경 + 삭제 */}
+                      {item.status === 'active' && (
+                        <button
+                          onClick={async () => {
+                            await supabase.from('market_items').update({ status: 'reserved' }).eq('id', item.id)
+                            setItems((prev) => prev.map((i) => i.id === item.id ? { ...i, status: 'reserved' } : i))
+                          }}
+                          className="flex-1 py-2.5 text-[12px] font-semibold text-[#D89575] text-center"
+                        >
+                          예약중으로 변경
+                        </button>
+                      )}
+                      {item.status === 'reserved' && (
+                        <button
+                          onClick={async () => {
+                            await supabase.from('market_items').update({ status: 'done' }).eq('id', item.id)
+                            setItems((prev) => prev.map((i) => i.id === item.id ? { ...i, status: 'done' } : i))
+                          }}
+                          className="flex-1 py-2.5 text-[12px] font-semibold text-[#3D8A5A] text-center"
+                        >
+                          거래완료
+                        </button>
+                      )}
+                      <button
+                        onClick={() => { if (confirm('정말 삭제할까요?')) handleDeleteItem(item.id) }}
+                        className="py-2.5 px-4 text-[12px] text-[#AEB1B9] border-l border-[#f0f0f0]"
+                      >
+                        삭제
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {/* 다른 사람 글: 거래 신청 */}
+                      {item.status === 'active' && (
+                        <button
+                          onClick={() => alert('채팅 기능은 준비 중이에요. 소통 탭에서 글로 문의해주세요!')}
+                          className="flex-1 py-2.5 text-[12px] font-semibold text-[#3D8A5A] text-center"
+                        >
+                          거래 신청하기
+                        </button>
+                      )}
+                      {item.status === 'reserved' && (
+                        <p className="flex-1 py-2.5 text-[12px] text-[#868B94] text-center">예약된 물품이에요</p>
+                      )}
+                      {item.status === 'done' && (
+                        <p className="flex-1 py-2.5 text-[12px] text-[#AEB1B9] text-center">거래가 완료되었어요</p>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
             ))}
           </div>
