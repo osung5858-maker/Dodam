@@ -408,26 +408,64 @@ export default function NamePage() {
                   </button>
                 </div>
 
-                {/* 음양오행 차트 */}
+                {/* 음양오행 레이더 차트 */}
                 {analyzeResult.fiveElements && (
                   <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
                     <p className="text-[13px] font-bold text-[#1A1918] mb-3">☯️ 음양오행</p>
-                    <div className="space-y-2 mb-3">
-                      {ELEMENTS.map(el => {
-                        const val = analyzeResult.fiveElements[el.key] || 0
-                        return (
-                          <div key={el.key} className="flex items-center gap-2">
-                            <span className="text-sm w-6">{el.emoji}</span>
-                            <span className="text-[11px] text-[#868B94] w-12">{el.label}</span>
-                            <div className="flex-1 h-2 bg-[#F0F0F0] rounded-full">
-                              <div className="h-full rounded-full" style={{ width: `${val}%`, backgroundColor: el.color }} />
-                            </div>
-                            <span className="text-[10px] text-[#868B94] w-8 text-right">{val}</span>
-                          </div>
-                        )
-                      })}
+                    <div className="flex justify-center mb-3">
+                      <svg viewBox="0 0 200 200" width="200" height="200">
+                        {/* 배경 오각형 (3단계) */}
+                        {[100, 66, 33].map(scale => {
+                          const points = ELEMENTS.map((_, i) => {
+                            const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
+                            const r = scale * 0.8
+                            return `${100 + r * Math.cos(angle)},${100 + r * Math.sin(angle)}`
+                          }).join(' ')
+                          return <polygon key={scale} points={points} fill="none" stroke="#F0F0F0" strokeWidth="1" />
+                        })}
+                        {/* 축 라인 */}
+                        {ELEMENTS.map((_, i) => {
+                          const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
+                          return <line key={i} x1="100" y1="100" x2={100 + 80 * Math.cos(angle)} y2={100 + 80 * Math.sin(angle)} stroke="#F0F0F0" strokeWidth="1" />
+                        })}
+                        {/* 데이터 오각형 */}
+                        <polygon
+                          points={ELEMENTS.map((el, i) => {
+                            const val = (analyzeResult.fiveElements[el.key] || 0) / 100
+                            const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
+                            const r = val * 80
+                            return `${100 + r * Math.cos(angle)},${100 + r * Math.sin(angle)}`
+                          }).join(' ')}
+                          fill="rgba(61,138,90,0.2)" stroke="#3D8A5A" strokeWidth="2"
+                        />
+                        {/* 꼭짓점 점 */}
+                        {ELEMENTS.map((el, i) => {
+                          const val = (analyzeResult.fiveElements[el.key] || 0) / 100
+                          const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
+                          const r = val * 80
+                          return <circle key={el.key} cx={100 + r * Math.cos(angle)} cy={100 + r * Math.sin(angle)} r="3" fill="#3D8A5A" />
+                        })}
+                        {/* 라벨 */}
+                        {ELEMENTS.map((el, i) => {
+                          const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2
+                          const r = 95
+                          const val = analyzeResult.fiveElements[el.key] || 0
+                          return (
+                            <text key={el.key} x={100 + r * Math.cos(angle)} y={100 + r * Math.sin(angle)}
+                              textAnchor="middle" dominantBaseline="middle" fontSize="11" fill={el.color} fontWeight="600">
+                              {el.emoji} {val}
+                            </text>
+                          )
+                        })}
+                      </svg>
                     </div>
-                    <p className="text-[11px] text-[#1A1918]">{analyzeResult.fiveElements.balance}</p>
+                    {/* 범례 */}
+                    <div className="flex justify-center gap-3 mb-2">
+                      {ELEMENTS.map(el => (
+                        <span key={el.key} className="text-[10px]" style={{ color: el.color }}>{el.label}</span>
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-[#1A1918] text-center">{analyzeResult.fiveElements.balance}</p>
                   </div>
                 )}
 
