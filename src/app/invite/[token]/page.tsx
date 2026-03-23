@@ -17,28 +17,25 @@ export default function InviteAcceptPage() {
 
   useEffect(() => {
     async function checkInvite() {
-      // 토큰으로 초대 조회
-      const { data: invite } = await supabase
-        .from('caregivers')
-        .select('*, children(name)')
-        .eq('invite_token', token)
-        .single()
+      // API route로 토큰 조회 (RLS 우회)
+      try {
+        const res = await fetch(`/api/invite?token=${token}`)
+        const data = await res.json()
 
-      if (!invite) { setStatus('expired'); return }
-
-      // 만료 확인
-      if (invite.invite_expires_at && new Date(invite.invite_expires_at) < new Date()) {
-        setStatus('expired'); return
+        if (data.status === 'expired') { setStatus('expired'); return }
+        if (data.status === 'accepted') { setStatus('accepted'); return }
+        if (data.status === 'valid') {
+          setChildName(data.childName || '도담이')
+          setStatus('valid')
+        } else {
+          setStatus('expired')
+        }
+      } catch {
+        setStatus('error')
       }
-
-      // 이미 수락됨
-      if (invite.accepted_at) { setStatus('accepted'); return }
-
-      setChildName((invite.children as { name: string })?.name || '도담이')
-      setStatus('valid')
     }
     checkInvite()
-  }, [token]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [token])
 
   const handleAccept = async () => {
     setProcessing(true)
@@ -57,23 +54,27 @@ export default function InviteAcceptPage() {
       return
     }
 
-    // 초대 수락: user_id 업데이트 + accepted_at 설정
-    const { error } = await supabase
-      .from('caregivers')
-      .update({
-        user_id: user.id,
-        accepted_at: new Date().toISOString(),
+    // API route로 초대 수락 (RLS 우회)
+    try {
+      const res = await fetch('/api/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, userId: user.id }),
       })
-      .eq('invite_token', token)
+      const data = await res.json()
 
-    if (error) {
-      console.error('Accept error:', error)
+      if (data.error) {
+        console.error('Accept error:', data.error)
+        setStatus('error')
+        setProcessing(false)
+        return
+      }
+
+      window.location.href = '/'
+    } catch {
       setStatus('error')
       setProcessing(false)
-      return
     }
-
-    window.location.href = '/'
   }
 
   return (

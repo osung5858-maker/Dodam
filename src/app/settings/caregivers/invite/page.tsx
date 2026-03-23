@@ -27,12 +27,15 @@ export default function InvitePage() {
       const token = crypto.randomUUID()
       const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString() // 72시간
 
+      // user_id는 수락 시 설정. 초대 단계에서는 placeholder로 비워둠
+      // RLS 우회를 위해 서비스 역할 또는 invited_by 패턴 사용
       await supabase.from('caregivers').insert({
         child_id: children[0].id,
-        user_id: user.id, // 임시로 본인 ID (수락 시 변경)
+        user_id: '00000000-0000-0000-0000-000000000000', // placeholder (수락 시 실제 user_id로 교체)
         role: 'caregiver',
         invite_token: token,
         invite_expires_at: expiresAt,
+        permissions: { record: true, view: true, edit: false, delete: false },
       })
 
       setInviteLink(`${window.location.origin}/invite/${token}`)
