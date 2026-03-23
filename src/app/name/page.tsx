@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-type Tab = 'nickname' | 'suggest' | 'analyze'
+type Tab = 'nickname' | 'suggest' | 'compare' | 'analyze'
 
 const THEMES = ['건강하게', '지혜롭게', '사랑받는', '밝고 환한', '자연을 닮은', '큰 뜻을 품은', '예술적인', '강인한']
 const ELEMENTS = [
@@ -34,6 +34,11 @@ export default function NamePage() {
   const [analyzeName, setAnalyzeName] = useState('')
   const [birthYear, setBirthYear] = useState('')
   const [analyzeResult, setAnalyzeResult] = useState<any>(null)
+
+  // 이름 비교
+  const [compareNames, setCompareNames] = useState<string[]>(['', '', ''])
+  const [compareBirthYear, setCompareBirthYear] = useState('')
+  const [compareResult, setCompareResult] = useState<any>(null)
 
   // 저장된 이름
   const [saved, setSaved] = useState<string[]>(() => {
@@ -87,6 +92,31 @@ export default function NamePage() {
     setLoading(false)
   }
 
+  const fetchCompare = async () => {
+    const valid = compareNames.filter(n => n.trim())
+    if (valid.length < 2) { setError('2개 이상 이름을 입력해주세요'); return }
+    setLoading(true); setError(null)
+    try {
+      const res = await fetch('/api/ai-name', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'compare', names: valid, birthYear: compareBirthYear }),
+      })
+      const data = await res.json()
+      if (data.error) setError(data.error); else setCompareResult(data)
+    } catch (e) { setError(`${e}`) }
+    setLoading(false)
+  }
+
+  const updateCompareName = (index: number, value: string) => {
+    const next = [...compareNames]
+    next[index] = value
+    setCompareNames(next)
+  }
+
+  const addCompareSlot = () => {
+    if (compareNames.length < 6) setCompareNames([...compareNames, ''])
+  }
+
   return (
     <div className="min-h-[100dvh] bg-[#F5F4F1]">
       <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
@@ -97,10 +127,11 @@ export default function NamePage() {
 
       <div className="max-w-lg mx-auto px-5 pt-4 pb-28">
         {/* 탭 */}
-        <div className="flex gap-1.5 mb-4">
+        <div className="flex gap-1 mb-4">
           {[
             { key: 'nickname' as Tab, label: '태명' },
-            { key: 'suggest' as Tab, label: '이름 추천' },
+            { key: 'suggest' as Tab, label: 'AI 추천' },
+            { key: 'compare' as Tab, label: '후보 비교' },
             { key: 'analyze' as Tab, label: '이름 분석' },
           ].map(t => (
             <button key={t.key} onClick={() => { setTab(t.key); setError(null) }}
@@ -234,6 +265,107 @@ export default function NamePage() {
                 {n.scoreDetail && <p className="text-[10px] text-[#AEB1B9] mt-1">{n.scoreDetail}</p>}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* ===== 후보 비교 탭 ===== */}
+        {tab === 'compare' && (
+          <div className="space-y-3">
+            <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+              <p className="text-[14px] font-bold text-[#1A1918] mb-1">🏆 이름 후보 비교</p>
+              <p className="text-[11px] text-[#868B94] mb-3">원하는 이름을 입력하면 AI가 비교 분석해드려요</p>
+
+              <div className="space-y-2 mb-3">
+                {compareNames.map((name, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[12px] text-[#AEB1B9] w-5">{i + 1}.</span>
+                    <input value={name} onChange={e => updateCompareName(i, e.target.value)} placeholder={`후보 ${i + 1}`}
+                      className="flex-1 h-10 rounded-lg border border-[#f0f0f0] px-3 text-[14px]" />
+                    {compareNames.length > 2 && (
+                      <button onClick={() => setCompareNames(compareNames.filter((_, j) => j !== i))} className="text-[#AEB1B9] text-lg">×</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex gap-2 mb-3">
+                {compareNames.length < 6 && (
+                  <button onClick={addCompareSlot} className="flex-1 py-2 rounded-lg border border-dashed border-[#AEB1B9] text-[12px] text-[#868B94]">+ 후보 추가</button>
+                )}
+                <div className="flex-1">
+                  <input value={compareBirthYear} onChange={e => setCompareBirthYear(e.target.value)} placeholder="출생 연도 (선택)"
+                    className="w-full h-9 rounded-lg border border-[#f0f0f0] px-3 text-[12px]" />
+                </div>
+              </div>
+
+              {/* 저장된 이름에서 추가 */}
+              {saved.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-[10px] text-[#868B94] mb-1">저장된 이름에서 추가</p>
+                  <div className="flex flex-wrap gap-1">
+                    {saved.filter(n => !compareNames.includes(n)).map(name => (
+                      <button key={name} onClick={() => {
+                        const emptyIdx = compareNames.findIndex(n => !n.trim())
+                        if (emptyIdx >= 0) updateCompareName(emptyIdx, name)
+                        else if (compareNames.length < 6) setCompareNames([...compareNames, name])
+                      }} className="px-2 py-1 rounded-full bg-[#F0F9F4] text-[10px] text-[#3D8A5A]">
+                        + {name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button onClick={fetchCompare} disabled={loading}
+                className="w-full py-2.5 bg-[#3D8A5A] text-white text-[13px] font-semibold rounded-xl active:opacity-80 disabled:opacity-50">
+                {loading ? 'AI가 비교 분석 중...' : '비교 분석하기 🏆'}
+              </button>
+            </div>
+
+            {compareResult && (
+              <>
+                {/* 순위 결과 */}
+                {compareResult.results?.map((r: any, i: number) => (
+                  <div key={i} className={`bg-white rounded-xl border ${r.rank === 1 ? 'border-[#C8F0D8] bg-gradient-to-br from-white to-[#F0F9F4]' : 'border-[#f0f0f0]'} p-4`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold ${
+                          r.rank === 1 ? 'bg-[#3D8A5A] text-white' : r.rank === 2 ? 'bg-[#C4A35A] text-white' : 'bg-[#F0F0F0] text-[#868B94]'
+                        }`}>{r.rank}</div>
+                        <div>
+                          <p className="text-[16px] font-bold text-[#1A1918]">{r.name}</p>
+                          {r.hanja && <p className="text-[10px] text-[#AEB1B9]">{r.hanja}</p>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${r.rank === 1 ? 'bg-[#3D8A5A]' : 'bg-[#F5F4F1]'}`}>
+                          <span className={`text-[14px] font-bold ${r.rank === 1 ? 'text-white' : 'text-[#1A1918]'}`}>{r.score}</span>
+                        </div>
+                        <button onClick={() => saveName(r.name)} className={`text-[11px] px-2 py-0.5 rounded-full ${saved.includes(r.name) ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
+                          {saved.includes(r.name) ? '♥' : '♡'}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-[12px] text-[#1A1918] mb-1">{r.meaning}</p>
+                    <div className="flex flex-wrap gap-1.5 mb-1">
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-[#F0F9F4] text-[#3D8A5A]">{r.fiveElements}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-[#F5F4F1] text-[#868B94]">{r.pronunciation}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-[#F5F4F1] text-[#868B94]">{r.strokes}</span>
+                    </div>
+                    {r.highlight && <p className="text-[11px] text-[#3D8A5A]">✨ {r.highlight}</p>}
+                  </div>
+                ))}
+
+                {/* 종합 추천 */}
+                {compareResult.recommendation && (
+                  <div className="bg-[#F0F9F4] rounded-xl border border-[#C8F0D8] p-4">
+                    <p className="text-[13px] font-bold text-[#3D8A5A] mb-1">🏆 AI 추천</p>
+                    <p className="text-[12px] text-[#1A1918] leading-relaxed">{compareResult.recommendation}</p>
+                    {compareResult.tip && <p className="text-[10px] text-[#868B94] mt-2">{compareResult.tip}</p>}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 

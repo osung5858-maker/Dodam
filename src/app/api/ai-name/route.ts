@@ -148,6 +148,50 @@ JSON만 출력.`
       }
     }
 
+    // === 이름 비교 분석 ===
+    if (type === 'compare') {
+      const { names, birthYear } = body
+
+      const prompt = `한국 아기 이름 후보들을 음양오행 기반으로 비교 분석해주세요.
+
+[후보 이름]
+${(names as string[]).map((n: string, i: number) => `${i + 1}. ${n}`).join('\n')}
+- 출생 연도: ${birthYear || '미정'}
+
+각 이름을 분석하고 순위를 매겨주세요.
+
+JSON으로 출력:
+{
+  "results": [
+    {
+      "rank": 1,
+      "name": "이름",
+      "hanja": "추정 한자",
+      "score": 1~100,
+      "meaning": "뜻풀이 (1문장)",
+      "fiveElements": "주요 오행 요소",
+      "yinYang": "음양 조화 한줄",
+      "pronunciation": "좋음/보통/아쉬움",
+      "strokes": "획수 길흉",
+      "highlight": "이 이름의 가장 큰 장점 1문장"
+    }
+  ],
+  "recommendation": "종합 추천 의견 (어떤 이름이 가장 좋은지, 왜인지 2문장)",
+  "tip": "이름 선택 시 참고 사항 1문장"
+}
+점수 순으로 정렬. JSON만 출력.`
+
+      const { text, error } = await callGemini(prompt, 1000)
+      if (!text) return NextResponse.json({ error: error || 'AI failed' }, { status: 500 })
+      try {
+        const match = text.match(/\{[\s\S]*\}/)
+        if (!match) return NextResponse.json({ error: 'parse error' }, { status: 500 })
+        return NextResponse.json(JSON.parse(match[0]))
+      } catch {
+        return NextResponse.json({ error: 'parse error' }, { status: 500 })
+      }
+    }
+
     return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
