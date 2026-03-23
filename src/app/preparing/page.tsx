@@ -375,11 +375,11 @@ export default function PreparingPage() {
             <p className="text-[12px] font-semibold text-[#868B94] mb-1.5">오늘 기분</p>
             <div className="flex gap-1.5">
               {[
-                { emoji: '😊', key: 'hopeful' },
-                { emoji: '😌', key: 'calm' },
-                { emoji: '😰', key: 'anxious' },
-                { emoji: '😢', key: 'tired' },
-                { emoji: '🥰', key: 'excited' },
+                { emoji: '😊', key: 'hopeful', msg: '희망찬 하루! 그 마음이 좋은 에너지가 돼요 ✨' },
+                { emoji: '😌', key: 'calm', msg: '평온한 마음, 아이에게도 전해질 거예요 🌿' },
+                { emoji: '😰', key: 'anxious', msg: '괜찮아요. 불안한 건 그만큼 간절하기 때문이에요 💚' },
+                { emoji: '😢', key: 'tired', msg: '지친 날도 있는 거예요. 오늘은 푹 쉬세요 🫂' },
+                { emoji: '🥰', key: 'excited', msg: '설레는 마음, 그대로 간직하세요! 좋은 일이 올 거예요 💕' },
               ].map((m) => (
                 <button key={m.key} onClick={() => saveMood(m.key)}
                   className={`flex-1 py-1.5 rounded-lg text-center text-lg ${todayMood === m.key ? 'bg-[#3D8A5A] ring-2 ring-[#3D8A5A]/30' : 'bg-[#F5F4F1]'}`}>
@@ -387,6 +387,11 @@ export default function PreparingPage() {
                 </button>
               ))}
             </div>
+            {todayMood && (
+              <p className="text-[11px] text-[#3D8A5A] mt-2 text-center animate-[fadeIn_0.3s]">
+                {({ hopeful: '희망찬 하루! 그 마음이 좋은 에너지가 돼요 ✨', calm: '평온한 마음, 아이에게도 전해질 거예요 🌿', anxious: '괜찮아요. 불안한 건 그만큼 간절하기 때문이에요 💚', tired: '지친 날도 있는 거예요. 오늘은 푹 쉬세요 🫂', excited: '설레는 마음, 그대로 간직하세요! 💕' } as Record<string, string>)[todayMood]}
+              </p>
+            )}
           </div>
         </div>
 

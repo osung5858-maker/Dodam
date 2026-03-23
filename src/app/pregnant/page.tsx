@@ -307,6 +307,11 @@ export default function PregnantPage() {
                 </button>
               ))}
             </div>
+            {mood && (
+              <p className="text-[11px] text-[#3D8A5A] mt-2 text-center">
+                {({ happy: '행복한 엄마, 행복한 아이! 오늘도 도담하게 💛', calm: '평온한 마음이 아이에게 최고의 태교예요 🌿', anxious: '걱정은 사랑의 다른 이름이에요. 괜찮아요 💚', sick: '입덧이 힘들죠. 이것도 아이가 잘 자라는 신호예요 🤗', tired: '피곤한 날엔 아이와 함께 쉬어요. 쉬는 것도 돌봄이에요 🫂' } as Record<string, string>)[mood]}
+              </p>
+            )}
           </div>
 
           {/* 건강 기록 인라인 */}
@@ -361,31 +366,67 @@ export default function PregnantPage() {
           </div>
         </div>
 
-        {/* ━━━ 3. 상태 카드 3열 ━━━ */}
-        <div className="grid grid-cols-3 gap-2">
-          {/* 다음 검진 */}
-          <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
-            <p className="text-[10px] text-[#868B94]">🏥 다음 검진</p>
-            {upcomingCheckups.length > 0 ? (
-              <>
-                <p className="text-[12px] font-bold text-[#1A1918] mt-0.5 line-clamp-1">{upcomingCheckups[0].title}</p>
-                <p className="text-[9px] text-[#3D8A5A]">{upcomingCheckups[0].week}주</p>
-              </>
-            ) : <p className="text-[11px] text-[#AEB1B9] mt-1">완료!</p>}
-          </div>
-
-          {/* 출산 가방 */}
-          <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
-            <p className="text-[10px] text-[#868B94]">🎒 출산 가방</p>
-            <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{bagDone}<span className="text-[12px] text-[#AEB1B9]">/{bagTotal}</span></p>
-          </div>
-
-          {/* 태동 */}
-          <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
-            <p className="text-[10px] text-[#868B94]">👶 오늘 태동</p>
-            <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[12px] text-[#AEB1B9]">회</span></p>
-          </div>
-        </div>
+        {/* ━━━ 3. 상태 카드 — 주차별 동적 ━━━ */}
+        {(() => {
+          // 초기(~13주): 검진 중심
+          if (currentWeek <= 13) return (
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">🏥 다음 검진</p>
+                {upcomingCheckups.length > 0 ? (
+                  <><p className="text-[12px] font-bold text-[#1A1918] mt-0.5 line-clamp-1">{upcomingCheckups[0].title}</p><p className="text-[9px] text-[#3D8A5A]">{upcomingCheckups[0].week}주</p></>
+                ) : <p className="text-[11px] text-[#AEB1B9] mt-1">완료!</p>}
+              </div>
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">📅 주차</p>
+                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{currentWeek}<span className="text-[12px] text-[#AEB1B9]">주</span></p>
+              </div>
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">🎯 D-day</p>
+                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{daysLeft}<span className="text-[12px] text-[#AEB1B9]">일</span></p>
+              </div>
+            </div>
+          )
+          // 중기(14~27주): 검진 + 태동 시작
+          if (currentWeek <= 27) return (
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">🏥 다음 검진</p>
+                {upcomingCheckups.length > 0 ? (
+                  <><p className="text-[12px] font-bold text-[#1A1918] mt-0.5 line-clamp-1">{upcomingCheckups[0].title}</p><p className="text-[9px] text-[#3D8A5A]">{upcomingCheckups[0].week}주</p></>
+                ) : <p className="text-[11px] text-[#AEB1B9] mt-1">완료!</p>}
+              </div>
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">👶 오늘 태동</p>
+                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[12px] text-[#AEB1B9]">회</span></p>
+              </div>
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">🎯 D-day</p>
+                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{daysLeft}<span className="text-[12px] text-[#AEB1B9]">일</span></p>
+              </div>
+            </div>
+          )
+          // 후기(28주+): 출산 가방 + 태동 + 검진
+          return (
+            <div className="grid grid-cols-3 gap-2">
+              <div className={`bg-white rounded-xl border p-2.5 text-center ${bagDone < bagTotal ? 'border-[#C8F0D8]' : 'border-[#f0f0f0]'}`}>
+                <p className="text-[10px] text-[#868B94]">🎒 출산 가방</p>
+                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{bagDone}<span className="text-[12px] text-[#AEB1B9]">/{bagTotal}</span></p>
+                {bagDone < bagTotal && <p className="text-[8px] text-[#3D8A5A]">준비하세요!</p>}
+              </div>
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">👶 오늘 태동</p>
+                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[12px] text-[#AEB1B9]">회</span></p>
+                {fetalMove > 0 && fetalMove < 10 && <p className="text-[8px] text-[#D08068]">10회 이상 확인</p>}
+              </div>
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">🎯 D-day</p>
+                <p className={`text-[20px] font-bold mt-0.5 ${daysLeft <= 14 ? 'text-[#D08068]' : 'text-[#1A1918]'}`}>{daysLeft}<span className="text-[12px] text-[#AEB1B9]">일</span></p>
+                {daysLeft <= 14 && <p className="text-[8px] text-[#D08068]">곧 만나요!</p>}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* ━━━ 4. 진통 타이머 (후기만) ━━━ */}
         {currentWeek >= 36 && (
