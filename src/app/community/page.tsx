@@ -15,6 +15,14 @@ interface Post {
   created_at: string
 }
 
+interface Comment {
+  id: string
+  post_id: string
+  user_id: string
+  content: string
+  created_at: string
+}
+
 interface MarketItem {
   id: string
   user_id: string
@@ -70,6 +78,12 @@ export default function CommunityPage() {
   const [writeOpen, setWriteOpen] = useState(false)
   const [writeText, setWriteText] = useState('')
   const [posting, setPosting] = useState(false)
+
+  // 댓글
+  const [openComments, setOpenComments] = useState<string | null>(null)
+  const [comments, setComments] = useState<Record<string, Comment[]>>({})
+  const [commentText, setCommentText] = useState('')
+  const [commentLoading, setCommentLoading] = useState(false)
 
   // 나눔 등록
   const [marketOpen, setMarketOpen] = useState(false)
@@ -139,6 +153,47 @@ export default function CommunityPage() {
   const handleDelete = useCallback(async (postId: string) => {
     await supabase.from('posts').delete().eq('id', postId)
     setPosts((prev) => prev.filter((p) => p.id !== postId))
+  }, [supabase])
+
+  // 댓글 로드
+  const loadComments = useCallback(async (postId: string) => {
+    const { data } = await supabase
+      .from('comments').select('*').eq('post_id', postId)
+      .order('created_at', { ascending: true })
+    if (data) setComments((prev) => ({ ...prev, [postId]: data as Comment[] }))
+  }, [supabase])
+
+  // 댓글 토글
+  const toggleComments = useCallback(async (postId: string) => {
+    if (openComments === postId) {
+      setOpenComments(null)
+    } else {
+      setOpenComments(postId)
+      if (!comments[postId]) await loadComments(postId)
+    }
+    setCommentText('')
+  }, [openComments, comments, loadComments])
+
+  // 댓글 작성
+  const submitComment = useCallback(async (postId: string) => {
+    if (!commentText.trim() || !userId || commentLoading) return
+    setCommentLoading(true)
+    const { data } = await supabase
+      .from('comments').insert({ post_id: postId, user_id: userId, content: commentText.trim() })
+      .select().single()
+    if (data) {
+      setComments((prev) => ({ ...prev, [postId]: [...(prev[postId] || []), data as Comment] }))
+      setPosts((prev) => prev.map((p) => p.id === postId ? { ...p, comment_count: p.comment_count + 1 } : p))
+    }
+    setCommentText('')
+    setCommentLoading(false)
+  }, [commentText, userId, commentLoading, supabase])
+
+  // 댓글 삭제
+  const deleteComment = useCallback(async (commentId: string, postId: string) => {
+    await supabase.from('comments').delete().eq('id', commentId)
+    setComments((prev) => ({ ...prev, [postId]: (prev[postId] || []).filter((c) => c.id !== commentId) }))
+    setPosts((prev) => prev.map((p) => p.id === postId ? { ...p, comment_count: Math.max(0, p.comment_count - 1) } : p))
   }, [supabase])
 
   const handleDeleteItem = useCallback(async (itemId: string) => {
@@ -227,8 +282,62 @@ export default function CommunityPage() {
                     >
                       {userLikes.has(post.id) ? '♥' : '♡'} {post.like_count}
                     </button>
-                    <span className="text-[11px] text-[#868B94]">💬 {post.comment_count}</span>
+                    <button
+                      onClick={() => toggleComments(post.id)}
+                      className={`flex items-center gap-1 text-[11px] ${openComments === post.id ? 'text-[#3D8A5A] font-semibold' : 'text-[#868B94]'}`}
+                    >
+                      💬 {post.comment_count}
+                    </button>
                   </div>
+
+                  {/* 댓글 섹션 */}
+                  {openComments === post.id && (
+                    <div className="mt-3 pt-3 border-t border-[#f0f0f0]">
+                      {/* 댓글 목록 */}
+                      {(comments[post.id] || []).length > 0 ? (
+                        <div className="space-y-2 mb-3">
+                          {(comments[post.id] || []).map((c) => (
+                            <div key={c.id} className="flex gap-2">
+                              <div className="w-6 h-6 rounded-full bg-[#F5F4F1] flex items-center justify-center shrink-0 mt-0.5">
+                                <span className="text-[8px] font-bold text-[#3D8A5A]">도</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-[12px] text-[#1A1918] leading-relaxed">{c.content}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-[9px] text-[#AEB1B9]">{timeAgo(c.created_at)}</span>
+                                  {c.user_id === userId && (
+                                    <button onClick={() => deleteComment(c.id, post.id)} className="text-[9px] text-[#AEB1B9]">삭제</button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-[#AEB1B9] text-center mb-3">아직 댓글이 없어요</p>
+                      )}
+
+                      {/* 댓글 입력 */}
+                      <div className="flex gap-2">
+                        <input
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value.slice(0, 500))}
+                          placeholder="댓글을 입력하세요..."
+                          className="flex-1 h-9 px-3 rounded-xl bg-[#F5F4F1] text-[12px] focus:outline-none"
+                          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(post.id) } }}
+                        />
+                        <button
+                          onClick={() => submitComment(post.id)}
+                          disabled={!commentText.trim() || commentLoading}
+                          className={`px-3 h-9 rounded-xl text-[12px] font-semibold shrink-0 ${
+                            commentText.trim() ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#AEB1B9]'
+                          }`}
+                        >
+                          {commentLoading ? '...' : '등록'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
