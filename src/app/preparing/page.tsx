@@ -311,7 +311,7 @@ export default function PreparingPage() {
                 <button onClick={() => fetchAIBriefing(true)} className="text-[10px] text-[#AEB1B9]">새로고침</button>
               </div>
             ) : (
-              <button onClick={fetchAIBriefing} className="w-full py-3 text-[12px] text-[#3D8A5A] font-semibold">AI 조언 받기 ✨</button>
+              <button onClick={() => fetchAIBriefing()} className="w-full py-3 text-[12px] text-[#3D8A5A] font-semibold">AI 조언 받기 ✨</button>
             )}
 
             {/* 투윅웨이트 인라인 */}
