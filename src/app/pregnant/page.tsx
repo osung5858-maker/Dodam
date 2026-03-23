@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react'
 import { shareFetalSize, shareDday } from '@/lib/kakao/share-pregnant'
+import StreakCard from '@/components/engagement/StreakCard'
+import CommunityTeaser from '@/components/engagement/CommunityTeaser'
 
 // ===== 태아 데이터 =====
 const FETAL_DATA = [
@@ -410,6 +412,10 @@ export default function PregnantPage() {
             <p className="text-[9px] text-[#AEB1B9] mt-2">기록: {contractions.length}회{contractions.length >= 3 ? ` · 평균 ${Math.round(contractions.slice(1).reduce((sum, c, i) => sum + (c.start - contractions[i].start), 0) / ((contractions.length - 1) * 60000))}분 간격` : ''}</p>
           </div>
         )}
+
+        {/* ━━━ 스트릭 + 커뮤니티 ━━━ */}
+        <StreakCard mode="pregnant" />
+        <CommunityTeaser />
 
         {/* ━━━ 5. 더보기 ━━━ */}
         <button onClick={() => setMoreOpen(!moreOpen)} className="w-full bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center justify-between">

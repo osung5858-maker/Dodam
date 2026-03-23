@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { shareAIAdvice, shareProgress, sharePartnerNudge } from '@/lib/kakao/share'
+import StreakCard from '@/components/engagement/StreakCard'
+import CommunityTeaser from '@/components/engagement/CommunityTeaser'
 
 function addDays(date: Date, days: number): Date {
   const d = new Date(date); d.setDate(d.getDate() + days); return d
@@ -485,6 +487,10 @@ export default function PreparingPage() {
         >
           📋 준비 현황 카톡으로 공유하기
         </button>
+
+        {/* ━━━ 스트릭 + 커뮤니티 ━━━ */}
+        <StreakCard mode="preparing" />
+        <CommunityTeaser />
 
         {/* ━━━ 5. 더보기 (접이식) ━━━ */}
         <button

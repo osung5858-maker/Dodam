@@ -10,6 +10,8 @@ import Toast from '@/components/ui/Toast'
 import { BellIcon, ChevronRightIcon } from '@/components/ui/Icons'
 import { createClient } from '@/lib/supabase/client'
 import { shareTodayRecord } from '@/lib/kakao/share-parenting'
+import StreakCard from '@/components/engagement/StreakCard'
+import CommunityTeaser from '@/components/engagement/CommunityTeaser'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { savePendingEvent } from '@/lib/offline/db'
 import type { CareEvent, EventType, Child } from '@/types'
@@ -378,6 +380,10 @@ export default function HomePage() {
               <p className="text-[9px] text-[#AEB1B9]">개월</p>
             </Link>
           </div>
+
+          {/* ━━━ 스트릭 + 커뮤니티 ━━━ */}
+          <StreakCard mode="parenting" />
+          <CommunityTeaser />
 
           {/* ━━━ 4. 더보기 ━━━ */}
           <div className="space-y-2">
