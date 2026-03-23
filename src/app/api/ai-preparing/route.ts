@@ -3,23 +3,34 @@ import { NextResponse } from 'next/server'
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`
 
-async function callGemini(prompt: string, maxTokens = 500, temperature = 0.7): Promise<{ text: string | null; error: string | null }> {
-  const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature, maxOutputTokens: maxTokens },
-    }),
-  })
-  if (!res.ok) {
+async function callGemini(prompt: string, maxTokens = 500, temperature = 0.7, retries = 2): Promise<{ text: string | null; error: string | null }> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature, maxOutputTokens: maxTokens },
+      }),
+    })
+
+    if (res.ok) {
+      const data = await res.json()
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null
+      return { text, error: null }
+    }
+
+    // 429 → 잠시 후 재시도
+    if (res.status === 429 && attempt < retries) {
+      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)))
+      continue
+    }
+
     const errBody = await res.text().catch(() => 'unknown')
     console.error(`Gemini ${res.status}: ${errBody}`)
-    return { text: null, error: `Gemini ${res.status}: ${errBody.slice(0, 200)}` }
+    return { text: null, error: `Gemini ${res.status}${res.status === 429 ? ' (한도 초과 — 잠시 후 다시 시도해주세요)' : ''}: ${errBody.slice(0, 150)}` }
   }
-  const data = await res.json()
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null
-  return { text, error: null }
+  return { text: null, error: 'Max retries exceeded' }
 }
 
 export async function POST(request: Request) {
