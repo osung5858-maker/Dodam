@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 // ===== 주기 계산 =====
@@ -51,6 +52,7 @@ const GOV_SUPPORTS = [
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
 export default function WaitingPage() {
+  const router = useRouter()
   const [lastPeriod] = useState<string>(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('dodam_last_period') || ''
     return ''
@@ -168,10 +170,15 @@ export default function WaitingPage() {
     localStorage.setItem('dodam_ovulation_tests', JSON.stringify(next))
   }, [ovulationTests])
 
+  const [showPregConfirm, setShowPregConfirm] = useState(false)
+
   const addPregTest = (result: string) => {
     const dpo = cycle ? Math.floor((Date.now() - cycle.ovulationDay.getTime()) / 86400000) : 0
     const next = [{ date: new Date().toISOString().split('T')[0], result, dpo }, ...pregTests]
     setPregTests(next); localStorage.setItem('dodam_preg_tests', JSON.stringify(next))
+    if (result === '양성') {
+      setShowPregConfirm(true)
+    }
   }
 
   return (
@@ -285,6 +292,34 @@ export default function WaitingPage() {
             </div>
           ))}
         </div>
+
+        {/* 양성 확인 모달 */}
+        {showPregConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-2xl p-6 mx-6 max-w-sm w-full text-center shadow-xl">
+              <span className="text-4xl">🥹</span>
+              <h3 className="text-[18px] font-bold text-[#1A1918] mt-3 mb-1">정말이에요?</h3>
+              <p className="text-[13px] text-[#868B94] mb-5 leading-relaxed">
+                양성이 확인되었어요!<br />
+                임신 모드로 전환할까요?
+              </p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => router.push('/celebration')}
+                  className="w-full py-3 bg-[#3D8A5A] text-white text-[14px] font-semibold rounded-xl active:opacity-80"
+                >
+                  네, 임신했어요! 💛
+                </button>
+                <button
+                  onClick={() => setShowPregConfirm(false)}
+                  className="w-full py-2.5 text-[13px] text-[#868B94]"
+                >
+                  아직 확인이 더 필요해요
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 체크리스트 */}
         <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">

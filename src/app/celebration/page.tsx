@@ -1,0 +1,228 @@
+'use client'
+
+import { useState, useEffect, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default function CelebrationPage() {
+  const router = useRouter()
+  const [step, setStep] = useState(0)
+  const [dueDate, setDueDate] = useState('')
+  const [showConfetti, setShowConfetti] = useState(true)
+
+  // 준비 여정 데이터
+  const journey = useMemo(() => {
+    if (typeof window === 'undefined') return { letters: 0, days: 0, supplements: 0, checks: 0 }
+
+    const letters = (() => {
+      try { return JSON.parse(localStorage.getItem('dodam_letters') || '[]').length } catch { return 0 }
+    })()
+
+    const lastPeriod = localStorage.getItem('dodam_last_period')
+    const days = lastPeriod ? Math.floor((Date.now() - new Date(lastPeriod).getTime()) / 86400000) : 0
+
+    const appointments = (() => {
+      try { return Object.keys(JSON.parse(localStorage.getItem('dodam_appointments') || '{}')).length } catch { return 0 }
+    })()
+
+    const checks = (() => {
+      try { return Object.values(JSON.parse(localStorage.getItem('dodam_preparing_checks') || '{}')).filter(Boolean).length } catch { return 0 }
+    })()
+
+    return { letters, days, supplements: appointments, checks }
+  }, [])
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowConfetti(false), 5000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleComplete = () => {
+    if (dueDate) {
+      localStorage.setItem('dodam_due_date', dueDate)
+    }
+    localStorage.setItem('dodam_mode', 'pregnant')
+    router.push('/pregnant')
+  }
+
+  // Step 0: 축하 화면
+  if (step === 0) {
+    return (
+      <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6 relative overflow-hidden">
+        {/* 축하 파티클 */}
+        {showConfetti && (
+          <div className="absolute inset-0 pointer-events-none">
+            {Array.from({ length: 40 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute animate-bounce"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 2}s`,
+                  animationDuration: `${1.5 + Math.random() * 2}s`,
+                  fontSize: `${12 + Math.random() * 16}px`,
+                  opacity: 0.7 + Math.random() * 0.3,
+                }}
+              >
+                {['✨', '💛', '🌟', '💕', '🎉', '⭐', '🤍', '💫'][Math.floor(Math.random() * 8)]}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="relative z-10 text-center">
+          <div className="w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-[#FFF8F0] to-[#F0F9F4] flex items-center justify-center mb-6 shadow-[0_8px_40px_rgba(61,138,90,0.15)]">
+            <span className="text-5xl">🤰</span>
+          </div>
+
+          <h1 className="text-[28px] font-bold text-[#1A1918] mb-2">
+            축하해요!
+          </h1>
+          <p className="text-[18px] text-[#3D8A5A] font-semibold mb-4">
+            새 생명이 찾아왔어요
+          </p>
+          <p className="text-[14px] text-[#868B94] leading-relaxed max-w-[280px] mx-auto">
+            기다리고, 준비하고, 소망했던<br />
+            그 작은 생명이 엄마 아빠에게<br />
+            드디어 인사를 건넸어요
+          </p>
+
+          <div className="mt-8 p-4 bg-[#FFF8F3] rounded-2xl max-w-[260px] mx-auto">
+            <p className="text-[13px] text-[#1A1918] italic leading-relaxed">
+              "엄마 아빠, 드디어 만났어요.<br />
+              그동안 보내준 사랑, 다 느끼고 있었어요.<br />
+              이제부터 함께예요."
+            </p>
+            <p className="text-[11px] text-[#AEB1B9] mt-2">— 아이가</p>
+          </div>
+
+          <button
+            onClick={() => setStep(1)}
+            className="mt-10 px-8 py-3 bg-[#3D8A5A] text-white text-[15px] font-semibold rounded-2xl shadow-[0_4px_20px_rgba(61,138,90,0.3)] active:scale-[0.98] transition-all"
+          >
+            우리의 여정 돌아보기
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Step 1: 여정 회고
+  if (step === 1) {
+    return (
+      <div className="min-h-[100dvh] bg-[#F5F4F1] flex flex-col">
+        <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <p className="text-[13px] text-[#868B94] mb-2">임신 준비 여정</p>
+          <h2 className="text-[22px] font-bold text-[#1A1918] mb-8">함께 걸어온 길</h2>
+
+          <div className="w-full max-w-xs space-y-4">
+            {/* 준비 기간 */}
+            <div className="bg-white rounded-2xl p-5 text-center shadow-sm">
+              <p className="text-3xl mb-2">📅</p>
+              <p className="text-[24px] font-bold text-[#3D8A5A]">{journey.days}일</p>
+              <p className="text-[13px] text-[#868B94]">함께 준비한 날들</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* 편지 */}
+              <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl mb-1">✉️</p>
+                <p className="text-[20px] font-bold text-[#1A1918]">{journey.letters}</p>
+                <p className="text-[11px] text-[#868B94]">아이에게 보낸 편지</p>
+              </div>
+
+              {/* 검사 완료 */}
+              <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl mb-1">🏥</p>
+                <p className="text-[20px] font-bold text-[#1A1918]">{journey.supplements}</p>
+                <p className="text-[11px] text-[#868B94]">완료한 검사</p>
+              </div>
+
+              {/* 체크리스트 */}
+              <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl mb-1">✅</p>
+                <p className="text-[20px] font-bold text-[#1A1918]">{journey.checks}/8</p>
+                <p className="text-[11px] text-[#868B94]">준비 체크리스트</p>
+              </div>
+
+              {/* 성장 시각화 */}
+              <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
+                <p className="text-2xl mb-1">{journey.letters >= 30 ? '🌳' : journey.letters >= 10 ? '🌿' : '🌱'}</p>
+                <p className="text-[13px] font-semibold text-[#3D8A5A]">
+                  {journey.letters >= 30 ? '큰 나무' : journey.letters >= 10 ? '푸른 잎' : '작은 새싹'}
+                </p>
+                <p className="text-[11px] text-[#868B94]">사랑으로 자란 나무</p>
+              </div>
+            </div>
+
+            {journey.letters > 0 && (
+              <div className="bg-[#FFF8F3] rounded-2xl p-4 text-center">
+                <p className="text-[12px] text-[#868B94] mb-1">보낸 편지들은 소중히 보관돼요</p>
+                <p className="text-[11px] text-[#3D8A5A] font-semibold">아이가 태어나면 함께 읽어보세요 💌</p>
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setStep(2)}
+            className="mt-8 px-8 py-3 bg-[#3D8A5A] text-white text-[15px] font-semibold rounded-2xl active:scale-[0.98] transition-all"
+          >
+            새로운 여정 시작하기
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Step 2: 출산 예정일 설정 + 모드 전환
+  return (
+    <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6">
+      <div className="w-20 h-20 rounded-full bg-[#F0F9F4] flex items-center justify-center mb-4">
+        <span className="text-3xl">🌈</span>
+      </div>
+
+      <h2 className="text-[22px] font-bold text-[#1A1918] mb-1">새로운 시작</h2>
+      <p className="text-[14px] text-[#868B94] mb-8 text-center">
+        이제 도담이 임신 여정을 함께할게요
+      </p>
+
+      <div className="w-full max-w-xs space-y-5">
+        <div>
+          <p className="text-[12px] font-semibold text-[#868B94] mb-2">출산 예정일</p>
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="w-full h-12 rounded-xl border border-[#f0f0f0] px-4 text-[14px] focus:outline-none focus:border-[#3D8A5A]"
+          />
+          <p className="text-[10px] text-[#AEB1B9] mt-1">모르면 나중에 설정할 수 있어요</p>
+        </div>
+
+        <div className="bg-[#F0F9F4] rounded-xl p-4">
+          <p className="text-[13px] font-semibold text-[#3D8A5A] mb-2">앞으로 도담이 도와줄 것들</p>
+          <div className="space-y-2">
+            {[
+              { icon: '🫐', text: '주차별 태아 크기 · 발달 정보' },
+              { icon: '📋', text: '트리메스터별 체크리스트' },
+              { icon: '💚', text: '엄마 건강 관리 · AI 케어' },
+              { icon: '📝', text: '태교 일기 · 감정 기록' },
+              { icon: '👥', text: '가족과 함께 공유' },
+            ].map((item) => (
+              <div key={item.text} className="flex items-center gap-2">
+                <span className="text-sm">{item.icon}</span>
+                <p className="text-[12px] text-[#1A1918]">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={handleComplete}
+        className="mt-8 w-full max-w-xs py-3.5 bg-[#3D8A5A] text-white text-[15px] font-semibold rounded-2xl shadow-[0_4px_20px_rgba(61,138,90,0.3)] active:scale-[0.98] transition-all"
+      >
+        {dueDate ? '임신 여정 시작하기 💛' : '나중에 설정할게요'}
+      </button>
+    </div>
+  )
+}
