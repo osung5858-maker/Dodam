@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { ChevronRightIcon } from '@/components/ui/Icons'
 import CommunityComparison from '@/components/growth-chart/CommunityComparison'
 import StatsReport from '@/components/growth-chart/StatsReport'
+import DevelopmentCheck from '@/components/growth-chart/DevelopmentCheck'
 import type { Child, GrowthRecord, CareEvent } from '@/types'
 
 // WHO 표준 성장 곡선 데이터 (남아 몸무게 kg, 3rd/50th/97th percentile)
@@ -48,7 +49,7 @@ function getPercentile(weight: number, ageMonths: number, sex: string | undefine
   return Math.min(99, Math.round(97 + ((weight - p97) / p97) * 3))
 }
 
-type GrowthTab = 'growth' | 'stats'
+type GrowthTab = 'growth' | 'stats' | 'develop'
 
 export default function GrowthPage() {
   const [child, setChild] = useState<Child | null>(null)
@@ -139,6 +140,7 @@ export default function GrowthPage() {
           {([
             { key: 'growth' as GrowthTab, label: '성장곡선' },
             { key: 'stats' as GrowthTab, label: '통계리포트' },
+            { key: 'develop' as GrowthTab, label: '발달체크' },
           ]).map((tab) => (
             <button
               key={tab.key}
@@ -158,6 +160,8 @@ export default function GrowthPage() {
       <div className="max-w-lg mx-auto pb-24">
         {activeTab === 'stats' ? (
           <StatsReport events={events} ageMonths={ageMonths} />
+        ) : activeTab === 'develop' ? (
+          <DevelopmentCheck ageMonths={ageMonths} />
         ) : (
         <>
         {/* 아이 요약 */}

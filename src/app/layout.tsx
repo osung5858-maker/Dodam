@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import BottomNav from '@/components/bnb/BottomNav'
 import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt'
@@ -42,6 +43,7 @@ export default function RootLayout({
           <main className="flex-1 pb-20">{children}</main>
           <BottomNav />
           <PWAInstallPrompt />
+          <Analytics />
         </div>
       </body>
     </html>

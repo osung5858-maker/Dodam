@@ -9,6 +9,7 @@ import RoutineTimelapse from '@/components/ai-cards/RoutineTimelapse'
 import CheckupBanner from '@/components/ai-cards/CheckupBanner'
 import AICardFeed from '@/components/ai-cards/AICardFeed'
 import MonthlyCalendar from '@/components/reward/MonthlyCalendar'
+import SmartReminder from '@/components/reminder/SmartReminder'
 
 function formatTimeRemaining(ts: string): string {
   const diff = new Date(ts).getTime() - Date.now()
@@ -158,6 +159,9 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
           )}
         </div>
       )}
+
+      {/* 스마트 리마인더 */}
+      <SmartReminder events={events} />
 
       {/* 루틴 패턴 */}
       <RoutineTimelapse events={events} />

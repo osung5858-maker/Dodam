@@ -277,7 +277,39 @@ export default function StatsReport({ events, ageMonths }: Props) {
       </div>
 
       {/* 공유 버튼 */}
-      <button className="w-full py-3 text-[13px] font-semibold text-[#3D8A5A] text-center active:opacity-70">
+      <button
+        onClick={() => {
+          const description = `수유 하루 평균 ${avgFeed}회 · 수면 평균 ${avgSleep}시간 · ${insights[0] || ''}`
+          const url = 'https://www.dodam.life/growth'
+
+          if (typeof window !== 'undefined' && window.Kakao?.isInitialized?.()) {
+            window.Kakao.Share.sendDefault({
+              objectType: 'feed',
+              content: {
+                title: '도담 주간 리포트 📊',
+                description,
+                imageUrl: 'https://www.dodam.life/og-image.png',
+                link: { mobileWebUrl: url, webUrl: url },
+              },
+              buttons: [
+                {
+                  title: '도담에서 확인하기',
+                  link: { mobileWebUrl: url, webUrl: url },
+                },
+              ],
+            })
+          } else if (typeof navigator !== 'undefined' && navigator.share) {
+            navigator.share({
+              title: '도담 주간 리포트 📊',
+              text: description,
+              url,
+            }).catch(() => {})
+          } else {
+            alert('공유 기능을 사용할 수 없어요.')
+          }
+        }}
+        className="w-full py-3 text-[13px] font-semibold text-[#3D8A5A] text-center active:opacity-70"
+      >
         📤 리포트 공유하기
       </button>
     </div>
