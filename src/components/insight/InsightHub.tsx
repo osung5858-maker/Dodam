@@ -8,6 +8,7 @@ import RewardBanner from '@/components/ai-cards/RewardBanner'
 import RoutineTimelapse from '@/components/ai-cards/RoutineTimelapse'
 import CheckupBanner from '@/components/ai-cards/CheckupBanner'
 import AICardFeed from '@/components/ai-cards/AICardFeed'
+import MonthlyCalendar from '@/components/reward/MonthlyCalendar'
 
 function formatTimeRemaining(ts: string): string {
   const diff = new Date(ts).getTime() - Date.now()
@@ -166,6 +167,11 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
 
       {/* 검진·접종 일정 */}
       {birthdate && <CheckupBanner birthdate={birthdate} />}
+
+      {/* 월간 스토리 캘린더 */}
+      <div className="mx-4 mb-3">
+        <MonthlyCalendar events={events} />
+      </div>
 
       {/* AI 카드 피드 (이상 감지, 감정 카드 등) */}
       <AICardFeed events={events} />

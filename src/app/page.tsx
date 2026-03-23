@@ -9,6 +9,7 @@ import PoopSheet from '@/components/quick-buttons/PoopSheet'
 import TempSheet from '@/components/quick-buttons/TempSheet'
 import Timeline from '@/components/timeline/Timeline'
 import DiaryView from '@/components/diary/DiaryView'
+import StreakBanner from '@/components/reward/StreakBanner'
 import Toast from '@/components/ui/Toast'
 import { BellIcon, ChevronRightIcon } from '@/components/ui/Icons'
 import { createClient } from '@/lib/supabase/client'
@@ -280,6 +281,9 @@ export default function HomePage() {
             ))}
           </div>
         </div>
+
+        {/* 스트릭 배너 */}
+        <StreakBanner events={events} />
 
         {/* 탭 전환 */}
         <div className="flex border-b border-[#ECECEC] px-5 max-w-lg mx-auto">
