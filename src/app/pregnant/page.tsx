@@ -19,6 +19,27 @@ const FETAL_DATA = [
   { week: 40, fruit: '🎃', name: '호박', length: '51cm', weight: '3.4kg', desc: '만삭! 언제든 만날 수 있어요', tip: '진통 신호를 확인해두세요' },
 ]
 
+// ===== 무료 축하박스 · 샘플 =====
+const FREE_BOXES = [
+  // 임신 축하박스
+  { id: 'bebeform_p', category: 'pregnancy', name: '베베폼 임신축하박스', desc: '임신 선물 꾸러미 (SNS 공유 필요)', link: 'https://bebeform.co.kr/giftbox/', tip: '매월 추첨' },
+  { id: 'bebeking_p', category: 'pregnancy', name: '베베킹 임신축하박스', desc: '매월 200명 선물 증정', link: 'https://www.bebeking.co.kr/', tip: '매월 추첨' },
+  { id: 'momq_hug', category: 'pregnancy', name: '맘큐 하기스 허그박스', desc: '하기스 기저귀 · 물티슈 · 산모용품', link: 'https://www.momq.co.kr/', tip: '배송비 3,500원 · 부부 각각 신청 가능' },
+  { id: 'hipp', category: 'pregnancy', name: 'HiPP 힙 축하박스', desc: '유기농 분유 샘플 + 육아용품', link: 'https://www.hipp.co.kr/', tip: '회원가입 후 신청' },
+  { id: 'lovemom', category: 'pregnancy', name: '럽맘박스', desc: '매월 육아용품 박스 (최대 8회)', link: 'https://play.google.com/store/apps/details?id=com.momandbaby.lovemom', tip: '럽맘 앱 설치 후 신청' },
+  { id: 'doubleheart', category: 'pregnancy', name: '더블하트 더블박스', desc: '약 20만원 상당 육아 필수템', link: 'https://m.doubleheart.co.kr/', tip: '회원가입 후 신청' },
+  { id: 'momspack', category: 'pregnancy', name: '맘스팩', desc: '매월 임산부 박스 (태교일기 1일 이상 작성)', link: 'https://www.momspack.co.kr/', tip: '매월 발송' },
+  { id: 'maternity_school', category: 'pregnancy', name: '매터니티스쿨', desc: '매월 100명 추첨 출산선물', link: 'https://www.maternitylove.co.kr/', tip: '매월 추첨' },
+  // 출산 축하박스 / 분유 샘플
+  { id: 'bebeform_b', category: 'birth', name: '베베폼 출산축하박스', desc: '출산 선물 꾸러미', link: 'https://bebeform.co.kr/giftbox/', tip: '출산 후 신청' },
+  { id: 'bebeking_b', category: 'birth', name: '베베킹 출산축하박스', desc: '기저귀 · 물티슈 · 샘플 모음', link: 'https://www.bebeking.co.kr/', tip: '출산 후 신청' },
+  { id: 'maeil', category: 'birth', name: '매일유업 앱솔루트 샘플', desc: '분유 샘플 + 이유식 샘플', link: 'https://www.maeil.com/', tip: '앱솔루트맘 가입' },
+  { id: 'namyang', category: 'birth', name: '남양유업 임페리얼 샘플', desc: '분유 체험팩', link: 'https://www.namyangi.com/', tip: '남양아이 가입' },
+  { id: 'ildong', category: 'birth', name: '일동후디스 산양분유 샘플', desc: '산양분유 체험팩', link: 'https://www.foodismall.com/', tip: '후디스몰 가입' },
+  { id: 'ivenet', category: 'birth', name: '아이배냇 이유식 샘플', desc: '이유식 · 간식 체험팩', link: 'https://shop.ivenet.co.kr/', tip: '회원가입 후 신청' },
+  { id: 'babyfair', category: 'birth', name: '베페 베이비페어', desc: 'COEX — 할인 + 대량 샘플 수령', link: 'https://www.befe.co.kr/', tip: '사전등록 시 무료입장' },
+]
+
 // ===== 검진 리마인더 =====
 const CHECKUPS = [
   { week: 8, id: 'first_us', title: '첫 초음파', desc: '심장 박동 확인', icon: '🫀' },
@@ -38,8 +59,6 @@ const BENEFITS_TIMELINE = [
   { week: 0, id: 'happy_card', title: '국민행복카드 신청', desc: '임신 1회당 100만원 (다태아 140만원) 바우처', when: '임신 확인 즉시', icon: '💳', link: 'https://www.gov.kr/portal/onestopSvc/fertility', priority: 'high' },
   { week: 0, id: 'health_center', title: '보건소 등록', desc: '엽산제 · 철분제 무료 + 산전검사', when: '임신 확인 즉시', icon: '🏥', link: 'https://www.gov.kr/portal/onestopSvc/fertility', priority: 'high' },
   { week: 0, id: 'mother_book', title: '모자보건수첩 발급', desc: '산부인과 또는 보건소에서 발급', when: '임신 확인 즉시', icon: '📗', priority: 'high' },
-  { week: 0, id: 'bebeform_preg', title: '🎁 베베폼 임신축하박스', desc: '무료 임신 선물 박스 (SNS 공유 필요)', when: '임신 확인 후', icon: '🎁', link: 'https://bebeform.co.kr/giftbox/', priority: 'medium' },
-  { week: 0, id: 'bebeking_preg', title: '🎁 베베킹 임신축하박스', desc: '무료 임신 선물 박스', when: '임신 확인 후', icon: '📦', link: 'https://www.bebeking.co.kr/', priority: 'medium' },
   // 초기
   { week: 8, id: 'workplace', title: '직장 보고 (선택)', desc: '근로기준법상 임산부 보호 적용', when: '8주 이후', icon: '🏢', priority: 'medium' },
   { week: 12, id: 'high_risk', title: '고위험 임산부 확인', desc: '해당 시 의료비 90% 지원 (소득 무관)', when: '12주 전후', icon: '🩺', link: 'https://www.gov.kr/portal/service/serviceInfo/135200000114', priority: 'medium' },
@@ -49,12 +68,8 @@ const BENEFITS_TIMELINE = [
   { week: 20, id: 'transport', title: '임산부 교통비 확인', desc: '서울 월 7만원 등 지자체별 상이', when: '20주~', icon: '🚌', priority: 'low' },
   // 후기
   { week: 30, id: 'birth_plan', title: '출산 병원 확정', desc: '분만실 예약 · 입원 절차 확인', when: '30주 전후', icon: '🏨', priority: 'high' },
-  { week: 30, id: 'bebeform_birth', title: '🎁 베베폼 출산축하박스', desc: '무료 출산 선물 박스 (사전 신청)', when: '출산 전 신청', icon: '🎁', link: 'https://bebeform.co.kr/giftbox/', priority: 'medium' },
-  { week: 30, id: 'bebeking_birth', title: '🎁 베베킹 출산축하박스', desc: '기저귀 · 물티슈 · 샘플 박스', when: '출산 전 신청', icon: '📦', link: 'https://www.bebeking.co.kr/', priority: 'medium' },
   { week: 32, id: 'postnatal_helper', title: '산후도우미 신청', desc: '정부 바우처 산후도우미 서비스', when: '32주~', icon: '👩‍⚕️', link: 'https://www.gov.kr/portal/onestopSvc/happyBirth', priority: 'medium' },
-  { week: 34, id: 'hggies_sample', title: '🎁 하기스 신생아 체험팩', desc: '하기스 기저귀 · 물티슈 무료 샘플', when: '출산 전 신청', icon: '🧷', link: 'https://www.huggies.co.kr/', priority: 'low' },
   { week: 36, id: 'birth_docs', title: '출생신고 서류 준비', desc: '신분증 · 혼인관계증명서 · 인감', when: '36주~', icon: '📄', priority: 'medium' },
-  { week: 36, id: 'babyfair', title: '🎪 베이비페어 방문', desc: '베페(COEX) · 맘스홀릭 — 할인+샘플', when: '수시', icon: '🎪', link: 'https://www.befe.co.kr/', priority: 'low' },
   // 출산 후
   { week: 41, id: 'birth_report', title: '출생신고 (행복출산 원스톱)', desc: '14일 이내 — 6종 서비스 한번에 신청', when: '출산 후 즉시', icon: '📋', link: 'https://www.gov.kr/portal/onestopSvc/happyBirth', priority: 'high' },
   { week: 41, id: 'first_meet', title: '첫만남이용권', desc: '첫째 200만원 · 둘째 이상 300만원', when: '출생신고 시 자동', icon: '🎉', link: 'https://www.gov.kr/portal/service/serviceInfo/135200005015', priority: 'high' },
@@ -599,6 +614,45 @@ export default function PregnantPage() {
                   </div>
                 )
               })()}
+            </div>
+
+            {/* 무료 축하박스 · 샘플 */}
+            <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+              <p className="text-[13px] font-bold text-[#1A1918] mb-3">🎁 무료 축하박스 · 샘플</p>
+
+              <p className="text-[11px] font-semibold text-[#3D8A5A] mb-2">임신 축하박스</p>
+              <div className="space-y-1.5 mb-4">
+                {FREE_BOXES.filter(b => b.category === 'pregnancy').map(b => (
+                  <a key={b.id} href={b.link} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 py-2 px-2 rounded-lg active:bg-[#F5F4F1] -mx-2">
+                    <div className="w-8 h-8 rounded-lg bg-[#F0F9F4] flex items-center justify-center shrink-0">
+                      <span className="text-sm">🎁</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-[#1A1918]">{b.name}</p>
+                      <p className="text-[10px] text-[#868B94]">{b.desc}</p>
+                    </div>
+                    <span className="text-[9px] text-[#AEB1B9] shrink-0">{b.tip}</span>
+                  </a>
+                ))}
+              </div>
+
+              <p className="text-[11px] font-semibold text-[#3D8A5A] mb-2">출산 축하박스 · 분유 샘플</p>
+              <div className="space-y-1.5">
+                {FREE_BOXES.filter(b => b.category === 'birth').map(b => (
+                  <a key={b.id} href={b.link} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-2.5 py-2 px-2 rounded-lg active:bg-[#F5F4F1] -mx-2">
+                    <div className="w-8 h-8 rounded-lg bg-[#FFF8F3] flex items-center justify-center shrink-0">
+                      <span className="text-sm">📦</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-[#1A1918]">{b.name}</p>
+                      <p className="text-[10px] text-[#868B94]">{b.desc}</p>
+                    </div>
+                    <span className="text-[9px] text-[#AEB1B9] shrink-0">{b.tip}</span>
+                  </a>
+                ))}
+              </div>
             </div>
 
             {/* 출산 가방 */}
