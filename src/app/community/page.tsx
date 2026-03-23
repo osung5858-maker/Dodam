@@ -155,11 +155,17 @@ export default function CommunityPage() {
   const handleMarketPost = useCallback(async () => {
     if (!mTitle.trim() || !userId || posting) return
     setPosting(true)
-    const { data } = await supabase.from('market_items').insert({
+    const { data, error } = await supabase.from('market_items').insert({
       user_id: userId, title: mTitle.trim(), description: mDesc.trim(),
       price: mPrice, category: mCategory, baby_age_months: mAge, region: mRegion || '미설정',
       photos: mPhotos,
     }).select().single()
+    if (error) {
+      console.error('Market post error:', error)
+      alert(`등록 실패: ${error.message}`)
+      setPosting(false)
+      return
+    }
     if (data) setItems((prev) => [data as MarketItem, ...prev])
     setMTitle(''); setMDesc(''); setMPrice(0); setMPhotos([]); setMarketOpen(false); setPosting(false)
   }, [mTitle, mDesc, mPrice, mCategory, mAge, mRegion, userId, posting, supabase])
