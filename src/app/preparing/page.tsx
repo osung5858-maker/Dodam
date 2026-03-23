@@ -102,6 +102,43 @@ export default function PreparingPage() {
   const [letterText, setLetterText] = useState('')
   const [letterOpen, setLetterOpen] = useState(false)
 
+  // 영양제 트래커
+  const [supplements, setSupplements] = useState<Record<string, boolean>>(() => {
+    if (typeof window !== 'undefined') {
+      const today = new Date().toISOString().split('T')[0]
+      const saved = localStorage.getItem(`dodam_suppl_${today}`)
+      return saved ? JSON.parse(saved) : {}
+    }
+    return {}
+  })
+
+  // 감정 기록
+  const [todayMood, setTodayMood] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const today = new Date().toISOString().split('T')[0]
+      return localStorage.getItem(`dodam_mood_${today}`) || ''
+    }
+    return ''
+  })
+
+  // 임신 테스트 기록
+  const [pregTests, setPregTests] = useState<{ date: string; result: string; dpo: number }[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('dodam_preg_tests')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+
+  // 파트너 건강 체크
+  const [partnerChecks, setPartnerChecks] = useState<Record<string, boolean>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('dodam_partner_checks')
+      return saved ? JSON.parse(saved) : {}
+    }
+    return {}
+  })
+
   // 주기 정보
   const cycle = useMemo(() => {
     if (!lastPeriod) return null
@@ -177,6 +214,33 @@ export default function PreparingPage() {
     localStorage.setItem('dodam_letters', JSON.stringify(next))
     setLetterText('')
     setLetterOpen(false)
+  }
+
+  const toggleSupplement = (key: string) => {
+    const today = new Date().toISOString().split('T')[0]
+    const next = { ...supplements, [key]: !supplements[key] }
+    setSupplements(next)
+    localStorage.setItem(`dodam_suppl_${today}`, JSON.stringify(next))
+  }
+
+  const saveMood = (mood: string) => {
+    const today = new Date().toISOString().split('T')[0]
+    setTodayMood(mood)
+    localStorage.setItem(`dodam_mood_${today}`, mood)
+  }
+
+  const addPregTest = (result: string) => {
+    const dpo = cycle ? Math.floor((Date.now() - cycle.ovulationDay.getTime()) / 86400000) : 0
+    const entry = { date: new Date().toISOString().split('T')[0], result, dpo }
+    const next = [entry, ...pregTests]
+    setPregTests(next)
+    localStorage.setItem('dodam_preg_tests', JSON.stringify(next))
+  }
+
+  const togglePartnerCheck = (key: string) => {
+    const next = { ...partnerChecks, [key]: !partnerChecks[key] }
+    setPartnerChecks(next)
+    localStorage.setItem('dodam_partner_checks', JSON.stringify(next))
   }
 
   const recordBBT = useCallback((date: string, temp: number) => {
@@ -363,6 +427,140 @@ export default function PreparingPage() {
               <p className="text-[10px] text-[#868B94] mt-0.5">AI가 편지를 엮어 세상에 하나뿐인 동화책을 만들어드려요</p>
             </div>
           )}
+        </div>
+
+        {/* 💊 오늘의 영양제 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[14px] font-bold text-[#1A1918]">오늘의 영양제</p>
+            <p className="text-[11px] text-[#3D8A5A] font-semibold">
+              {Object.values(supplements).filter(Boolean).length}/4
+            </p>
+          </div>
+          {[
+            { key: 'folic', name: '엽산 400μg', time: '아침 식후' },
+            { key: 'vitd', name: '비타민D', time: '아침 식후' },
+            { key: 'iron', name: '철분', time: '점심 식후' },
+            { key: 'omega3', name: '오메가3', time: '저녁 식후' },
+          ].map((s) => (
+            <button
+              key={s.key}
+              onClick={() => toggleSupplement(s.key)}
+              className="w-full flex items-center gap-3 py-2 active:bg-[#F5F4F1] rounded-lg"
+            >
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${supplements[s.key] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
+                {supplements[s.key] && <span className="text-white text-[10px]">✓</span>}
+              </div>
+              <span className={`text-[13px] flex-1 text-left ${supplements[s.key] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{s.name}</span>
+              <span className="text-[10px] text-[#AEB1B9]">{s.time}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* 😊 오늘 기분 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[14px] font-bold text-[#1A1918] mb-3">오늘 기분은?</p>
+          <div className="flex gap-2">
+            {[
+              { emoji: '😊', label: '희망적', key: 'hopeful' },
+              { emoji: '😌', label: '평온', key: 'calm' },
+              { emoji: '😰', label: '불안', key: 'anxious' },
+              { emoji: '😢', label: '지침', key: 'tired' },
+              { emoji: '🥰', label: '설렘', key: 'excited' },
+            ].map((m) => (
+              <button
+                key={m.key}
+                onClick={() => saveMood(m.key)}
+                className={`flex-1 py-2 rounded-xl text-center transition-colors ${
+                  todayMood === m.key ? 'bg-[#3D8A5A] ring-2 ring-[#3D8A5A]/30' : 'bg-[#F5F4F1]'
+                }`}
+              >
+                <p className="text-lg">{m.emoji}</p>
+                <p className={`text-[9px] mt-0.5 ${todayMood === m.key ? 'text-white font-semibold' : 'text-[#868B94]'}`}>{m.label}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 🤞 투윅웨이트 (배란 후 표시) */}
+        {cycle && (() => {
+          const dpo = Math.floor((Date.now() - cycle.ovulationDay.getTime()) / 86400000)
+          if (dpo < 0 || dpo > 16) return null
+          const twwTips = [
+            '너무 이른 시기예요. 평소처럼 지내세요.',
+            '착상이 시작되는 시기예요. 무리하지 마세요.',
+            '착상이 진행 중일 수 있어요. 따뜻한 차 한 잔 어때요?',
+            '카페인을 줄이고 충분히 쉬어보세요.',
+            '아직 조급해하지 않아도 돼요. 자신을 돌보는 시간을 가져보세요.',
+            '이 시기가 가장 기다려지죠. 좋아하는 일에 집중해보세요.',
+            '빠르면 임신 테스트가 가능해요. 하지만 서두르지 않아도 괜찮아요.',
+            '생리 예정일이 다가오고 있어요. 결과를 기다려봐요.',
+          ]
+          const tipIdx = Math.min(Math.floor(dpo / 2), twwTips.length - 1)
+          return (
+            <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[14px] font-bold text-[#1A1918]">🤞 투윅웨이트</p>
+                <p className="text-[12px] font-semibold text-[#3D8A5A]">배란 후 {dpo}일</p>
+              </div>
+              <div className="w-full h-1.5 bg-[#F0F0F0] rounded-full mb-3">
+                <div className="h-full bg-[#3D8A5A] rounded-full" style={{ width: `${Math.min((dpo / 14) * 100, 100)}%` }} />
+              </div>
+              <p className="text-[13px] text-[#1A1918] leading-relaxed">{twwTips[tipIdx]}</p>
+            </div>
+          )
+        })()}
+
+        {/* 🧪 임신 테스트 기록 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[14px] font-bold text-[#1A1918] mb-3">임신 테스트</p>
+          <div className="flex gap-2 mb-3">
+            <button onClick={() => addPregTest('양성')} className="flex-1 py-2 rounded-xl bg-[#F0F9F4] text-[12px] font-semibold text-[#3D8A5A] active:bg-[#C8F0D8]">양성 ✚</button>
+            <button onClick={() => addPregTest('음성')} className="flex-1 py-2 rounded-xl bg-[#F5F4F1] text-[12px] font-semibold text-[#868B94] active:bg-[#E0E0E0]">음성 −</button>
+          </div>
+          {pregTests.length > 0 ? (
+            <div className="space-y-1.5">
+              {pregTests.slice(0, 3).map((t, i) => (
+                <div key={i} className="flex items-center justify-between py-1.5">
+                  <span className="text-[12px] text-[#1A1918]">{t.date}</span>
+                  <span className={`text-[12px] font-semibold ${t.result === '양성' ? 'text-[#3D8A5A]' : 'text-[#868B94]'}`}>
+                    {t.result} {t.dpo > 0 && `(배란 후 ${t.dpo}일)`}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-[11px] text-[#AEB1B9] text-center py-2">아직 기록이 없어요</p>
+          )}
+          {cycle && (() => {
+            const dpo = Math.floor((Date.now() - cycle.ovulationDay.getTime()) / 86400000)
+            if (dpo >= 0 && dpo < 10) return <p className="text-[10px] text-[#868B94] mt-2">💡 배란 후 10일 이후에 테스트하면 정확도가 높아져요</p>
+            return null
+          })()}
+        </div>
+
+        {/* 👨 파트너 건강 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[14px] font-bold text-[#1A1918] mb-3">파트너 건강 체크</p>
+          {[
+            { key: 'p_nosmoking', label: '금연 (3개월 전부터)' },
+            { key: 'p_nodrink', label: '금주 또는 절주' },
+            { key: 'p_vitamin', label: '비타민·아연 복용' },
+            { key: 'p_checkup', label: '건강검진 (정액검사)' },
+            { key: 'p_nosauna', label: '사우나·핫터브 자제' },
+            { key: 'p_weight', label: '적정 체중 유지' },
+          ].map((item) => (
+            <button
+              key={item.key}
+              onClick={() => togglePartnerCheck(item.key)}
+              className="w-full flex items-center gap-3 py-2 active:bg-[#F5F4F1] rounded-lg"
+            >
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${partnerChecks[item.key] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
+                {partnerChecks[item.key] && <span className="text-white text-[10px]">✓</span>}
+              </div>
+              <span className={`text-[13px] ${partnerChecks[item.key] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{item.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* 주기 캘린더 */}
