@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`
 
-async function callGemini(prompt: string, maxTokens = 500, temperature = 0.7) {
+async function callGemini(prompt: string, maxTokens = 500, temperature = 0.7): Promise<{ text: string | null; error: string | null }> {
   const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -12,9 +12,14 @@ async function callGemini(prompt: string, maxTokens = 500, temperature = 0.7) {
       generationConfig: { temperature, maxOutputTokens: maxTokens },
     }),
   })
-  if (!res.ok) return null
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => 'unknown')
+    console.error(`Gemini ${res.status}: ${errBody}`)
+    return { text: null, error: `Gemini ${res.status}: ${errBody.slice(0, 200)}` }
+  }
   const data = await res.json()
-  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null
+  return { text, error: null }
 }
 
 export async function POST(request: Request) {
@@ -59,8 +64,8 @@ export async function POST(request: Request) {
 
 JSON만 출력하세요.`
 
-      const text = await callGemini(prompt, 600, 0.6)
-      if (!text) return NextResponse.json({ error: 'AI failed' }, { status: 500 })
+      const { text, error: geminiErr } = await callGemini(prompt, 600, 0.6)
+      if (!text) return NextResponse.json({ error: geminiErr || 'AI failed' }, { status: 500 })
 
       try {
         const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
@@ -90,8 +95,8 @@ JSON만 출력하세요.`
 
 아기의 답장만 출력하세요. 따옴표 없이.`
 
-      const text = await callGemini(prompt, 200, 0.8)
-      return NextResponse.json({ reply: text || '엄마 아빠의 마음이 여기까지 닿고 있어요. 곧 만날게요 💛' })
+      const r2 = await callGemini(prompt, 200, 0.8)
+      return NextResponse.json({ reply: r2.text || '엄마 아빠의 마음이 여기까지 닿고 있어요. 곧 만날게요 💛' })
     }
 
     // === 주기별 식단 추천 ===
@@ -113,11 +118,11 @@ JSON 형식으로 출력:
 
 한국 가정식 위주로 현실적으로. JSON만 출력.`
 
-      const text = await callGemini(prompt, 400, 0.7)
-      if (!text) return NextResponse.json({ error: 'AI failed' }, { status: 500 })
+      const { text: mealText, error: mealErr } = await callGemini(prompt, 400, 0.7)
+      if (!mealText) return NextResponse.json({ error: mealErr || 'AI failed' }, { status: 500 })
 
       try {
-        const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+        const cleaned = mealText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
         return NextResponse.json(JSON.parse(cleaned))
       } catch {
         return NextResponse.json({ error: 'parse_error' }, { status: 500 })
@@ -139,8 +144,8 @@ ${currentMood}
 
 2-3문장으로 공감 + 구체적 마음 케어 제안을 해주세요. 순수 텍스트만.`
 
-      const text = await callGemini(prompt, 200, 0.7)
-      return NextResponse.json({ advice: text || '오늘 하루도 수고했어요. 자신을 위한 시간을 가져보세요 💚' })
+      const r3 = await callGemini(prompt, 200, 0.7)
+      return NextResponse.json({ advice: r3.text || '오늘 하루도 수고했어요. 자신을 위한 시간을 가져보세요 💚' })
     }
 
     return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
