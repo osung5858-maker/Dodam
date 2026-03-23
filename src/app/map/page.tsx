@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useCallback, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import KakaoMap from '@/components/map/KakaoMap'
 import { MapIcon } from '@/components/ui/Icons'
 
@@ -26,10 +26,31 @@ const CATEGORIES = [
 ]
 
 export default function MapPage() {
+  return <Suspense><MapPageInner /></Suspense>
+}
+
+function MapPageInner() {
+  const searchParams = useSearchParams()
+  const queryParam = searchParams.get('q')
+
   const [selectedCategory, setSelectedCategory] = useState(CATEGORIES[0])
+  const [customSearch, setCustomSearch] = useState(queryParam || '')
   const [places, setPlaces] = useState<MapPlace[]>([])
   const [loading, setLoading] = useState(true)
   const [mapReady, setMapReady] = useState(false)
+
+  // URL 쿼리파라미터로 검색 카테고리 설정
+  useEffect(() => {
+    if (queryParam) {
+      const found = CATEGORIES.find(c => c.keyword === queryParam)
+      if (found) {
+        setSelectedCategory(found)
+      } else {
+        // 커스텀 검색어 (식당 등)
+        setSelectedCategory({ keyword: queryParam, label: queryParam, emoji: '📍' })
+      }
+    }
+  }, [queryParam])
 
   const handlePlacesFound = useCallback((found: MapPlace[]) => {
     setPlaces(found)

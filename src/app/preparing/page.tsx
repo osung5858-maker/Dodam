@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { shareAIAdvice, shareProgress, sharePartnerNudge } from '@/lib/kakao/share'
 import StreakCard from '@/components/engagement/StreakCard'
 import CommunityTeaser from '@/components/engagement/CommunityTeaser'
@@ -604,12 +605,14 @@ export default function PreparingPage() {
               {/* 근처 식당 검색 */}
               {(() => {
                 const hour = new Date().getHours()
-                const currentMeal = hour < 10 ? aiMeal.breakfast : hour < 14 ? aiMeal.lunch : hour < 18 ? aiMeal.snack : aiMeal.dinner
-                if (!currentMeal?.menu) return null
+                const meal = hour < 10 ? aiMeal.breakfast : hour < 14 ? aiMeal.lunch : hour < 18 ? aiMeal.snack : aiMeal.dinner
+                if (!meal?.menu) return null
+                const keyword = meal.menu.replace(/[()（）]/g, '').split(' ')[0] // 첫 단어만
                 return (
-                  <a href={`/map?q=${encodeURIComponent(currentMeal.menu)}`} className="flex items-center gap-2 mt-1 text-[11px] text-[#3D8A5A] font-medium">
-                    📍 근처에서 "{currentMeal.menu}" 찾기 →
-                  </a>
+                  <Link href={`/map?q=${encodeURIComponent(keyword + ' 맛집')}`} className="flex items-center gap-2 mt-2 p-2 bg-[#F5F4F1] rounded-lg active:bg-[#ECECEC]">
+                    <span className="text-sm">📍</span>
+                    <p className="text-[11px] text-[#3D8A5A] font-medium">근처 "{keyword}" 식당 찾기</p>
+                  </Link>
                 )
               })()}
             </div>
