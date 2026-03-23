@@ -91,6 +91,17 @@ export default function PreparingPage() {
   const [editingCycle, setEditingCycle] = useState(!lastPeriod)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
 
+  // 편지
+  const [letters, setLetters] = useState<{ text: string; date: string; from: string; reply: string }[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('dodam_letters')
+      return saved ? JSON.parse(saved) : []
+    }
+    return []
+  })
+  const [letterText, setLetterText] = useState('')
+  const [letterOpen, setLetterOpen] = useState(false)
+
   // 주기 정보
   const cycle = useMemo(() => {
     if (!lastPeriod) return null
@@ -132,6 +143,40 @@ export default function PreparingPage() {
     const next = { ...checked, [id]: !checked[id] }
     setChecked(next)
     localStorage.setItem('dodam_preparing_checks', JSON.stringify(next))
+  }
+
+  // AI 답장 생성 (로컬)
+  const generateReply = (text: string): string => {
+    const replies = [
+      `엄마 아빠, 마음이 느껴져요. 빨리 만나고 싶어요 🌱`,
+      `따뜻한 마음 고마워요. 건강하게 준비하고 있을게요 💛`,
+      `사랑이 가득한 편지네요. 덕분에 용기가 나요 ☺️`,
+      `엄마 아빠의 목소리가 들리는 것 같아요. 조금만 기다려주세요 🌟`,
+      `이렇게 기다려주셔서 감사해요. 세상에서 가장 행복한 아기가 될 거예요 🎀`,
+      `매일 저를 생각해주시는 거 알아요. 곧 만나요! 🤗`,
+      `엄마 아빠가 준비하는 모습이 느껴져요. 힘내세요! 💪`,
+    ]
+    if (text.includes('건강')) return '건강하게 자라고 있을게요! 엄마 아빠도 건강 챙기세요 🌿'
+    if (text.includes('사랑')) return '저도 엄마 아빠를 정말 많이 사랑해요 💕'
+    if (text.includes('기다')) return '조금만 기다려주세요. 곧 만날 수 있을 거예요! 🌈'
+    if (text.includes('이름')) return '어떤 이름이든 엄마 아빠가 지어주면 좋을 거예요 ✨'
+    return replies[Math.floor(Math.random() * replies.length)]
+  }
+
+  const saveLetter = () => {
+    if (!letterText.trim()) return
+    const reply = generateReply(letterText)
+    const newLetter = {
+      text: letterText.trim(),
+      date: new Date().toISOString(),
+      from: '엄마',
+      reply,
+    }
+    const next = [newLetter, ...letters]
+    setLetters(next)
+    localStorage.setItem('dodam_letters', JSON.stringify(next))
+    setLetterText('')
+    setLetterOpen(false)
   }
 
   const recordBBT = useCallback((date: string, temp: number) => {
@@ -237,6 +282,88 @@ export default function PreparingPage() {
             })()}
           </div>
         )}
+
+        {/* ✉️ 아이에게 보내는 편지 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">✉️</span>
+              <p className="text-[14px] font-bold text-[#1A1918]">아이에게 보내는 편지</p>
+            </div>
+            <p className="text-[11px] text-[#868B94]">{letters.length}통</p>
+          </div>
+
+          {/* 아기 시각화 */}
+          <div className="text-center py-4 mb-3 bg-[#F5F4F1] rounded-xl">
+            <div className="text-4xl mb-2">🌱</div>
+            <p className="text-[12px] text-[#868B94]">아직 작은 씨앗이지만</p>
+            <p className="text-[13px] font-semibold text-[#3D8A5A]">엄마 아빠의 사랑으로 자라고 있어요</p>
+            {letters.length >= 10 && <p className="text-[10px] text-[#3D8A5A] mt-1">🌿 편지 {letters.length}통의 사랑을 받았어요</p>}
+            {letters.length >= 30 && <p className="text-[10px] text-[#3D8A5A] mt-1">🌳 동화책을 만들 수 있어요!</p>}
+          </div>
+
+          {/* 최근 편지 */}
+          {letters.length > 0 && (
+            <div className="space-y-3 mb-3">
+              {letters.slice(0, 2).map((l, i) => (
+                <div key={i}>
+                  <div className="p-3 bg-[#F0F9F4] rounded-xl rounded-bl-sm">
+                    <p className="text-[12px] text-[#1A1918] leading-relaxed">{l.text}</p>
+                    <p className="text-[9px] text-[#AEB1B9] mt-1 text-right">{l.from} · {new Date(l.date).toLocaleDateString('ko-KR')}</p>
+                  </div>
+                  <div className="p-3 bg-[#FFF8F3] rounded-xl rounded-tr-sm mt-1 ml-6">
+                    <p className="text-[12px] text-[#1A1918] leading-relaxed">💌 {l.reply}</p>
+                    <p className="text-[9px] text-[#AEB1B9] mt-1">아이의 답장 (AI)</p>
+                  </div>
+                </div>
+              ))}
+              {letters.length > 2 && (
+                <p className="text-[11px] text-[#AEB1B9] text-center">+ {letters.length - 2}통 더</p>
+              )}
+            </div>
+          )}
+
+          {/* 편지 쓰기 */}
+          {letterOpen ? (
+            <div>
+              <textarea
+                value={letterText}
+                onChange={(e) => setLetterText(e.target.value.slice(0, 500))}
+                placeholder="아이에게 하고 싶은 말을 적어보세요..."
+                className="w-full h-24 text-[13px] text-[#1A1918] p-3 bg-[#F5F4F1] rounded-xl resize-none focus:outline-none"
+                autoFocus
+              />
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-[10px] text-[#AEB1B9]">{letterText.length}/500</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setLetterOpen(false)} className="text-[12px] text-[#868B94]">취소</button>
+                  <button
+                    onClick={saveLetter}
+                    disabled={!letterText.trim()}
+                    className={`text-[12px] font-semibold px-3 py-1 rounded-lg ${letterText.trim() ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}
+                  >
+                    보내기 ✉️
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setLetterOpen(true)}
+              className="w-full py-3 text-center text-[13px] font-semibold text-[#3D8A5A] bg-[#F0F9F4] rounded-xl active:bg-[#C8F0D8]"
+            >
+              오늘의 편지 쓰기 ✉️
+            </button>
+          )}
+
+          {/* 동화책 만들기 (편지 30통 이상) */}
+          {letters.length >= 30 && (
+            <div className="mt-3 p-3 bg-gradient-to-r from-[#F0F9F4] to-[#FFF8F3] rounded-xl text-center border border-[#C8F0D8]">
+              <p className="text-[12px] font-semibold text-[#3D8A5A]">📖 "{letters.length}통의 편지" 동화책 만들기</p>
+              <p className="text-[10px] text-[#868B94] mt-0.5">AI가 편지를 엮어 세상에 하나뿐인 동화책을 만들어드려요</p>
+            </div>
+          )}
+        </div>
 
         {/* 주기 캘린더 */}
         <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
