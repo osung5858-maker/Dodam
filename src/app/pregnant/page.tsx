@@ -35,27 +35,32 @@ const CHECKUPS = [
 // ===== 혜택 · 제도 타임라인 =====
 const BENEFITS_TIMELINE = [
   // 임신 확인 즉시
-  { week: 0, id: 'happy_card', title: '국민행복카드 신청', desc: '임신 1회당 100만원 (다태아 140만원) 바우처', when: '임신 확인 즉시', icon: '💳', link: 'https://www.gov.kr/portal/service/serviceInfo/SD0000007672', priority: 'high' },
-  { week: 0, id: 'health_center', title: '보건소 등록', desc: '엽산제 · 철분제 무료 제공 + 산전검사', when: '임신 확인 즉시', icon: '🏥', link: 'https://www.mohw.go.kr/menu.es?mid=a10711020200', priority: 'high' },
+  { week: 0, id: 'happy_card', title: '국민행복카드 신청', desc: '임신 1회당 100만원 (다태아 140만원) 바우처', when: '임신 확인 즉시', icon: '💳', link: 'https://www.gov.kr/portal/onestopSvc/fertility', priority: 'high' },
+  { week: 0, id: 'health_center', title: '보건소 등록', desc: '엽산제 · 철분제 무료 + 산전검사', when: '임신 확인 즉시', icon: '🏥', link: 'https://www.gov.kr/portal/onestopSvc/fertility', priority: 'high' },
   { week: 0, id: 'mother_book', title: '모자보건수첩 발급', desc: '산부인과 또는 보건소에서 발급', when: '임신 확인 즉시', icon: '📗', priority: 'high' },
+  { week: 0, id: 'bebeform_preg', title: '🎁 베베폼 임신축하박스', desc: '무료 임신 선물 박스 (SNS 공유 필요)', when: '임신 확인 후', icon: '🎁', link: 'https://bebeform.co.kr/giftbox/', priority: 'medium' },
+  { week: 0, id: 'bebeking_preg', title: '🎁 베베킹 임신축하박스', desc: '무료 임신 선물 박스', when: '임신 확인 후', icon: '📦', link: 'https://www.bebeking.co.kr/', priority: 'medium' },
   // 초기
   { week: 8, id: 'workplace', title: '직장 보고 (선택)', desc: '근로기준법상 임산부 보호 적용', when: '8주 이후', icon: '🏢', priority: 'medium' },
   { week: 12, id: 'high_risk', title: '고위험 임산부 확인', desc: '해당 시 의료비 90% 지원 (소득 무관)', when: '12주 전후', icon: '🩺', link: 'https://www.gov.kr/portal/service/serviceInfo/135200000114', priority: 'medium' },
   // 중기
-  { week: 16, id: 'postpartum_reserve', title: '산후조리원 예약', desc: '인기 조리원은 초기에 예약해야 함', when: '16주 전후', icon: '🤱', priority: 'high' },
-  { week: 20, id: 'baby_box_apply', title: '출산 축하박스 신청', desc: '지자체별 무료 출산 꾸러미 (사전 신청)', when: '20주 전후', icon: '🎁', priority: 'medium' },
-  { week: 20, id: 'transport', title: '임산부 교통비 확인', desc: '서울 월 7만원, 지자체별 상이', when: '20주~', icon: '🚌', priority: 'low' },
-  { week: 24, id: 'insurance', title: '태아 보험 가입', desc: '출산 전 가입 시 선천이상 보장', when: '24주 전', icon: '🛡️', priority: 'high' },
+  { week: 16, id: 'postpartum_reserve', title: '산후조리원 예약', desc: '인기 조리원은 초기에 예약 필수!', when: '16주 전후', icon: '🤱', priority: 'high' },
+  { week: 20, id: 'insurance', title: '태아 보험 가입', desc: '출산 전 가입 시 선천이상 보장', when: '22주 전 권장', icon: '🛡️', priority: 'high' },
+  { week: 20, id: 'transport', title: '임산부 교통비 확인', desc: '서울 월 7만원 등 지자체별 상이', when: '20주~', icon: '🚌', priority: 'low' },
   // 후기
   { week: 30, id: 'birth_plan', title: '출산 병원 확정', desc: '분만실 예약 · 입원 절차 확인', when: '30주 전후', icon: '🏨', priority: 'high' },
+  { week: 30, id: 'bebeform_birth', title: '🎁 베베폼 출산축하박스', desc: '무료 출산 선물 박스 (사전 신청)', when: '출산 전 신청', icon: '🎁', link: 'https://bebeform.co.kr/giftbox/', priority: 'medium' },
+  { week: 30, id: 'bebeking_birth', title: '🎁 베베킹 출산축하박스', desc: '기저귀 · 물티슈 · 샘플 박스', when: '출산 전 신청', icon: '📦', link: 'https://www.bebeking.co.kr/', priority: 'medium' },
   { week: 32, id: 'postnatal_helper', title: '산후도우미 신청', desc: '정부 바우처 산후도우미 서비스', when: '32주~', icon: '👩‍⚕️', link: 'https://www.gov.kr/portal/onestopSvc/happyBirth', priority: 'medium' },
+  { week: 34, id: 'hggies_sample', title: '🎁 하기스 신생아 체험팩', desc: '하기스 기저귀 · 물티슈 무료 샘플', when: '출산 전 신청', icon: '🧷', link: 'https://www.huggies.co.kr/', priority: 'low' },
   { week: 36, id: 'birth_docs', title: '출생신고 서류 준비', desc: '신분증 · 혼인관계증명서 · 인감', when: '36주~', icon: '📄', priority: 'medium' },
+  { week: 36, id: 'babyfair', title: '🎪 베이비페어 방문', desc: '베페(COEX) · 맘스홀릭 — 할인+샘플', when: '수시', icon: '🎪', link: 'https://www.befe.co.kr/', priority: 'low' },
   // 출산 후
-  { week: 41, id: 'birth_report', title: '출생신고', desc: '14일 이내 (행복출산 원스톱)', when: '출산 후 14일 내', icon: '📋', link: 'https://www.gov.kr/portal/onestopSvc/happyBirth', priority: 'high' },
-  { week: 41, id: 'first_meet', title: '첫만남이용권', desc: '200만원 바우처 (출생신고 시 자동)', when: '출산 후', icon: '🎉', link: 'https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=WLF00004656', priority: 'high' },
+  { week: 41, id: 'birth_report', title: '출생신고 (행복출산 원스톱)', desc: '14일 이내 — 6종 서비스 한번에 신청', when: '출산 후 즉시', icon: '📋', link: 'https://www.gov.kr/portal/onestopSvc/happyBirth', priority: 'high' },
+  { week: 41, id: 'first_meet', title: '첫만남이용권', desc: '첫째 200만원 · 둘째 이상 300만원', when: '출생신고 시 자동', icon: '🎉', link: 'https://www.gov.kr/portal/service/serviceInfo/135200005015', priority: 'high' },
   { week: 41, id: 'parent_pay', title: '부모급여 신청', desc: '0세 월 100만원 · 1세 월 50만원', when: '출산 후 60일 내', icon: '💰', link: 'https://www.gov.kr/portal/service/serviceInfo/135200000143', priority: 'high' },
   { week: 41, id: 'child_allow', title: '아동수당 신청', desc: '만 8세 미만 월 10만원', when: '출산 후', icon: '👶', link: 'https://www.gov.kr/portal/service/serviceInfo/135200000120', priority: 'high' },
-  { week: 41, id: 'baby_insurance_add', title: '건강보험 피부양자 등록', desc: '출생 후 14일 내', when: '출산 후', icon: '🏥', priority: 'high' },
+  { week: 41, id: 'baby_insurance_add', title: '건강보험 피부양자 등록', desc: '출생 후 14일 내 등록', when: '출산 후', icon: '🏥', priority: 'high' },
 ]
 
 // ===== 출산 가방 =====
