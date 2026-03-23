@@ -9,6 +9,7 @@ import TempSheet from '@/components/quick-buttons/TempSheet'
 import Toast from '@/components/ui/Toast'
 import { BellIcon, ChevronRightIcon } from '@/components/ui/Icons'
 import { createClient } from '@/lib/supabase/client'
+import { shareTodayRecord } from '@/lib/kakao/share-parenting'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { savePendingEvent } from '@/lib/offline/db'
 import type { CareEvent, EventType, Child } from '@/types'
@@ -272,73 +273,54 @@ export default function HomePage() {
       )}
 
       {/* 콘텐츠 */}
-      <div className="flex-1 overflow-y-auto bg-[#F7F8FA]">
+      <div className="flex-1 overflow-y-auto bg-[#F5F4F1]">
         <div className="max-w-lg mx-auto pt-4 pb-44 px-5 space-y-3">
 
-          {/* AI 케어 카드 (히어로) */}
-          <div className="bg-white rounded-xl border border-[#f0f0f0] p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-full bg-[#F0F9F4] flex items-center justify-center">
+          {/* ━━━ 1. AI 히어로 ━━━ */}
+          <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[#C8F0D8] p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
                 <span className="text-sm">✨</span>
+                <p className="text-[14px] font-bold text-[#1A1918]">AI 데일리 케어</p>
               </div>
-              <div>
-                <p className="text-[14px] font-bold text-[#1A1918]">AI 케어</p>
-                <p className="text-[10px] text-[#AEB1B9]">{new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })} 업데이트</p>
-              </div>
+              <button onClick={() => shareTodayRecord(child?.name || '아이', ageMonths, todayFeedCount, todaySleepCount, todayPoopCount)} className="text-[10px] text-[#3D8A5A]">카톡 공유</button>
             </div>
-            <p className="text-[14px] text-[#1A1918] leading-relaxed mb-4">
-              {events.length === 0
-                ? `${child?.name || '도담이'}의 오늘 첫 기록을 남겨보세요.\n기록이 쌓이면 AI가 리듬을 분석해드려요.`
-                : events.length < 3
-                  ? `${child?.name || '도담이'}가 오늘 ${events.length}건 기록했어요.\n조금 더 쌓이면 패턴을 분석할 수 있어요.`
-                  : `${child?.name || '도담이'}가 수유 ${todayFeedCount}회${todaySleepCount > 0 ? `, 수면 ${todaySleepCount}회` : ''}${todayPoopCount > 0 ? `, 배변 ${todayPoopCount}회` : ''}로\n안정적인 리듬을 유지하고 있어요.`
-              }
-            </p>
 
-            {/* 오늘 요약 숫자 */}
-            <div className="flex gap-2 mb-4">
+            {/* 오늘 요약 */}
+            <div className="flex gap-2 mb-3">
               {[
                 { emoji: '🍼', count: todayFeedCount, label: '수유' },
                 { emoji: '💤', count: todaySleepCount, label: '수면' },
                 { emoji: '🩲', count: todayPoopCount, label: '배변' },
               ].map((s) => (
-                <div key={s.label} className="flex-1 bg-[#F5F4F1] rounded-lg py-2 text-center">
+                <div key={s.label} className="flex-1 bg-white/60 rounded-lg py-2 text-center">
                   <p className="text-[14px] font-bold text-[#1A1918]">{s.emoji} {s.count}</p>
                   <p className="text-[9px] text-[#AEB1B9]">{s.label}</p>
                 </div>
               ))}
             </div>
 
-            {/* AI 예측 (데이터 충분 시) */}
-            {events.length >= 3 && (
-              <div className="space-y-2 pt-3 border-t border-[#f0f0f0]">
-                <div className="flex items-center justify-between">
-                  <p className="text-[12px] text-[#868B94]">🍼 다음 수유</p>
-                  <p className="text-[12px] font-semibold text-[#3D8A5A]">약 47분 후</p>
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-[12px] text-[#868B94]">💤 다음 낮잠</p>
-                  <p className="text-[12px] font-semibold text-[#6366F1]">약 2시간 후</p>
-                </div>
-              </div>
-            )}
+            {/* AI 메시지 */}
+            <p className="text-[12px] text-[#1A1918] leading-relaxed">
+              {events.length === 0
+                ? `${child?.name || '아이'}의 오늘 첫 기록을 남겨보세요. AI가 리듬을 분석해드려요.`
+                : events.length < 3
+                  ? `${child?.name || '아이'}가 오늘 ${events.length}건 기록. 조금 더 쌓이면 패턴을 분석할 수 있어요.`
+                  : `수유 ${todayFeedCount}회${todaySleepCount > 0 ? ` · 수면 ${todaySleepCount}회` : ''}${todayPoopCount > 0 ? ` · 배변 ${todayPoopCount}회` : ''} — 안정적인 리듬이에요 💚`
+              }
+            </p>
           </div>
 
-          {/* 최근 기록 (컴팩트) */}
+          {/* ━━━ 2. 최근 기록 ━━━ */}
           <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-[13px] font-semibold text-[#1A1918]">최근 기록</p>
-              <Link
-                href={`/records/${new Date().toISOString().split('T')[0]}`}
-                className="text-[11px] font-medium text-[#3D8A5A]"
-              >
-                전체보기 →
-              </Link>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-[14px] font-bold text-[#1A1918]">최근 기록</p>
+              <Link href={`/records/${new Date().toISOString().split('T')[0]}`} className="text-[11px] text-[#3D8A5A]">전체보기 →</Link>
             </div>
             {events.length === 0 ? (
-              <p className="text-[13px] text-[#AEB1B9] text-center py-4">아직 기록이 없어요</p>
+              <p className="text-[12px] text-[#AEB1B9] text-center py-3">아직 기록이 없어요</p>
             ) : (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {events.slice(0, 4).map((e) => {
                   const time = new Date(e.start_ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
                   const icons: Record<string, string> = { feed: '🍼', sleep: '💤', poop: '💩', pee: '💧', temp: '🌡️', memo: '💊' }
@@ -346,17 +328,76 @@ export default function HomePage() {
                   const detail = e.amount_ml ? ` ${e.amount_ml}ml` : e.end_ts ? ` ${Math.round((new Date(e.end_ts).getTime() - new Date(e.start_ts).getTime()) / 60000)}분` : ''
                   return (
                     <div key={e.id} className="flex items-center gap-2 py-1">
-                      <span className="text-[12px] w-10 text-[#AEB1B9] shrink-0">{time}</span>
-                      <span className="text-[12px]">{icons[e.type] || '📝'}</span>
-                      <span className="text-[12px] text-[#1A1918]">{labels[e.type] || e.type}{detail}</span>
+                      <span className="text-[11px] w-10 text-[#AEB1B9] shrink-0">{time}</span>
+                      <span className="text-[11px]">{icons[e.type] || '📝'}</span>
+                      <span className="text-[11px] text-[#1A1918]">{labels[e.type] || e.type}{detail}</span>
                     </div>
                   )
                 })}
-                {events.length > 4 && (
-                  <p className="text-[11px] text-[#AEB1B9] text-center pt-1">+ {events.length - 4}건 더</p>
-                )}
+                {events.length > 4 && <p className="text-[10px] text-[#AEB1B9] text-center pt-1">+ {events.length - 4}건 더</p>}
               </div>
             )}
+          </div>
+
+          {/* ━━━ 3. 상태 카드 3열 ━━━ */}
+          <div className="grid grid-cols-3 gap-2">
+            {/* 예방접종 */}
+            <Link href="/us" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+              <p className="text-[10px] text-[#868B94]">💉 예방접종</p>
+              <p className="text-[12px] font-bold text-[#1A1918] mt-0.5">
+                {(() => {
+                  const VACCINES: Record<number, string> = { 0: 'BCG', 1: 'B형간염 2차', 2: 'DTaP 1차', 4: 'DTaP 2차', 6: 'DTaP 3차', 12: 'MMR', 15: '수두', 24: '일본뇌염' }
+                  const next = Object.entries(VACCINES).find(([m]) => Number(m) >= ageMonths)
+                  return next ? next[1] : '완료!'
+                })()}
+              </p>
+              <p className="text-[9px] text-[#AEB1B9] mt-0.5">다음 접종</p>
+            </Link>
+
+            {/* 이유식 (6개월+) */}
+            {ageMonths >= 5 ? (
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">🥣 이유식</p>
+                <p className="text-[12px] font-bold text-[#1A1918] mt-0.5">
+                  {ageMonths < 6 ? '초기' : ageMonths < 8 ? '중기' : ageMonths < 10 ? '후기' : '완료기'}
+                </p>
+                <p className="text-[9px] text-[#AEB1B9] mt-0.5">{ageMonths}개월 단계</p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+                <p className="text-[10px] text-[#868B94]">📊 오늘</p>
+                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{events.length}</p>
+                <p className="text-[9px] text-[#AEB1B9]">기록</p>
+              </div>
+            )}
+
+            {/* 성장 */}
+            <Link href="/memory" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
+              <p className="text-[10px] text-[#868B94]">📈 성장</p>
+              <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{ageMonths}</p>
+              <p className="text-[9px] text-[#AEB1B9]">개월</p>
+            </Link>
+          </div>
+
+          {/* ━━━ 4. 더보기 ━━━ */}
+          <div className="space-y-2">
+            {/* 빠른 링크 */}
+            <div className="grid grid-cols-2 gap-2">
+              <Link href="/lullaby" className="bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center gap-2">
+                <span className="text-lg">🌙</span>
+                <div>
+                  <p className="text-[12px] font-semibold text-[#1A1918]">자장가 · 동요</p>
+                  <p className="text-[9px] text-[#868B94]">120곡+</p>
+                </div>
+              </Link>
+              <Link href="/health" className="bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center gap-2">
+                <span className="text-lg">💚</span>
+                <div>
+                  <p className="text-[12px] font-semibold text-[#1A1918]">내 건강</p>
+                  <p className="text-[9px] text-[#868B94]">Google Fit 연동</p>
+                </div>
+              </Link>
+            </div>
           </div>
 
         </div>
