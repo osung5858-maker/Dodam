@@ -9,6 +9,8 @@ export async function GET(request: Request) {
 
   if (code) {
     const cookieStore = await cookies()
+    const cookiesToSetLater: { name: string; value: string; options: any }[] = []
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -17,41 +19,50 @@ export async function GET(request: Request) {
           getAll() {
             return cookieStore.getAll()
           },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) =>
+          setAll(cs) {
+            cs.forEach(({ name, value, options }) => {
+              // cookieStore에도 설정하고, 나중에 Response에도 복사
               cookieStore.set(name, value, options)
-            )
+              cookiesToSetLater.push({ name, value, options })
+            })
           },
         },
       }
     )
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error && data.session) {
-      // Google Fit 연동을 위해 provider_token 쿠키에 저장
+
+    if (!error) {
       const res = NextResponse.redirect(`${origin}${next}`)
-      if (data.session.provider_token) {
+
+      // Supabase 세션 쿠키를 Response에도 복사
+      for (const c of cookiesToSetLater) {
+        res.cookies.set(c.name, c.value, c.options)
+      }
+
+      // Google Fit provider token 저장
+      if (data.session?.provider_token) {
         res.cookies.set('gfit_token', data.session.provider_token, {
           httpOnly: true,
           secure: true,
           sameSite: 'lax',
-          maxAge: 3600, // 1시간
+          maxAge: 3600,
           path: '/',
         })
       }
-      if (data.session.provider_refresh_token) {
+      if (data.session?.provider_refresh_token) {
         res.cookies.set('gfit_refresh', data.session.provider_refresh_token, {
           httpOnly: true,
           secure: true,
           sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 30, // 30일
+          maxAge: 60 * 60 * 24 * 30,
           path: '/',
         })
       }
+
       return res
     }
   }
 
-  // 에러 시 온보딩으로
   return NextResponse.redirect(`${origin}/onboarding?error=auth`)
 }

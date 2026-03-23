@@ -89,6 +89,7 @@ export default function HealthPage() {
   // Google Fit 상태
   const [gfit, setGfit] = useState<GoogleFitData | null>(null)
   const [gfitLoading, setGfitLoading] = useState(false)
+  const [gfitError, setGfitError] = useState<string | null>(null)
   const [syncTime, setSyncTime] = useState<string | null>(null)
 
   const todayRecord = records[today] || null
@@ -101,21 +102,41 @@ export default function HealthPage() {
   // Google Fit 데이터 가져오기
   const fetchGoogleFit = useCallback(async () => {
     setGfitLoading(true)
+    setGfitError(null)
     try {
+      // 먼저 토큰 상태 확인
+      const statusRes = await fetch('/api/google-fit/status')
+      const status = await statusRes.json()
+
+      if (!status.hasToken && !status.hasRefresh) {
+        setGfit({ connected: false })
+        setGfitError('토큰 없음 — Google 재로그인 필요')
+        setGfitLoading(false)
+        return
+      }
+
       const res = await fetch('/api/google-fit?type=week')
       const data = await res.json()
+
+      if (data.error) {
+        setGfit({ connected: false })
+        setGfitError(`API 오류: ${data.error}`)
+        setGfitLoading(false)
+        return
+      }
+
       setGfit(data)
 
       if (data.connected && data.today) {
-        // Google Fit 데이터로 자동 채우기 (수동 입력 없으면)
         if (data.today.steps > 0 && steps === 0) setSteps(data.today.steps)
         if (data.today.sleep > 0 && sleep === 0) setSleep(data.today.sleep)
         if (data.today.weight > 0 && weight === 0) setWeight(data.today.weight)
         if (data.today.heartRate > 0) setHeartRate(Math.round(data.today.heartRate))
         setSyncTime(new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }))
       }
-    } catch {
+    } catch (e) {
       setGfit({ connected: false })
+      setGfitError(`네트워크 오류: ${e}`)
     }
     setGfitLoading(false)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -190,6 +211,13 @@ export default function HealthPage() {
       </header>
 
       <div className="max-w-lg mx-auto px-5 pt-4 pb-28 space-y-3">
+
+        {/* 디버그: 연동 오류 표시 */}
+        {gfitError && (
+          <div className="bg-[#FFF0E6] rounded-xl border border-[#FFDDC8] p-3">
+            <p className="text-[12px] text-[#D08068]">{gfitError}</p>
+          </div>
+        )}
 
         {/* Google Fit 연동 상태 */}
         {!gfit?.connected && !gfitLoading && (
