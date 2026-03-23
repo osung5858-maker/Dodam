@@ -428,10 +428,12 @@ export default function PreparingPage() {
                 <button onClick={() => fetchAIMeal(true)} className="text-[9px] text-[#3D8A5A] mt-1">다른 추천</button>
               </>
             ) : (
-              {mealError && <p className="text-[10px] text-[#D08068] mb-1">{mealError}</p>}
-              <button onClick={() => fetchAIMeal()} disabled={aiMealLoading} className="text-[12px] text-[#3D8A5A] font-semibold mt-1">
-                {aiMealLoading ? '...' : '추천받기'}
-              </button>
+              <>
+                {mealError && <p className="text-[10px] text-[#D08068] mb-1">{mealError}</p>}
+                <button onClick={() => fetchAIMeal()} disabled={aiMealLoading} className="text-[12px] text-[#3D8A5A] font-semibold mt-1">
+                  {aiMealLoading ? '...' : '추천받기'}
+                </button>
+              </>
             )}
           </div>
 
