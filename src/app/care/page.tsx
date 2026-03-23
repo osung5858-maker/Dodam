@@ -22,16 +22,16 @@ const SECTIONS = [
   {
     label: '육아 가이드',
     items: [
-      { href: CHANNEL_URL + '/playlists', icon: '🍼', title: '수유 & 이유식 전략', desc: '12편 · YouTube' },
-      { href: CHANNEL_URL + '/playlists', icon: '🛡️', title: '아기 안전 세팅', desc: '22편 · YouTube' },
-      { href: CHANNEL_URL + '/playlists', icon: '✏️', title: '0~4개월 발달 로드맵', desc: '17편 · YouTube' },
-      { href: CHANNEL_URL + '/playlists', icon: '🏥', title: '출산 후 생존 가이드', desc: '38편 · YouTube' },
+      { href: 'https://www.youtube.com/watch?v=ENBU7L33z1k&list=PLAyG7B7am9dbiw_h00pYsn0hnD2sa5AdG', icon: '🍼', title: '수유 & 이유식 전략', desc: '12편 · YouTube' },
+      { href: 'https://www.youtube.com/watch?v=i-xelCyfn7Q&list=PLAyG7B7am9dZ9FThtX2O-SfEr7b9FM8Hp', icon: '🛡️', title: '아기 안전 세팅', desc: '22편 · YouTube' },
+      { href: 'https://www.youtube.com/watch?v=u4MSCVgjSCY&list=PLAyG7B7am9dZHgdDrA7bSNx4Fl4oUSvnk', icon: '✏️', title: '0~4개월 발달 로드맵', desc: '17편 · YouTube' },
+      { href: 'https://www.youtube.com/watch?v=iioy1MSHjtI&list=PLAyG7B7am9dZYudI0FIKysQYtQ1Wh0AH7', icon: '🏥', title: '출산 후 생존 가이드', desc: '38편 · YouTube' },
     ],
   },
   {
     label: '콘텐츠',
     items: [
-      { href: CHANNEL_URL + '/playlists', icon: '📞', title: '긴급 육아 마법 전화', desc: '13편 · YouTube' },
+      { href: 'https://www.youtube.com/watch?v=AuUYnn1WMds&list=PLAyG7B7am9dbHpU3Mcxj1BulydsstlYr7', icon: '📞', title: '긴급 육아 마법 전화', desc: '13편 · YouTube' },
       { href: CHANNEL_URL + '/videos', icon: '🎬', title: "Doha's 일상", desc: '53편 · YouTube' },
     ],
   },
