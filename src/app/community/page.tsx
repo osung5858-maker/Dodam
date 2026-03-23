@@ -32,6 +32,7 @@ interface MarketItem {
   category: string
   baby_age_months: string
   region: string
+  photos: string[]
   status: string
   chat_count: number
   created_at: string
@@ -96,6 +97,8 @@ export default function CommunityPage() {
     if (typeof window !== 'undefined') return localStorage.getItem('dodam_region') || '내 동네'
     return '내 동네'
   })
+  const [mPhotos, setMPhotos] = useState<string[]>([])
+  const [uploading, setUploading] = useState(false)
 
   const router = useRouter()
   const supabase = createClient()
@@ -129,15 +132,36 @@ export default function CommunityPage() {
     setWriteText(''); setWriteOpen(false); setPosting(false)
   }, [writeText, userId, posting, supabase])
 
+  const handlePhotoUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || !userId || mPhotos.length >= 3) return
+    setUploading(true)
+    const newPhotos = [...mPhotos]
+    for (let i = 0; i < Math.min(files.length, 3 - mPhotos.length); i++) {
+      const file = files[i]
+      const ext = file.name.split('.').pop()
+      const path = `market/${userId}/${Date.now()}_${i}.${ext}`
+      const { error } = await supabase.storage.from('photos').upload(path, file)
+      if (!error) {
+        const { data: urlData } = supabase.storage.from('photos').getPublicUrl(path)
+        newPhotos.push(urlData.publicUrl)
+      }
+    }
+    setMPhotos(newPhotos)
+    setUploading(false)
+    e.target.value = ''
+  }, [userId, mPhotos, supabase])
+
   const handleMarketPost = useCallback(async () => {
     if (!mTitle.trim() || !userId || posting) return
     setPosting(true)
     const { data } = await supabase.from('market_items').insert({
       user_id: userId, title: mTitle.trim(), description: mDesc.trim(),
       price: mPrice, category: mCategory, baby_age_months: mAge, region: mRegion || '미설정',
+      photos: mPhotos,
     }).select().single()
     if (data) setItems((prev) => [data as MarketItem, ...prev])
-    setMTitle(''); setMDesc(''); setMPrice(0); setMarketOpen(false); setPosting(false)
+    setMTitle(''); setMDesc(''); setMPrice(0); setMPhotos([]); setMarketOpen(false); setPosting(false)
   }, [mTitle, mDesc, mPrice, mCategory, mAge, mRegion, userId, posting, supabase])
 
   const toggleLike = useCallback(async (postId: string) => {
@@ -359,8 +383,12 @@ export default function CommunityPage() {
             ) : items.map((item) => (
               <div key={item.id} className="bg-white rounded-xl p-4 border border-[#f0f0f0]">
                 <div className="flex items-start gap-3">
-                  <div className="w-16 h-16 rounded-xl bg-[#F5F4F1] flex items-center justify-center shrink-0">
-                    <span className="text-2xl">{CATEGORY_LABELS[item.category]?.split(' ')[0] || '📦'}</span>
+                  <div className="w-16 h-16 rounded-xl bg-[#F5F4F1] flex items-center justify-center shrink-0 overflow-hidden">
+                    {item.photos && item.photos.length > 0 ? (
+                      <img src={item.photos[0]} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl">{CATEGORY_LABELS[item.category]?.split(' ')[0] || '📦'}</span>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[14px] font-semibold text-[#1A1918] truncate">{item.title}</p>
@@ -457,6 +485,27 @@ export default function CommunityPage() {
                 <div className="flex-1">
                   <p className="text-[12px] font-semibold text-[#868B94] mb-1">지역</p>
                   <div className="w-full h-9 px-3 rounded-xl border border-[#f0f0f0] text-[13px] flex items-center text-[#1A1918] bg-[#F7F8FA]">{mRegion}</div>
+                </div>
+              </div>
+              <div>
+                <p className="text-[12px] font-semibold text-[#868B94] mb-1">사진 (최대 3장)</p>
+                <div className="flex gap-2">
+                  {mPhotos.map((url, i) => (
+                    <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#F5F4F1]">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        onClick={() => setMPhotos((prev) => prev.filter((_, j) => j !== i))}
+                        className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/50 rounded-full text-white text-[8px] flex items-center justify-center"
+                      >✕</button>
+                    </div>
+                  ))}
+                  {mPhotos.length < 3 && (
+                    <label className="w-16 h-16 rounded-xl border-2 border-dashed border-[#AEB1B9] flex flex-col items-center justify-center cursor-pointer active:bg-[#F5F4F1]">
+                      <span className="text-lg text-[#AEB1B9]">{uploading ? '...' : '📷'}</span>
+                      <span className="text-[8px] text-[#AEB1B9]">{uploading ? '업로드' : '추가'}</span>
+                      <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
+                    </label>
+                  )}
                 </div>
               </div>
               <div>
