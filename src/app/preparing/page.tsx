@@ -170,28 +170,39 @@ export default function PreparingPage() {
     setAiLoading(false)
   }
 
-  const fetchAIMeal = async () => {
+  const [mealError, setMealError] = useState<string | null>(null)
+
+  const fetchAIMeal = async (force = false) => {
     if (!cycle) return
     // 캐시 확인
-    const cached = localStorage.getItem('dodam_ai_meal')
-    if (cached) {
-      try {
-        const { date, data } = JSON.parse(cached)
-        if (date === today && data.breakfast) { setAiMeal(data); return }
-      } catch { /* */ }
+    if (!force) {
+      const cached = localStorage.getItem('dodam_ai_meal')
+      if (cached) {
+        try {
+          const { date, data } = JSON.parse(cached)
+          if (date === today && data.breakfast) { setAiMeal(data); return }
+        } catch { /* */ }
+      }
     }
     setAiMealLoading(true)
+    setMealError(null)
     try {
       const res = await fetch('/api/ai-preparing', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'meal', phase: getCyclePhase(), cycleDay: cycle.cycleDay }),
       })
       const data = await res.json()
-      if (!data.error) {
+      if (data.error) {
+        setMealError(data.error)
+      } else if (data.breakfast) {
         setAiMeal(data)
         localStorage.setItem('dodam_ai_meal', JSON.stringify({ date: today, data }))
+      } else {
+        setMealError('응답 형식 오류')
       }
-    } catch { /* */ }
+    } catch (e) {
+      setMealError(`${e}`)
+    }
     setAiMealLoading(false)
   }
 
@@ -414,10 +425,11 @@ export default function PreparingPage() {
               <>
                 <p className="text-[12px] font-semibold text-[#1A1918] line-clamp-1">{aiMeal.breakfast?.menu}</p>
                 <p className="text-[10px] text-[#868B94] line-clamp-1">{aiMeal.lunch?.menu}</p>
-                <button onClick={fetchAIMeal} className="text-[9px] text-[#3D8A5A] mt-1">다른 추천</button>
+                <button onClick={() => fetchAIMeal(true)} className="text-[9px] text-[#3D8A5A] mt-1">다른 추천</button>
               </>
             ) : (
-              <button onClick={fetchAIMeal} disabled={aiMealLoading} className="text-[12px] text-[#3D8A5A] font-semibold mt-1">
+              {mealError && <p className="text-[10px] text-[#D08068] mb-1">{mealError}</p>}
+              <button onClick={() => fetchAIMeal()} disabled={aiMealLoading} className="text-[12px] text-[#3D8A5A] font-semibold mt-1">
                 {aiMealLoading ? '...' : '추천받기'}
               </button>
             )}
