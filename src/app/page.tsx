@@ -11,7 +11,7 @@ import Timeline from '@/components/timeline/Timeline'
 import DiaryView from '@/components/diary/DiaryView'
 import StreakBanner from '@/components/reward/StreakBanner'
 import Toast from '@/components/ui/Toast'
-import { BellIcon, ChevronRightIcon } from '@/components/ui/Icons'
+import { BellIcon, ChevronRightIcon, SettingsIcon } from '@/components/ui/Icons'
 import { createClient } from '@/lib/supabase/client'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { savePendingEvent } from '@/lib/offline/db'
@@ -254,6 +254,9 @@ export default function HomePage() {
               )}
               <Link href="/settings" className="w-9 h-9 rounded-full bg-[#F7F8FA] flex items-center justify-center active:bg-[#ECECEC]">
                 <BellIcon className="w-[18px] h-[18px] text-[#212124]" />
+              </Link>
+              <Link href="/settings" className="w-9 h-9 rounded-full bg-[#F7F8FA] flex items-center justify-center active:bg-[#ECECEC]">
+                <SettingsIcon className="w-[18px] h-[18px] text-[#868B94]" />
               </Link>
               <Link href="/settings/children" className="w-9 h-9 rounded-full bg-[#FF6F0F] flex items-center justify-center overflow-hidden active:opacity-80">
                 {user?.user_metadata?.avatar_url ? (

@@ -19,7 +19,7 @@ const tabs: Tab[] = [
   { href: '/', icon: HomeIcon, label: '홈' },
   { href: '/growth', icon: ChartIcon, label: '성장' },
   { href: '/map', icon: MapIcon, label: '동네' },
-  { href: '/settings', icon: SettingsIcon, label: '설정' },
+  { href: '/lullaby', icon: MoonIcon, label: '자장가' },
 ]
 
 const QUICK_BUTTONS = [
@@ -60,7 +60,7 @@ export default function BottomNav() {
     setFabOpen(false)
   }, [])
 
-  if (pathname?.startsWith('/onboarding') || pathname?.startsWith('/invite')) {
+  if (pathname?.startsWith('/onboarding') || pathname?.startsWith('/invite') || pathname?.startsWith('/lullaby')) {
     return null
   }
 
