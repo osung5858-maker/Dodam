@@ -4,10 +4,10 @@ import Link from 'next/link'
 
 const MENU_GROUPS = [
   {
-    label: '커뮤니티',
+    label: '케어',
     items: [
-      { href: '/community', icon: '💬', title: '같은 달 맘', desc: '같은 월령 부모들과 소통해요' },
-      { href: '/community', icon: '📍', title: '우리 동네', desc: '동네 부모들의 이야기' },
+      { href: '/lullaby', icon: '🌙', title: '자장가 · 동요', desc: '수면 도우미 · 120곡+' },
+      { href: '/memory', icon: '📋', title: '발달 체크리스트', desc: '월령별 발달 확인 · AI 분석' },
     ],
   },
   {
@@ -31,6 +31,12 @@ const MENU_GROUPS = [
       { href: '/settings/children', icon: '👶', title: '아기 프로필', desc: '이름 · 생일 · 특이사항 관리' },
     ],
   },
+  {
+    label: '콘텐츠',
+    items: [
+      { href: 'https://www.youtube.com/@todaydoha', icon: '🎬', title: '도하, 오늘도', desc: '육아 가이드 · 유튜브 채널', external: true },
+    ],
+  },
 ]
 
 export default function UsPage() {
@@ -47,24 +53,31 @@ export default function UsPage() {
           <div key={group.label}>
             <p className="text-[13px] font-semibold text-[#868B94] mb-2">{group.label}</p>
             <div className="bg-white rounded-xl border border-[#f0f0f0] overflow-hidden">
-              {group.items.map((item, i) => (
-                <Link
-                  key={item.href + item.title}
-                  href={item.href}
-                  className={`flex items-center gap-3 px-4 py-3 active:bg-[#F5F4F1] transition-colors ${
-                    i > 0 ? 'border-t border-[#f0f0f0]' : ''
-                  }`}
-                >
-                  <div className="w-9 h-9 rounded-xl bg-[#F5F4F1] flex items-center justify-center shrink-0">
-                    <span className="text-base">{item.icon}</span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-[14px] font-semibold text-[#1A1918]">{item.title}</p>
-                    <p className="text-[11px] text-[#868B94]">{item.desc}</p>
-                  </div>
-                  <span className="text-[#AEB1B9] text-sm">→</span>
-                </Link>
-              ))}
+              {group.items.map((item, i) => {
+                const isExt = 'external' in item
+                const Comp = isExt ? 'a' : Link
+                const props = isExt
+                  ? { href: item.href, target: '_blank', rel: 'noopener noreferrer' }
+                  : { href: item.href }
+                return (
+                  <Comp
+                    key={item.href + item.title}
+                    {...(props as any)}
+                    className={`flex items-center gap-3 px-4 py-3 active:bg-[#F5F4F1] transition-colors ${
+                      i > 0 ? 'border-t border-[#f0f0f0]' : ''
+                    }`}
+                  >
+                    <div className="w-9 h-9 rounded-xl bg-[#F5F4F1] flex items-center justify-center shrink-0">
+                      <span className="text-base">{item.icon}</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[13px] font-semibold text-[#1A1918]">{item.title}</p>
+                      <p className="text-[11px] text-[#868B94]">{item.desc}</p>
+                    </div>
+                    <span className="text-[#AEB1B9] text-sm">{isExt ? '↗' : '→'}</span>
+                  </Comp>
+                )
+              })}
             </div>
           </div>
         ))}
