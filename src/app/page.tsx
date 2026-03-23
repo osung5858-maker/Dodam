@@ -259,31 +259,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* 🔧 테스트 (개발용) */}
-          <div className="mb-2 flex gap-1.5">
-            {[
-              { mode: 'preparing', label: '임신 전' },
-              { mode: 'pregnant', label: '임신 중' },
-              { mode: 'parenting', label: '육아 중' },
-            ].map((m) => (
-              <button
-                key={m.mode}
-                onClick={() => {
-                  localStorage.setItem('dodam_mode', m.mode)
-                  if (m.mode === 'preparing') window.location.href = '/preparing'
-                  else if (m.mode === 'pregnant') window.location.href = '/pregnant'
-                  else window.location.reload()
-                }}
-                className={`px-2.5 py-1 rounded-md text-[10px] font-medium active:bg-[#E0E0E0] ${
-                  (typeof window !== 'undefined' && localStorage.getItem('dodam_mode') === m.mode)
-                    ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#868B94]'
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-
         </div>
       </header>
 
