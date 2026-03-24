@@ -271,7 +271,6 @@ export default function HomePage() {
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className="text-[18px] font-bold text-[#212124]">{child?.name || '도담이'}</span>
                 <span className="text-[13px] text-[#AEB1B9]">{ageMonths}개월</span>
-                {events.length > 0 && <span className="text-[10px] text-[#3D8A5A] bg-[#E8F5E9] px-1.5 py-0.5 rounded-full">오늘 {events.length}건</span>}
               </div>
             </div>
             <div className="flex items-center gap-2">
