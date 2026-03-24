@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getCachedResponse, setCachedResponse } from '@/lib/ai/cache'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
@@ -49,6 +50,11 @@ export async function POST(request: Request) {
     if (type === 'daily') {
       const { cycleDay, cycleLength, phase, motherAge, fatherAge, mood, supplements, partnerChecks, sleep, steps, stress } = body
 
+      // 서버 캐시 (같은 주기+단계면 재사용)
+      const cacheKey = `prep-daily-${cycleDay}-${phase}-${mood || 'none'}`
+      const cached = getCachedResponse(cacheKey)
+      if (cached) return NextResponse.json(cached)
+
       const prompt = `당신은 "도담" 앱의 AI 임신 준비 코치입니다. 따뜻하면서도 전문적인 톤으로 조언해주세요.
 절대 의료 진단을 하지 마세요. "도담하게"라는 표현을 자연스럽게 사용하세요.
 사용자는 아직 임신 전 준비 단계입니다. "엄마"가 아닌 "예비맘" 또는 이름 없이 자연스럽게 호칭하세요.
@@ -89,6 +95,7 @@ JSON만 출력하세요.`
         const jsonMatch = cleanedText.match(/\{[\s\S]*\}/)
         if (!jsonMatch) return NextResponse.json({ summary: text.slice(0, 200), mainAdvice: '', cycleInsight: '', nutritionTip: '', emotionalCare: '', partnerTip: '', todayScore: 70 })
         const parsed = JSON.parse(jsonMatch[0])
+        setCachedResponse(cacheKey, parsed)
         return NextResponse.json(parsed)
       } catch {
         return NextResponse.json({ summary: text.slice(0, 200), mainAdvice: '', cycleInsight: '', nutritionTip: '', emotionalCare: '', partnerTip: '', todayScore: 70 })
@@ -121,6 +128,9 @@ JSON만 출력하세요.`
     // === 주기별 식단 추천 ===
     if (type === 'meal') {
       const { phase, cycleDay } = body
+      const mealCacheKey = `prep-meal-${phase}-${new Date().toISOString().split('T')[0]}`
+      const mealCached = getCachedResponse(mealCacheKey)
+      if (mealCached) return NextResponse.json(mealCached)
 
       const prompt = `당신은 임신 준비 영양 전문가입니다.
 현재 생리주기 ${cycleDay}일차, 단계: ${phase}에 맞는 오늘의 식단을 추천해주세요.
@@ -145,7 +155,9 @@ JSON 형식으로 출력:
         const cleaned = mealText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
         const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
         if (!jsonMatch) return NextResponse.json({ error: `JSON 없음: ${cleaned.slice(0, 100)}` }, { status: 500 })
-        return NextResponse.json(JSON.parse(jsonMatch[0]))
+        const mealResult = JSON.parse(jsonMatch[0])
+        setCachedResponse(mealCacheKey, mealResult)
+        return NextResponse.json(mealResult)
       } catch (e) {
         return NextResponse.json({ error: `파싱 실패: ${mealText.slice(0, 100)}` }, { status: 500 })
       }

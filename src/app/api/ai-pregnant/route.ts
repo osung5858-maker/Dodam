@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { getCachedResponse, setCachedResponse } from '@/lib/ai/cache'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
@@ -33,6 +34,9 @@ export async function POST(request: Request) {
     // === 주차별 데일리 케어 ===
     if (type === 'daily') {
       const { week, trimester, daysLeft, weight, bloodPressure, fetalMovement, mood, sleep } = body
+      const cacheKey = `preg-daily-${week}-${mood || 'none'}`
+      const cached = getCachedResponse(cacheKey)
+      if (cached) return NextResponse.json(cached)
 
       const prompt = `당신은 "도담" 앱의 AI 임신 케어 코치입니다. 따뜻하면서 전문적으로 조언하세요.
 의료 진단은 절대 하지 마세요. "도담하게"를 자연스럽게 사용하세요.
@@ -63,7 +67,9 @@ JSON만 출력.`
       try {
         const match = text.match(/\{[\s\S]*\}/)
         if (!match) return NextResponse.json({ greeting: text.slice(0, 200) })
-        return NextResponse.json(JSON.parse(match[0]))
+        const parsed = JSON.parse(match[0])
+        setCachedResponse(cacheKey, parsed)
+        return NextResponse.json(parsed)
       } catch {
         return NextResponse.json({ greeting: text.slice(0, 200) })
       }

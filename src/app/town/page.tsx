@@ -86,6 +86,7 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
   const [activeIdx, setActiveIdx] = useState(0)
   const [places, setPlaces] = useState<Place[]>([])
   const [loading, setLoading] = useState(true)
+  const [reviewStats, setReviewStats] = useState<Record<string, { avg: string; count: number }>>({})
   const mapObjRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
   const cacheRef = useRef<Record<string, Place[]>>({}) // 검색 결과 캐시
@@ -155,6 +156,26 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
     }
   }, [])
 
+  // 배치 리뷰 조회 (N+1 방지)
+  useEffect(() => {
+    if (places.length === 0) return
+    const supabase = createClient()
+    const ids = places.map(p => p.id)
+    supabase.from('reviews').select('place_id, rating').in('place_id', ids).then(({ data }) => {
+      if (!data) return
+      const stats: Record<string, { avg: string; count: number }> = {}
+      const grouped: Record<string, number[]> = {}
+      data.forEach((r: any) => {
+        if (!grouped[r.place_id]) grouped[r.place_id] = []
+        grouped[r.place_id].push(r.rating)
+      })
+      Object.entries(grouped).forEach(([pid, ratings]) => {
+        stats[pid] = { avg: (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1), count: ratings.length }
+      })
+      setReviewStats(stats)
+    })
+  }, [places])
+
   useEffect(() => {
     const initMap = () => {
       if (window.kakao?.maps) { window.kakao.maps.load(() => searchPlaces(categories[0]?.query || '소아과')) }
@@ -180,7 +201,7 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
         ) : places.length === 0 ? (
           <p className="text-[13px] text-[#AEB1B9] text-center py-8">주변에 검색 결과가 없어요</p>
         ) : (
-          places.map(p => <PlaceCard key={p.id} place={p} />)
+          places.map(p => <PlaceCard key={p.id} place={p} stats={reviewStats[p.id]} />)
         )}
       </div>
     </div>
@@ -188,23 +209,12 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
 }
 
 // ===== 장소 카드 (리뷰 포함) =====
-function PlaceCard({ place: p }: { place: Place }) {
+function PlaceCard({ place: p, stats }: { place: Place; stats?: { avg: string; count: number } }) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [showReviews, setShowReviews] = useState(false)
   const [loaded, setLoaded] = useState(false)
-  const [reviewCount, setReviewCount] = useState(0)
-  const [avgRating, setAvgRating] = useState<string | null>(null)
-
-  // 카드 렌더링 시 리뷰 수/평점만 먼저 로드
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.from('reviews').select('rating').eq('place_id', p.id).then(({ data }) => {
-      if (data && data.length > 0) {
-        setReviewCount(data.length)
-        setAvgRating((data.reduce((s: number, r: any) => s + r.rating, 0) / data.length).toFixed(1))
-      }
-    })
-  }, [p.id])
+  const reviewCount = stats?.count || 0
+  const avgRating = stats?.avg || null
 
   const loadReviews = async () => {
     if (loaded) { setShowReviews(!showReviews); return }
