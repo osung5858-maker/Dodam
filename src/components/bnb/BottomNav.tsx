@@ -280,9 +280,19 @@ export default function BottomNav() {
 
       {/* ===== B안: 반원형 변신 ===== */}
       {fabOpen && fabStyle === 'B' && (() => {
-        const ARC = [
-          { x: -120, y: -50 }, { x: -76, y: -115 }, { x: 0, y: -140 }, { x: 76, y: -115 }, { x: 120, y: -50 },
-        ]
+        // 항목 수에 따라 반원형 좌표 동적 생성
+        const arcPositions = (count: number, radius = 130): { x: number; y: number }[] => {
+          if (count === 1) return [{ x: 0, y: -radius }]
+          if (count === 2) return [{ x: -radius * 0.7, y: -radius * 0.7 }, { x: radius * 0.7, y: -radius * 0.7 }]
+          // 반원(180도)을 count로 균등 분할
+          const startAngle = Math.PI      // 왼쪽 (180°)
+          const endAngle = 0              // 오른쪽 (0°)
+          return Array.from({ length: count }, (_, i) => {
+            const angle = startAngle + (endAngle - startAngle) * (i / (count - 1))
+            return { x: Math.round(Math.cos(angle) * radius), y: Math.round(-Math.sin(angle) * radius) }
+          })
+        }
+        const ARC = arcPositions(5)
         if (!selectedCategory) {
           // 1단계: 카테고리
           return (
@@ -318,7 +328,8 @@ export default function BottomNav() {
               <div className="fixed z-[70] bottom-[60px] left-1/2" style={{ maxWidth: 430 }}>
                 <div className="relative" style={{ width: 0, height: 0 }}>
                   {presets.map((p, i) => {
-                    const pos = ARC[i % ARC.length]
+                    const presetArc = arcPositions(presets.length)
+                    const pos = presetArc[i]
                     return (
                       <div key={String(p.value)} className="absolute flex flex-col items-center gap-1"
                         style={{ left: pos.x - 24, top: pos.y - 24, animation: `fabItemPop 0.2s ${i * 0.03}s both cubic-bezier(0.34, 1.56, 0.64, 1)` }}>
@@ -361,11 +372,7 @@ export default function BottomNav() {
             <div className="fixed z-[70] bottom-[60px] left-1/2" style={{ maxWidth: 430 }}>
               <div className="relative" style={{ width: 0, height: 0 }}>
                 {cat.items.map((item, i) => {
-                  const positions = cat.items.length <= 3
-                    ? [{ x: -76, y: -115 }, { x: 0, y: -140 }, { x: 76, y: -115 }]
-                    : cat.items.length <= 5
-                      ? ARC
-                      : [{ x: -120, y: -50 }, { x: -80, y: -110 }, { x: -20, y: -145 }, { x: 40, y: -140 }, { x: 90, y: -100 }]
+                  const positions = arcPositions(cat.items.length)
                   const pos = positions[i % positions.length]
                   return (
                     <div key={item.type} className="absolute flex flex-col items-center gap-1.5"
