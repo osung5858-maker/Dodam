@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 
 type SubTab = 'town' | 'story' | 'market'
@@ -39,10 +39,8 @@ export default function TownPage() {
 }
 
 function TownPageInner() {
-  const searchParams = useSearchParams()
-  const initialTab = (searchParams.get('tab') as SubTab) || 'town'
-  const [subTab, setSubTab] = useState<SubTab>(initialTab)
   const [mode, setMode] = useState('parenting')
+  const router = useRouter()
 
   useEffect(() => {
     const saved = localStorage.getItem('dodam_mode')
@@ -50,6 +48,11 @@ function TownPageInner() {
   }, [])
 
   const categories = MAP_CATEGORIES[mode] || MAP_CATEGORIES.parenting
+
+  const handleTab = (key: string) => {
+    if (key === 'story') router.push('/community')
+    else if (key === 'market') router.push('/community?tab=market')
+  }
 
   return (
     <div className="min-h-[100dvh] bg-[#F5F4F1]">
@@ -60,12 +63,12 @@ function TownPageInner() {
           </div>
           <div className="flex px-5 gap-1 pb-2">
             {[
-              { key: 'town' as SubTab, label: '동네' },
-              { key: 'story' as SubTab, label: '이야기' },
-              { key: 'market' as SubTab, label: '도담장터' },
+              { key: 'town', label: '동네' },
+              { key: 'story', label: '이야기' },
+              { key: 'market', label: '도담장터' },
             ].map(t => (
-              <button key={t.key} onClick={() => setSubTab(t.key)}
-                className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${subTab === t.key ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
+              <button key={t.key} onClick={() => handleTab(t.key)}
+                className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${t.key === 'town' ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
                 {t.label}
               </button>
             ))}
@@ -74,9 +77,7 @@ function TownPageInner() {
       </header>
 
       <div className="max-w-lg mx-auto">
-        {subTab === 'town' && <MapTab categories={categories} />}
-        {subTab === 'story' && <StoryTab />}
-        {subTab === 'market' && <MarketTabInline />}
+        <MapTab categories={categories} />
       </div>
     </div>
   )
@@ -188,106 +189,3 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
   )
 }
 
-// ===== 이야기 탭 — Supabase 직접 로드 =====
-function StoryTab() {
-  const [posts, setPosts] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [newPost, setNewPost] = useState('')
-  const [posting, setPosting] = useState(false)
-
-  useEffect(() => {
-    async function load() {
-      const { createClient } = await import('@/lib/supabase/client')
-      const supabase = createClient()
-      const { data } = await supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(20)
-      setPosts(data || []); setLoading(false)
-    }
-    load()
-  }, [])
-
-  const handlePost = async () => {
-    if (!newPost.trim() || posting) return
-    setPosting(true)
-    const { createClient } = await import('@/lib/supabase/client')
-    const supabase = createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setPosting(false); return }
-    const { data, error } = await supabase.from('posts').insert({ user_id: user.id, content: newPost.trim() }).select().single()
-    if (!error && data) { setPosts(prev => [data, ...prev]); setNewPost('') }
-    setPosting(false)
-  }
-
-  return (
-    <div className="px-4 pt-3 pb-28 space-y-2">
-      <div className="bg-white rounded-xl border border-[#f0f0f0] p-3">
-        <textarea value={newPost} onChange={e => setNewPost(e.target.value.slice(0, 500))} placeholder="동네 이야기를 나눠보세요..."
-          className="w-full h-16 text-[13px] resize-none focus:outline-none" />
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-[9px] text-[#AEB1B9]">{newPost.length}/500</span>
-          <button onClick={handlePost} disabled={!newPost.trim() || posting}
-            className={`px-4 py-1.5 rounded-lg text-[12px] font-semibold ${newPost.trim() && !posting ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}>
-            {posting ? '...' : '올리기'}
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
-      ) : posts.length === 0 ? (
-        <p className="text-[13px] text-[#AEB1B9] text-center py-8">첫 이야기를 시작해보세요!</p>
-      ) : (
-        posts.map(post => (
-          <div key={post.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
-            <p className="text-[13px] text-[#1A1918] leading-relaxed">{post.content}</p>
-            <div className="flex items-center gap-3 mt-2">
-              <span className="text-[10px] text-[#868B94]">❤️ {post.like_count || 0}</span>
-              <span className="text-[10px] text-[#868B94]">💬 {post.comment_count || 0}</span>
-              <span className="text-[10px] text-[#AEB1B9] ml-auto">{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
-  )
-}
-
-// ===== 도담장터 탭 — Supabase 직접 로드 =====
-function MarketTabInline() {
-  const [items, setItems] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function load() {
-      const { createClient } = await import('@/lib/supabase/client')
-      const supabase = createClient()
-      const { data } = await supabase.from('market_items').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(20)
-      setItems(data || []); setLoading(false)
-    }
-    load()
-  }, [])
-
-  return (
-    <div className="px-4 pt-3 pb-28 space-y-2">
-      <Link href="/community?tab=market" className="block bg-[#F0F9F4] rounded-xl p-3 text-center active:opacity-80">
-        <p className="text-[12px] text-[#3D8A5A] font-semibold">+ 도담장터에 올리기</p>
-      </Link>
-
-      {loading ? (
-        <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
-      ) : items.length === 0 ? (
-        <p className="text-[13px] text-[#AEB1B9] text-center py-8">아직 장터 글이 없어요</p>
-      ) : (
-        items.map(item => (
-          <div key={item.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
-            <div className="flex items-center justify-between">
-              <p className="text-[13px] font-semibold text-[#1A1918] line-clamp-1 flex-1">{item.title}</p>
-              <p className="text-[12px] font-bold text-[#3D8A5A] shrink-0 ml-2">{item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔'}</p>
-            </div>
-            <p className="text-[10px] text-[#868B94] mt-0.5 line-clamp-1">{item.description}</p>
-            <p className="text-[9px] text-[#AEB1B9] mt-1">{new Date(item.created_at).toLocaleDateString('ko-KR')}</p>
-          </div>
-        ))
-      )}
-    </div>
-  )
-}

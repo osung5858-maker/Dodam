@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 type MainTab = 'feed' | 'market'
@@ -78,7 +78,13 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function CommunityPage() {
-  const [tab, setTab] = useState<MainTab>('feed')
+  return <Suspense><CommunityPageInner /></Suspense>
+}
+
+function CommunityPageInner() {
+  const searchParams = useSearchParams()
+  const initialTab = searchParams.get('tab') === 'market' ? 'market' : 'feed'
+  const [tab, setTab] = useState<MainTab>(initialTab as MainTab)
   const [posts, setPosts] = useState<Post[]>([])
   const [items, setItems] = useState<MarketItem[]>([])
   const [loading, setLoading] = useState(true)
