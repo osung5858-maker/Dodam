@@ -56,6 +56,14 @@ const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
 export default function WaitingPage() {
   const router = useRouter()
+  const [appMode] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('dodam_mode') || 'preparing'
+    return 'preparing'
+  })
+
+  // 임신 중 모드일 때는 임신 중 전용 기다림 페이지
+  if (appMode === 'pregnant') return <PregnantWaitingPage />
+
   const [lastPeriod] = useState<string>(() => {
     if (typeof window !== 'undefined') return localStorage.getItem('dodam_last_period') || ''
     return ''
@@ -412,6 +420,125 @@ export default function WaitingPage() {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  )
+}
+
+// ===== 임신 중 기다림 페이지 =====
+function PregnantWaitingPage() {
+  const dueDate = typeof window !== 'undefined' ? localStorage.getItem('dodam_due_date') || '' : ''
+  const currentWeek = (() => {
+    if (!dueDate) return 0
+    const diff = Math.floor((new Date(dueDate).getTime() - Date.now()) / 86400000)
+    return Math.max(1, Math.min(42, 40 - Math.floor(diff / 7)))
+  })()
+  const daysLeft = dueDate ? Math.max(0, Math.floor((new Date(dueDate).getTime() - Date.now()) / 86400000)) : 0
+  const trimester = currentWeek <= 13 ? '초기' : currentWeek <= 27 ? '중기' : '후기'
+
+  return (
+    <div className="min-h-[100dvh] bg-[#F5F4F1]">
+      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
+        <div className="flex items-center h-12 px-5 max-w-lg mx-auto">
+          <h1 className="text-[17px] font-bold text-[#1A1918]">기다림</h1>
+        </div>
+      </header>
+
+      <div className="max-w-lg mx-auto px-5 pt-4 pb-28 space-y-3">
+        {/* 히어로 — 아이를 만나는 날 */}
+        <div className="bg-gradient-to-br from-white to-[#FFF8F3] rounded-xl border border-[#FFDDC8]/50 p-5 text-center">
+          <p className="text-3xl mb-2">👶</p>
+          <p className="text-[18px] font-bold text-[#1A1918]">아이를 만나는 날</p>
+          <p className="text-[28px] font-bold text-[#3D8A5A] mt-1">D-{daysLeft}</p>
+          <div className="w-full h-2 bg-[#F0F0F0] rounded-full mt-3">
+            <div className="h-full bg-[#3D8A5A] rounded-full" style={{ width: `${(currentWeek / 40) * 100}%` }} />
+          </div>
+          <p className="text-[10px] text-[#868B94] mt-2">{currentWeek}주차 · {trimester} · {Math.round((currentWeek / 40) * 100)}%</p>
+        </div>
+
+        {/* 태교 일기 바로가기 */}
+        <Link href="/pregnant" className="block bg-white rounded-xl border border-[#f0f0f0] p-4 active:bg-[#F5F4F1]">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">✍️</span>
+            <div className="flex-1">
+              <p className="text-[13px] font-semibold text-[#1A1918]">오늘의 태교일기</p>
+              <p className="text-[10px] text-[#868B94]">아이에게 한마디 남겨보세요</p>
+            </div>
+            <span className="text-[#AEB1B9]">→</span>
+          </div>
+        </Link>
+
+        {/* 이름 짓기 */}
+        <Link href="/name" className="block bg-white rounded-xl border border-[#f0f0f0] p-4 active:bg-[#F5F4F1]">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">✨</span>
+            <div className="flex-1">
+              <p className="text-[13px] font-semibold text-[#1A1918]">이름 짓기</p>
+              <p className="text-[10px] text-[#868B94]">AI 추천 · 한자 · 음양오행</p>
+            </div>
+            <span className="text-[#AEB1B9]">→</span>
+          </div>
+        </Link>
+
+        {/* 주차별 정보 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[13px] font-bold text-[#1A1918] mb-3">📋 {currentWeek}주차 체크</p>
+          {currentWeek <= 12 && (
+            <div className="space-y-2">
+              <p className="text-[11px] text-[#1A1918]">🏥 첫 초음파 검사 받으셨나요?</p>
+              <p className="text-[11px] text-[#1A1918]">💊 엽산 복용 (매일)</p>
+              <p className="text-[11px] text-[#1A1918]">🤢 입덧이 심하면 소량 자주 식사</p>
+            </div>
+          )}
+          {currentWeek >= 13 && currentWeek <= 27 && (
+            <div className="space-y-2">
+              <p className="text-[11px] text-[#1A1918]">📸 정밀 초음파 (20주 전후)</p>
+              <p className="text-[11px] text-[#1A1918]">🍬 임신성 당뇨 검사 (24~28주)</p>
+              <p className="text-[11px] text-[#1A1918]">✈️ 태교여행 적기 (16~28주)</p>
+              <p className="text-[11px] text-[#1A1918]">🤱 산후조리원 예약 시작</p>
+            </div>
+          )}
+          {currentWeek >= 28 && (
+            <div className="space-y-2">
+              <p className="text-[11px] text-[#1A1918]">🎒 출산 가방 준비</p>
+              <p className="text-[11px] text-[#1A1918]">🏨 출산 병원 확정</p>
+              <p className="text-[11px] text-[#1A1918]">📄 출생신고 서류 준비</p>
+              <p className="text-[11px] text-[#1A1918]">⏱️ 36주부터 진통 타이머 사용</p>
+            </div>
+          )}
+        </div>
+
+        {/* 혜택 · 축하박스 바로가기 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[13px] font-bold text-[#1A1918] mb-2">🎁 혜택 챙기기</p>
+          <div className="space-y-1.5">
+            <a href="https://www.gov.kr/portal/onestopSvc/fertility" target="_blank" rel="noopener noreferrer" className="block p-2 bg-[#F5F4F1] rounded-lg text-[11px] text-[#1A1918] active:opacity-80">💳 국민행복카드 신청</a>
+            <a href="https://bebeform.co.kr/giftbox/" target="_blank" rel="noopener noreferrer" className="block p-2 bg-[#F5F4F1] rounded-lg text-[11px] text-[#1A1918] active:opacity-80">🎁 베베폼 축하박스</a>
+            <a href="https://www.momq.co.kr/" target="_blank" rel="noopener noreferrer" className="block p-2 bg-[#F5F4F1] rounded-lg text-[11px] text-[#1A1918] active:opacity-80">🧷 맘큐 하기스 허그박스</a>
+          </div>
+        </div>
+
+        {/* 재미 콘텐츠 */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <p className="text-[13px] font-bold text-[#1A1918] mb-2">🎭 재미</p>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-[#F5F4F1] rounded-lg p-3 text-center">
+              <p className="text-xl mb-1">🔮</p>
+              <p className="text-[11px] font-semibold text-[#1A1918]">바이오리듬</p>
+              <p className="text-[9px] text-[#868B94]">엄마·아기 컨디션</p>
+            </div>
+            <Link href="/name?tab=analyze" className="block bg-[#F5F4F1] rounded-lg p-3 text-center active:opacity-80">
+              <p className="text-xl mb-1">☯️</p>
+              <p className="text-[11px] font-semibold text-[#1A1918]">이름 운세</p>
+              <p className="text-[9px] text-[#868B94]">음양오행 분석</p>
+            </Link>
+          </div>
+        </div>
+
+        {/* 마음 체크 */}
+        <Link href="/mental-check" className="block bg-[#F0F9F4] rounded-xl border border-[#C8F0D8] p-3 text-center active:opacity-80">
+          <p className="text-[12px] text-[#3D8A5A] font-semibold">💚 마음 체크 — 오늘 기분은 어때요?</p>
+        </Link>
       </div>
     </div>
   )

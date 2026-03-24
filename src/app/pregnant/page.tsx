@@ -314,8 +314,8 @@ export default function PregnantPage() {
     if (cached) { try { const { date, data } = JSON.parse(cached); if (date === today && data.breakfast) { setAiMeal(data); return } } catch { /* */ } }
     setAiMealLoading(true)
     try {
-      const res = await fetch('/api/ai-preparing', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'meal', phase: 'pregnant', cycleDay: currentWeek }) })
+      const res = await fetch('/api/ai-pregnant', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'meal', week: currentWeek }) })
       const data = await res.json()
       if (!data.error && data.breakfast) { setAiMeal(data); localStorage.setItem('dodam_preg_meal', JSON.stringify({ date: today, data })) }
     } catch { /* */ }
@@ -378,19 +378,27 @@ export default function PregnantPage() {
 
         {/* ━━━ 1. AI 히어로 + 태아 ━━━ */}
         <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[#C8F0D8] p-4">
-          {/* 태아 비주얼 */}
-          <div className="flex items-center gap-4 mb-3">
-            <div className="w-16 h-16 rounded-2xl bg-white flex items-center justify-center shadow-sm">
-              <span className="text-3xl">{currentFetal.fruit}</span>
+          {/* 태아 비주얼 — 감성 */}
+          <div className="text-center mb-3">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-[#FFF8F3] to-[#F0F9F4] flex items-center justify-center shadow-sm mb-2">
+              <span className="text-4xl">{currentFetal.fruit}</span>
             </div>
-            <div>
-              <p className="text-[13px] text-[#868B94]">지금 아기는 <span className="font-semibold text-[#3D8A5A]">{currentFetal.name}</span>만해요</p>
-              <div className="flex gap-3 mt-1">
-                <span className="text-[11px] text-[#1A1918]">📏 {currentFetal.length}</span>
-                <span className="text-[11px] text-[#1A1918]">⚖️ {currentFetal.weight}</span>
-              </div>
+            <p className="text-[14px] font-bold text-[#1A1918]">{currentWeek}주차 — <span className="text-[#3D8A5A]">{currentFetal.name}</span>만해요</p>
+            <div className="flex justify-center gap-4 mt-1">
+              <span className="text-[11px] text-[#868B94]">📏 {currentFetal.length}</span>
+              <span className="text-[11px] text-[#868B94]">⚖️ {currentFetal.weight}</span>
+              <button onClick={() => shareFetalSize(currentWeek, currentFetal.fruit, currentFetal.name, currentFetal.length, currentFetal.weight, daysLeft)} className="text-[10px] text-[#3D8A5A]">공유</button>
             </div>
-            <button onClick={() => shareFetalSize(currentWeek, currentFetal.fruit, currentFetal.name, currentFetal.length, currentFetal.weight, daysLeft)} className="ml-auto text-[9px] text-[#3D8A5A]">공유</button>
+            {/* 아기 한마디 */}
+            <div className="bg-[#FFF8F3] rounded-xl p-2.5 mt-2 inline-block">
+              <p className="text-[11px] text-[#1A1918] italic">
+                {currentWeek <= 12 ? '"엄마, 나 여기 있어요! 아직 작지만 열심히 자라고 있어요 🌱"' :
+                 currentWeek <= 20 ? '"엄마, 내가 움직이는 거 느꼈어요? 안에서 춤추고 있어요 💃"' :
+                 currentWeek <= 30 ? '"엄마 목소리가 들려요. 계속 이야기해줘요 🎵"' :
+                 currentWeek <= 36 ? '"엄마, 나 이제 거의 다 준비됐어요. 곧 만나요! 🤗"' :
+                 '"엄마, 언제든 나갈 준비 완료! 빨리 안아줘요 💛"'}
+              </p>
+            </div>
           </div>
 
           {/* AI 브리핑 — 요약 + 펼치기 */}
@@ -659,16 +667,16 @@ export default function PregnantPage() {
         {/* ━━━ 스트릭 ━━━ */}
         <StreakCard mode="pregnant" />
 
-        {/* ━━━ 더보기 ━━━ */}
-        <button onClick={() => setMoreOpen(!moreOpen)} className="w-full bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center justify-between">
+        {/* ━━━ 기다림 탭 안내 ━━━ */}
+        <Link href="/waiting" className="w-full bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center justify-between active:bg-[#F5F4F1]">
           <div>
-            <p className="text-[13px] font-semibold text-[#1A1918]">더 알아보기</p>
-            <p className="text-[10px] text-[#868B94]">검진 · 혜택 · 축하박스 · 출산 가방 · 발달</p>
+            <p className="text-[13px] font-semibold text-[#1A1918]">기다림 탭에서 더 보기</p>
+            <p className="text-[10px] text-[#868B94]">검진 · 혜택 · 축하박스 · 출산 가방 · 이름 짓기</p>
           </div>
-          <span className={`text-[#AEB1B9] text-sm transition-transform ${moreOpen ? 'rotate-180' : ''}`}>▼</span>
-        </button>
+          <span className="text-[#AEB1B9]">→</span>
+        </Link>
 
-        {moreOpen && (
+        {false && moreOpen && (
           <div className="space-y-3">
             {/* 주차별 맞춤 제안 */}
             <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">

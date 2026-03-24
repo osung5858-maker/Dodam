@@ -86,6 +86,41 @@ JSON만 출력.`
       return NextResponse.json({ comment: text || '오늘도 도담하게 잘 지내고 있어요 💚' })
     }
 
+    // === 임신 중 식단 추천 ===
+    if (type === 'meal') {
+      const { week } = body
+      const mealCacheKey = `preg-meal-${week}-${new Date().toISOString().split('T')[0]}`
+      const mealCached = getCachedResponse(mealCacheKey)
+      if (mealCached) return NextResponse.json(mealCached)
+
+      const prompt = `임신 ${week}주차 예비맘을 위한 오늘의 식단을 추천해주세요.
+임산부가 피해야 할 음식(날생선, 생고기, 알코올, 고카페인)은 절대 추천하지 마세요.
+엽산, 철분, 칼슘, DHA가 풍부한 음식 위주로.
+
+JSON으로 출력:
+{
+  "breakfast": {"menu": "아침 메뉴", "reason": "이유 1줄"},
+  "lunch": {"menu": "점심 메뉴", "reason": "이유 1줄"},
+  "dinner": {"menu": "저녁 메뉴", "reason": "이유 1줄"},
+  "snack": {"menu": "간식", "reason": "이유 1줄"},
+  "keyNutrient": "이 주차에 중요한 영양소",
+  "avoid": "이 주차에 특히 주의할 것"
+}
+한국 가정식 위주. JSON만 출력.`
+
+      const { text: mealText, error: mealErr } = await callGemini(prompt, 400)
+      if (!mealText) return NextResponse.json({ error: mealErr || 'AI failed' }, { status: 500 })
+      try {
+        const match = mealText.match(/\{[\s\S]*\}/)
+        if (!match) return NextResponse.json({ error: 'parse error' }, { status: 500 })
+        const result = JSON.parse(match[0])
+        setCachedResponse(mealCacheKey, result)
+        return NextResponse.json(result)
+      } catch {
+        return NextResponse.json({ error: 'parse error' }, { status: 500 })
+      }
+    }
+
     return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

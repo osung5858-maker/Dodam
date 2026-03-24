@@ -124,7 +124,7 @@ export default function NamePage() {
 
       <div className="max-w-lg mx-auto px-5 pt-4 pb-28">
         {/* 탭 */}
-        <div className="flex gap-1 mb-4">
+        <div className="flex gap-1.5 mb-4 overflow-x-auto hide-scrollbar -mx-5 px-5">
           {[
             { key: 'nickname' as Tab, label: '태명' },
             { key: 'suggest' as Tab, label: 'AI 추천' },
@@ -132,7 +132,7 @@ export default function NamePage() {
             { key: 'analyze' as Tab, label: '이름 분석' },
           ].map(t => (
             <button key={t.key} onClick={() => { setTab(t.key); setError(null) }}
-              className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${tab === t.key ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#868B94] border border-[#f0f0f0]'}`}>
+              className={`shrink-0 px-4 py-2 rounded-xl text-[13px] font-semibold ${tab === t.key ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#868B94] border border-[#f0f0f0]'}`}>
               {t.label}
             </button>
           ))}
