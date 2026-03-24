@@ -57,42 +57,9 @@ const STRESS_TIPS = [
   { icon: '🎵', title: '음악 테라피', desc: '편안한 음악 20분' },
 ]
 
-// ===== AI 타이핑 디스플레이 =====
+// ===== AI 디스플레이 — 요약 기본 + 펼쳐서 전체 =====
 function AITypingDisplay({ briefing, onRefresh, onShare }: { briefing: any; onRefresh: () => void; onShare: () => void }) {
-  const [displayedText, setDisplayedText] = useState('')
-  const [done, setDone] = useState(false)
-
-  const fullText = [
-    briefing.greeting,
-    briefing.mainAdvice,
-    briefing.cycleInsight ? `🔄 ${briefing.cycleInsight}` : '',
-    briefing.emotionalCare ? `💚 ${briefing.emotionalCare}` : '',
-    briefing.partnerTip ? `💑 ${briefing.partnerTip}` : '',
-  ].filter(Boolean).join('\n\n')
-
-  useEffect(() => {
-    // 캐시에서 온 경우 즉시 표시
-    const cached = localStorage.getItem('dodam_ai_briefing')
-    if (cached) {
-      try {
-        const { date } = JSON.parse(cached)
-        if (date === new Date().toISOString().split('T')[0]) {
-          setDisplayedText(fullText); setDone(true); return
-        }
-      } catch { /* */ }
-    }
-
-    let i = 0
-    const timer = setInterval(() => {
-      i += 2 // 2글자씩
-      if (i >= fullText.length) {
-        setDisplayedText(fullText); setDone(true); clearInterval(timer)
-      } else {
-        setDisplayedText(fullText.slice(0, i))
-      }
-    }, 20)
-    return () => clearInterval(timer)
-  }, [fullText])
+  const [expanded, setExpanded] = useState(false)
 
   return (
     <div>
@@ -100,16 +67,35 @@ function AITypingDisplay({ briefing, onRefresh, onShare }: { briefing: any; onRe
         <div className="w-6 h-6 rounded-full bg-[#3D8A5A] flex items-center justify-center shrink-0 mt-0.5">
           <span className="text-[9px] text-white font-bold">AI</span>
         </div>
-        <div className="flex-1 bg-white/60 rounded-lg p-2.5">
-          <p className="text-[12px] text-[#1A1918] leading-relaxed whitespace-pre-line">{displayedText}{!done && <span className="animate-pulse">▊</span>}</p>
+        <div className="flex-1">
+          {/* 요약 (항상 보임) */}
+          <p className="text-[13px] font-semibold text-[#1A1918]">{briefing.greeting}</p>
+
+          {/* 펼치기 전: 메인 조언 1줄만 */}
+          {!expanded && (
+            <p className="text-[11px] text-[#868B94] mt-1 line-clamp-2">{briefing.mainAdvice}</p>
+          )}
+
+          {/* 펼친 후: 전체 */}
+          {expanded && (
+            <div className="mt-2 space-y-2 bg-white/60 rounded-lg p-2.5">
+              <p className="text-[12px] text-[#1A1918] leading-relaxed">{briefing.mainAdvice}</p>
+              {briefing.cycleInsight && <p className="text-[11px] text-[#868B94]">🔄 {briefing.cycleInsight}</p>}
+              {briefing.emotionalCare && <p className="text-[11px] text-[#868B94]">💚 {briefing.emotionalCare}</p>}
+              {briefing.nutritionTip && <p className="text-[11px] text-[#868B94]">🥗 {briefing.nutritionTip}</p>}
+              {briefing.partnerTip && <p className="text-[11px] text-[#868B94]">💑 {briefing.partnerTip}</p>}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3 mt-2">
+            <button onClick={() => setExpanded(!expanded)} className="text-[10px] text-[#3D8A5A] font-semibold">
+              {expanded ? '접기 ▲' : '자세히 보기 ▼'}
+            </button>
+            <button onClick={onRefresh} className="text-[10px] text-[#AEB1B9]">다시 받기</button>
+            <button onClick={onShare} className="text-[10px] text-[#3D8A5A]">공유</button>
+          </div>
         </div>
       </div>
-      {done && (
-        <div className="flex items-center gap-3 mt-2 ml-8">
-          <button onClick={onRefresh} className="text-[10px] text-[#AEB1B9]">다시 받기</button>
-          <button onClick={onShare} className="text-[10px] text-[#3D8A5A] font-medium">카톡 공유</button>
-        </div>
-      )}
     </div>
   )
 }

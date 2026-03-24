@@ -81,10 +81,10 @@ export default function CommunityPage() {
   return <Suspense><CommunityPageInner /></Suspense>
 }
 
-function CommunityPageInner() {
+export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initialTab?: 'feed' | 'market'; hideHeader?: boolean } = {}) {
   const searchParams = useSearchParams()
-  const initialTab = searchParams.get('tab') === 'market' ? 'market' : 'feed'
-  const [tab, setTab] = useState<MainTab>(initialTab as MainTab)
+  const paramTab = searchParams.get('tab') === 'market' ? 'market' : 'feed'
+  const [tab, setTab] = useState<MainTab>(propTab || paramTab as MainTab)
   const [posts, setPosts] = useState<Post[]>([])
   const [items, setItems] = useState<MarketItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -305,7 +305,8 @@ function CommunityPageInner() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F4F1]">
+    <div className={hideHeader ? '' : 'min-h-[100dvh] bg-[#F5F4F1]'}>
+      {!hideHeader && (
       <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto">
           <h1 className="text-[17px] font-bold text-[#1A1918]">소통</h1>
@@ -334,6 +335,7 @@ function CommunityPageInner() {
           ))}
         </div>
       </header>
+      )}
 
       <div className="max-w-lg mx-auto px-5 pb-28">
         {/* ===== 이야기 탭 ===== */}
