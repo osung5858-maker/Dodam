@@ -3,19 +3,14 @@
 import { useState, useEffect } from 'react'
 import { PageHeader } from '@/components/layout/PageLayout'
 
-interface Album {
-  id: number
-  title: string
-  content: string
-  created: string
-  images: { id: number; original: string; thumbnail: string }[]
-}
-
 export default function KidsnotePage() {
   const [step, setStep] = useState<'login' | 'children' | 'data'>('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [saveCredentials, setSaveCredentials] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [loadingAlbums, setLoadingAlbums] = useState(false)
+  const [loadingReports, setLoadingReports] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [session, setSession] = useState<string | null>(null)
   const [info, setInfo] = useState<any>(null)
@@ -25,8 +20,15 @@ export default function KidsnotePage() {
   const [reports, setReports] = useState<any[]>([])
   const [tab, setTab] = useState<'albums' | 'reports'>('albums')
 
-  // 세션 복원
+  // 세션 + 저장된 계정 복원
   useEffect(() => {
+    const savedCreds = localStorage.getItem('kn_credentials')
+    if (savedCreds) {
+      try {
+        const { u, p } = JSON.parse(savedCreds)
+        setUsername(u); setPassword(p); setSaveCredentials(true)
+      } catch { /* */ }
+    }
     const saved = sessionStorage.getItem('kn_session')
     if (saved) {
       setSession(saved)
@@ -49,7 +51,13 @@ export default function KidsnotePage() {
       setSession(data.sessionCookie)
       setInfo(data.info)
       sessionStorage.setItem('kn_session', data.sessionCookie)
-      setPassword('') // 비밀번호 즉시 삭제
+      // 계정 저장 체크 시 localStorage에 보관
+      if (saveCredentials) {
+        localStorage.setItem('kn_credentials', JSON.stringify({ u: username, p: password }))
+      } else {
+        localStorage.removeItem('kn_credentials')
+        setPassword('') // 비밀번호 즉시 삭제
+      }
       setStep('children')
       await loadChildren(data.sessionCookie)
     } catch (e) { setError(`연결 실패: ${e}`) }
@@ -63,37 +71,44 @@ export default function KidsnotePage() {
         body: JSON.stringify({ action: 'children', sessionCookie: cookie }),
       })
       const data = await res.json()
-      // children 배열 추출 (API 응답 구조에 따라)
       const kids = data.children || data.results || []
       setChildren(Array.isArray(kids) ? kids : [])
       if (kids.length === 1) {
         setSelectedChild(kids[0].id || kids[0].child_id)
         setStep('data')
-        loadAlbums(cookie, kids[0].id || kids[0].child_id)
+        // 자동 로드 안 함 — 사용자가 직접 가져오기 버튼 클릭
+      } else if (kids.length > 1) {
+        setStep('children')
+      } else {
+        setStep('data')
       }
     } catch { /* */ }
   }
 
   const loadAlbums = async (cookie: string, childId: number, page = 1) => {
+    setLoadingAlbums(true)
     try {
       const res = await fetch('/api/kidsnote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'albums', sessionCookie: cookie, childId, page }),
       })
       const data = await res.json()
-      setAlbums(data.results || data.albums || [])
+      setAlbums(prev => page === 1 ? (data.results || data.albums || []) : [...prev, ...(data.results || data.albums || [])])
     } catch { /* */ }
+    setLoadingAlbums(false)
   }
 
   const loadReports = async (cookie: string, childId: number, page = 1) => {
+    setLoadingReports(true)
     try {
       const res = await fetch('/api/kidsnote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'reports', sessionCookie: cookie, childId, page }),
       })
       const data = await res.json()
-      setReports(data.results || data.reports || [])
+      setReports(prev => page === 1 ? (data.results || data.reports || []) : [...prev, ...(data.results || data.reports || [])])
     } catch { /* */ }
+    setLoadingReports(false)
   }
 
   const selectChild = (childId: number) => {
@@ -155,6 +170,11 @@ export default function KidsnotePage() {
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••" className="w-full h-11 rounded-xl border border-[#f0f0f0] px-3 text-[13px]" />
               </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={saveCredentials} onChange={e => setSaveCredentials(e.target.checked)}
+                  className="w-4 h-4 rounded accent-[#3D8A5A]" />
+                <span className="text-[12px] text-[#868B94]">아이디/비밀번호 저장하기</span>
+              </label>
               <button onClick={handleLogin} disabled={loading}
                 className="w-full py-3 bg-[#3D8A5A] text-white text-[13px] font-semibold rounded-xl active:opacity-80 disabled:opacity-50">
                 {loading ? '연결 중...' : '키즈노트 연결하기'}
@@ -163,7 +183,7 @@ export default function KidsnotePage() {
 
             <div className="mt-4 bg-[#F5F4F1] rounded-lg p-3">
               <p className="text-[10px] text-[#868B94] leading-relaxed">
-                🔒 비밀번호는 서버에 저장되지 않아요. 로그인 후 즉시 삭제됩니다.
+                🔒 {saveCredentials ? '계정 정보가 이 기기에만 저장돼요.' : '비밀번호는 서버에 저장되지 않아요. 로그인 후 즉시 삭제됩니다.'}
                 키즈노트 계정 정보는 연결 확인 용도로만 사용돼요.
               </p>
             </div>
@@ -186,24 +206,44 @@ export default function KidsnotePage() {
         {/* 데이터 표시 */}
         {step === 'data' && (
           <>
-            {/* 탭 */}
-            <div className="flex gap-1.5">
-              <button onClick={() => { setTab('albums'); if (session && selectedChild) loadAlbums(session, selectedChild) }}
-                className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${tab === 'albums' ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#868B94]'}`}>
-                📸 앨범
-              </button>
-              <button onClick={() => { setTab('reports'); if (session && selectedChild) loadReports(session, selectedChild) }}
-                className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${tab === 'reports' ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#868B94]'}`}>
-                📋 알림장
-              </button>
+            {/* 연결 상태 */}
+            <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2 h-2 rounded-full bg-[#3D8A5A]" />
+                <span className="text-[13px] font-semibold text-[#1A1918]">키즈노트 연결됨</span>
+              </div>
+              <div className="flex gap-2">
+                <button onClick={() => { if (session && selectedChild) loadAlbums(session, selectedChild) }}
+                  disabled={loadingAlbums}
+                  className="flex-1 py-2.5 bg-[#F5F4F1] rounded-xl text-[13px] font-semibold text-[#1A1918] active:bg-[#ECECEC] disabled:opacity-50">
+                  {loadingAlbums ? '가져오는 중...' : '📸 앨범 가져오기'}
+                </button>
+                <button onClick={() => { if (session && selectedChild) loadReports(session, selectedChild) }}
+                  disabled={loadingReports}
+                  className="flex-1 py-2.5 bg-[#F5F4F1] rounded-xl text-[13px] font-semibold text-[#1A1918] active:bg-[#ECECEC] disabled:opacity-50">
+                  {loadingReports ? '가져오는 중...' : '📋 알림장 가져오기'}
+                </button>
+              </div>
             </div>
 
+            {/* 탭 (데이터 있을 때만) */}
+            {(albums.length > 0 || reports.length > 0) && (
+              <div className="flex gap-1.5">
+                <button onClick={() => setTab('albums')}
+                  className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${tab === 'albums' ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#868B94]'}`}>
+                  📸 앨범 {albums.length > 0 && `(${albums.length})`}
+                </button>
+                <button onClick={() => setTab('reports')}
+                  className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${tab === 'reports' ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#868B94]'}`}>
+                  📋 알림장 {reports.length > 0 && `(${reports.length})`}
+                </button>
+              </div>
+            )}
+
             {/* 앨범 */}
-            {tab === 'albums' && (
+            {tab === 'albums' && albums.length > 0 && (
               <div className="space-y-2">
-                {albums.length === 0 ? (
-                  <p className="text-[13px] text-[#AEB1B9] text-center py-8">앨범 데이터를 불러오는 중...</p>
-                ) : albums.map((album: any) => (
+                {albums.map((album: any) => (
                   <div key={album.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
                     {/* 사진 */}
                     {album.images && album.images.length > 0 && (
@@ -230,11 +270,9 @@ export default function KidsnotePage() {
             )}
 
             {/* 알림장 */}
-            {tab === 'reports' && (
+            {tab === 'reports' && reports.length > 0 && (
               <div className="space-y-2">
-                {reports.length === 0 ? (
-                  <p className="text-[13px] text-[#AEB1B9] text-center py-8">알림장 데이터를 불러오는 중...</p>
-                ) : reports.map((report: any) => (
+                {reports.map((report: any) => (
                   <div key={report.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
                     {report.title && <p className="text-[13px] font-semibold text-[#1A1918] mb-1">{report.title}</p>}
                     {report.content && <p className="text-[12px] text-[#868B94] line-clamp-4 whitespace-pre-line">{report.content}</p>}

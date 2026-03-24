@@ -199,10 +199,7 @@ export default function BottomNav() {
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedItem, setSelectedItem] = useState<string | null>(null) // 3단계: 용량 선택
-  const [fabStyle, setFabStyle] = useState<'A' | 'B'>(() => {
-    if (typeof window !== 'undefined') return (localStorage.getItem('dodam_fab_style') as 'A' | 'B') || 'A'
-    return 'A'
-  })
+  const fabStyle = 'B' as const // B안 확정
 
   const handleQuickRecord = useCallback((type: string, extra?: Record<string, unknown>) => {
     if (navigator.vibrate) navigator.vibrate(30)
@@ -218,67 +215,7 @@ export default function BottomNav() {
 
   return (
     <>
-      {/* ===== A안: 반원형 TOP5 + ... 더보기 ===== */}
-      {fabOpen && fabStyle === 'A' && (() => {
-        const TOP5 = [
-          { type: 'breast_left', emoji: '🤱', label: '모유', bg: '#C8F0D8', tags: { side: 'left' }, baseType: 'feed' },
-          { type: 'feed', emoji: '🍼', label: '분유', bg: '#C8F0D8', hasInput: 'ml' },
-          { type: 'sleep', emoji: '💤', label: '수면', bg: '#E8E0F8' },
-          { type: 'pee', emoji: '💧', label: '소변', bg: '#FEF0E8' },
-          { type: 'poop', emoji: '💩', label: '대변', bg: '#FEF0E8' },
-        ]
-        const ARC = [
-          { x: -120, y: -50 }, { x: -76, y: -115 }, { x: 0, y: -140 }, { x: 76, y: -115 }, { x: 120, y: -50 },
-        ]
-        // 더보기 바텀시트
-        if (selectedCategory === 'more_a') return (
-          <>
-            <div className="fixed inset-0 z-[60] bg-black/40" onClick={() => { setFabOpen(false); setSelectedCategory(null) }} />
-            <div className="fixed z-[70] bottom-0 left-0 right-0 max-w-[430px] mx-auto">
-              <div className="bg-white rounded-t-2xl shadow-xl animate-slideUp pb-[env(safe-area-inset-bottom)]" onClick={e => e.stopPropagation()}>
-                <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 bg-[#E0E0E0] rounded-full" /></div>
-                <div className="px-5 pb-5">
-                  <p className="text-[14px] font-bold text-[#1A1918] mb-3">더보기</p>
-                  <RecordGrid onRecord={handleQuickRecord} />
-                </div>
-              </div>
-            </div>
-          </>
-        )
-        return (
-          <>
-            <div className="fixed inset-0 z-[60] bg-black/50" onClick={() => { setFabOpen(false); setSelectedCategory(null) }} />
-            <div className="fixed z-[70] bottom-[60px] left-1/2" style={{ maxWidth: 430 }}>
-              <div className="relative" style={{ width: 0, height: 0 }}>
-                {TOP5.map((btn, i) => (
-                  <div key={btn.type} className="absolute flex flex-col items-center gap-1.5"
-                    style={{ left: ARC[i].x - 28, top: ARC[i].y - 28, animation: `fabItemPop 0.25s ${i * 0.04}s both cubic-bezier(0.34, 1.56, 0.64, 1)` }}>
-                    <button onClick={() => {
-                      if (btn.hasInput) {
-                        const val = prompt(`${btn.label} (ml)`); if (val) handleQuickRecord(btn.type, { amount_ml: Number(val) })
-                      } else {
-                        handleQuickRecord(btn.baseType || btn.type, btn.tags ? { tags: btn.tags } : {})
-                      }
-                    }} className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform" style={{ backgroundColor: btn.bg }}>
-                      <span className="text-2xl">{btn.emoji}</span>
-                    </button>
-                    <span className="text-[11px] font-semibold text-white whitespace-nowrap drop-shadow-sm">{btn.label}</span>
-                  </div>
-                ))}
-                {/* ... 더보기 */}
-                <div className="absolute flex flex-col items-center gap-1.5" style={{ left: 0 - 28, top: -180 - 28, animation: 'fabItemPop 0.25s 0.2s both cubic-bezier(0.34, 1.56, 0.64, 1)' }}>
-                  <button onClick={() => setSelectedCategory('more_a')} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-90 bg-[#F5F4F1]">
-                    <span className="text-lg">···</span>
-                  </button>
-                  <span className="text-[10px] font-semibold text-white/80 drop-shadow-sm">더보기</span>
-                </div>
-              </div>
-            </div>
-          </>
-        )
-      })()}
-
-      {/* ===== B안: 반원형 변신 ===== */}
+      {/* ===== 반원형 변신 FAB ===== */}
       {fabOpen && fabStyle === 'B' && (() => {
         // 항목 수에 따라 반원형 좌표 동적 생성
         const arcPositions = (count: number, radius = 130): { x: number; y: number }[] => {
