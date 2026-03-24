@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import PageLayout from '@/components/layout/PageLayout'
 
 // 모드별 메뉴 구성
 const MENUS: Record<string, { label: string; items: { href: string; icon: string; title: string; desc: string; external?: boolean }[] }[]> = {
@@ -123,14 +124,8 @@ export default function UsPage() {
   const groups = MENUS[mode] || MENUS.parenting
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F4F1]">
-      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
-        <div className="flex items-center h-14 px-5 max-w-lg mx-auto">
-          <h1 className="text-[17px] font-bold text-[#1A1918]">우리</h1>
-        </div>
-      </header>
-
-      <div className="max-w-lg mx-auto px-5 pt-4 pb-28 space-y-3">
+    <PageLayout title="우리">
+      <div className="space-y-3">
         {groups.map((group) => (
           <div key={group.label}>
             <p className="text-[13px] font-semibold text-[#868B94] mb-2">{group.label}</p>
@@ -164,6 +159,6 @@ export default function UsPage() {
           </div>
         ))}
       </div>
-    </div>
+    </PageLayout>
   )
 }

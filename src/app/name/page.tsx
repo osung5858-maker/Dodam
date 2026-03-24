@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { PageHeader } from '@/components/layout/PageLayout'
 
 type Tab = 'nickname' | 'suggest' | 'compare' | 'analyze'
 
@@ -118,12 +119,8 @@ export default function NamePage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F4F1]">
-      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
-        <div className="flex items-center h-14 px-5 max-w-lg mx-auto">
-          <h1 className="text-[17px] font-bold text-[#1A1918]">이름 짓기</h1>
-        </div>
-      </header>
+    <div className="min-h-[100dvh] bg-[#F5F4F1] flex flex-col">
+      <PageHeader title="이름 짓기" showBack />
 
       <div className="max-w-lg mx-auto px-5 pt-4 pb-28">
         {/* 탭 */}

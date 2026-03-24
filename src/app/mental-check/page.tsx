@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { PageHeader } from '@/components/layout/PageLayout'
 
 // 에든버러 산후우울증 척도 (EPDS) — 10문항
 const QUESTIONS = [
@@ -97,13 +98,8 @@ export default function MentalCheckPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F4F1]">
-      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto">
-          <h1 className="text-[17px] font-bold text-[#1A1918]">마음 체크</h1>
-          <p className="text-[11px] text-[#868B94]">{answers.filter(a => a !== null).length}/10</p>
-        </div>
-      </header>
+    <div className="min-h-[100dvh] bg-[#F5F4F1] flex flex-col">
+      <PageHeader title="마음 체크" showBack rightAction={<span className="text-[11px] text-[#868B94]">{answers.filter(a => a !== null).length}/10</span>} />
 
       <div className="max-w-lg mx-auto px-6 pt-6 pb-28">
         {/* 프로그레스 */}

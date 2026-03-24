@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import PageLayout from '@/components/layout/PageLayout'
 
 type Side = 'left' | 'right'
 
@@ -85,14 +86,8 @@ export default function FeedTimerPage() {
   const lastSide = sessions.length > 0 ? sessions[0].side : null
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F4F1]">
-      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
-        <div className="flex items-center h-14 px-5 max-w-lg mx-auto">
-          <h1 className="text-[17px] font-bold text-[#1A1918]">수유 타이머</h1>
-        </div>
-      </header>
-
-      <div className="max-w-lg mx-auto px-5 pt-6 pb-28 space-y-4">
+    <PageLayout title="수유 타이머" showBack>
+      <div className="space-y-4 pt-2">
 
         {/* 타이머 메인 */}
         <div className="bg-white rounded-2xl border border-[#f0f0f0] p-6 text-center">
@@ -189,6 +184,6 @@ export default function FeedTimerPage() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   )
 }

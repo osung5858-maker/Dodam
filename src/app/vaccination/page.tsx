@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import { PageHeader } from '@/components/layout/PageLayout'
 
 const SCHEDULE = [
   { month: 0, id: 'bcg', name: 'BCG (결핵)', desc: '생후 4주 이내', required: true },
@@ -75,13 +76,8 @@ export default function VaccinationPage() {
   }, [])
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F4F1]">
-      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto">
-          <h1 className="text-[17px] font-bold text-[#1A1918]">예방접종</h1>
-          <p className="text-[11px] text-[#3D8A5A] font-semibold">{doneCount}/{SCHEDULE.length}</p>
-        </div>
-      </header>
+    <div className="min-h-[100dvh] bg-[#F5F4F1] flex flex-col">
+      <PageHeader title="예방접종" showBack rightAction={<span className="text-[11px] text-[#3D8A5A] font-semibold">{doneCount}/{SCHEDULE.length}</span>} />
 
       <div className="max-w-lg mx-auto px-5 pt-4 pb-28 space-y-3">
         {/* 프로그레스 */}

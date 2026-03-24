@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
+import { PageHeader } from '@/components/layout/PageLayout'
 
 interface HealthRecord {
   date: string
@@ -191,24 +192,15 @@ export default function HealthPage() {
 
   const maxSteps = Math.max(...weekData.map(d => d.steps), 10000)
 
+  const gfitBadge = gfit?.connected ? (
+    <span className="flex items-center gap-1 text-[9px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded-full">
+      <span className="w-1 h-1 bg-[#3D8A5A] rounded-full" />Fit
+    </span>
+  ) : null
+
   return (
-    <div className="min-h-[100dvh] bg-[#F5F4F1]">
-      <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto">
-          <h1 className="text-[17px] font-bold text-[#1A1918]">내 건강</h1>
-          <div className="flex items-center gap-2">
-            {gfit?.connected && (
-              <span className="flex items-center gap-1 text-[10px] text-[#3D8A5A] bg-[#F0F9F4] px-2 py-0.5 rounded-full">
-                <span className="w-1.5 h-1.5 bg-[#3D8A5A] rounded-full" />
-                Google Fit
-              </span>
-            )}
-            {!gfit?.connected && !gfitLoading && (
-              <span className="text-[10px] text-[#AEB1B9]">수동 입력</span>
-            )}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-[100dvh] bg-[#F5F4F1] flex flex-col">
+      <PageHeader title="내 건강" showBack rightAction={gfitBadge} />
 
       <div className="max-w-lg mx-auto px-5 pt-4 pb-28 space-y-3">
 
