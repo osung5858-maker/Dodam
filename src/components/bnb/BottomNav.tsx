@@ -106,14 +106,14 @@ export default function BottomNav() {
     return () => window.removeEventListener('keydown', handler)
   }, [fabOpen])
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('eat')
   const [inputValue, setInputValue] = useState('')
 
   const handleQuickRecord = useCallback((type: string, extra?: Record<string, unknown>) => {
     if (navigator.vibrate) navigator.vibrate(30)
     window.dispatchEvent(new CustomEvent('dodam-record', { detail: { type, ...extra } }))
     setFabOpen(false)
-    setSelectedCategory(null)
+    setSelectedCategory('eat')
     setInputValue('')
   }, [])
 
@@ -123,89 +123,65 @@ export default function BottomNav() {
 
   return (
     <>
-      {/* 딤 오버레이 */}
+      {/* 기록 바텀시트 (1장 탭 전환) */}
       {fabOpen && (
-        <div className="fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300"
-          onClick={() => { setFabOpen(false); setSelectedCategory(null) }} />
-      )}
+        <div className="fixed inset-0 z-[60] bg-black/40" onClick={() => { setFabOpen(false); setSelectedCategory('eat') }}>
+          <div className="absolute bottom-0 left-0 right-0 max-w-[430px] mx-auto bg-white rounded-t-2xl shadow-xl animate-slideUp pb-[env(safe-area-inset-bottom)]"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex justify-center pt-3 pb-2"><div className="w-10 h-1 bg-[#E0E0E0] rounded-full" /></div>
 
-      {/* 1단계: 반원형 카테고리 */}
-      {fabOpen && !selectedCategory && (
-        <div className="fixed z-[70] bottom-[60px] left-1/2" style={{ maxWidth: 430 }}>
-          <div className="relative" style={{ width: 0, height: 0 }}>
-            {RECORD_CATEGORIES.map((cat, i) => {
-              const positions = [
-                { x: -120, y: -50 },
-                { x: -76, y: -115 },
-                { x: 0, y: -140 },
-                { x: 76, y: -115 },
-                { x: 120, y: -50 },
-              ]
-              const pos = positions[i]
-              return (
-                <div key={cat.key} className="absolute flex flex-col items-center gap-1.5"
-                  style={{ left: pos.x - 28, top: pos.y - 28, animation: `fabItemPop 0.25s ${i * 0.04}s both cubic-bezier(0.34, 1.56, 0.64, 1)` }}>
-                  <button onClick={() => {
-                    if (cat.items.length === 1) {
-                      // 잠은 바로 기록
-                      handleQuickRecord(cat.items[0].type)
-                    } else {
-                      setSelectedCategory(cat.key)
-                    }
+            {/* 카테고리 탭 */}
+            <div className="flex px-4 gap-1 mb-3">
+              {RECORD_CATEGORIES.map(cat => (
+                <button key={cat.key}
+                  onClick={() => {
+                    if (cat.items.length === 1) { handleQuickRecord(cat.items[0].type); return }
+                    setSelectedCategory(cat.key)
                   }}
-                    className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform"
-                    style={{ backgroundColor: cat.color + '20' }}>
-                    <span className="text-2xl">{cat.emoji}</span>
-                  </button>
-                  <span className="text-[11px] font-semibold text-white whitespace-nowrap drop-shadow-sm">{cat.label}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+                  className={`flex-1 flex flex-col items-center gap-0.5 py-2 rounded-xl transition-all ${
+                    selectedCategory === cat.key ? 'bg-[#3D8A5A]' : 'bg-[#F5F4F1]'
+                  }`}>
+                  <span className="text-lg">{cat.emoji}</span>
+                  <span className={`text-[9px] font-semibold ${selectedCategory === cat.key ? 'text-white' : 'text-[#868B94]'}`}>{cat.label}</span>
+                </button>
+              ))}
+            </div>
 
-      {/* 2단계: 세부 항목 바텀시트 */}
-      {fabOpen && selectedCategory && (
-        <div className="fixed z-[70] bottom-0 left-0 right-0 max-w-[430px] mx-auto">
-          <div className="bg-white rounded-t-2xl shadow-xl animate-slideUp pb-[env(safe-area-inset-bottom)]">
-            <div className="flex justify-center pt-3 pb-1"><div className="w-10 h-1 bg-[#E0E0E0] rounded-full" /></div>
-            <div className="px-5 pb-5">
-              <div className="flex items-center mb-3">
-                <button onClick={() => setSelectedCategory(null)} className="text-[#868B94] text-sm mr-2">←</button>
-                <p className="text-[14px] font-bold text-[#1A1918]">
-                  {RECORD_CATEGORIES.find(c => c.key === selectedCategory)?.emoji}{' '}
-                  {RECORD_CATEGORIES.find(c => c.key === selectedCategory)?.label}
-                </p>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {RECORD_CATEGORIES.find(c => c.key === selectedCategory)?.items.map(item => (
-                  <button key={item.type}
-                    onClick={() => {
-                      if (item.hasInput) {
-                        const val = prompt(`${item.label} ${item.hasInput === 'ml' ? '(ml)' : '(°C)'}`)
-                        if (val) {
-                          const extra = item.hasInput === 'ml' ? { amount_ml: Number(val) } : { tags: { celsius: Number(val) } }
-                          handleQuickRecord(item.type === 'pump' ? 'feed' : item.type, extra)
-                        }
-                      } else {
-                        const extra: Record<string, unknown> = {}
-                        if (item.type.startsWith('poop_')) extra.tags = { status: item.type.replace('poop_', '') }
-                        if (item.type === 'pee_poop') extra.tags = { status: 'normal' }
-                        if (item.type.startsWith('breast_')) extra.tags = { side: item.type.replace('breast_', '') }
-                        const baseType = item.type.startsWith('poop_') || item.type === 'pee_poop' ? 'poop'
-                          : item.type.startsWith('breast_') ? 'feed'
-                          : item.type
-                        handleQuickRecord(baseType, extra)
-                      }
-                    }}
-                    className="flex flex-col items-center gap-1 py-3 rounded-xl bg-[#F5F4F1] active:bg-[#ECECEC] active:scale-95 transition-all"
-                  >
-                    <span className="text-xl">{item.emoji}</span>
-                    <span className="text-[10px] font-medium text-[#1A1918]">{item.label}</span>
-                  </button>
-                ))}
-              </div>
+            {/* 세부 항목 */}
+            <div className="px-4 pb-5">
+              {(() => {
+                const activeCat = RECORD_CATEGORIES.find(c => c.key === (selectedCategory || 'eat'))
+                if (!activeCat) return null
+                return (
+                  <div className="grid grid-cols-3 gap-2">
+                    {activeCat.items.map(item => (
+                      <button key={item.type}
+                        onClick={() => {
+                          if (item.hasInput) {
+                            const val = prompt(`${item.label} ${item.hasInput === 'ml' ? '(ml)' : '(°C)'}`)
+                            if (val) {
+                              const extra = item.hasInput === 'ml' ? { amount_ml: Number(val) } : { tags: { celsius: Number(val) } }
+                              handleQuickRecord(item.type === 'pump' ? 'feed' : item.type, extra)
+                            }
+                          } else {
+                            const extra: Record<string, unknown> = {}
+                            if (item.type.startsWith('poop_')) extra.tags = { status: item.type.replace('poop_', '') }
+                            if (item.type.startsWith('breast_')) extra.tags = { side: item.type.replace('breast_', '') }
+                            const baseType = item.type.startsWith('poop_') ? 'poop'
+                              : item.type.startsWith('breast_') ? 'feed'
+                              : item.type
+                            handleQuickRecord(baseType, extra)
+                          }
+                        }}
+                        className="flex flex-col items-center gap-1.5 py-3.5 rounded-xl bg-[#F5F4F1] active:bg-[#ECECEC] active:scale-95 transition-all"
+                      >
+                        <span className="text-2xl">{item.emoji}</span>
+                        <span className="text-[11px] font-medium text-[#1A1918]">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )
+              })()}
             </div>
           </div>
         </div>
