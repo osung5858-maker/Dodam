@@ -1,18 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 
 type SubTab = 'map' | 'chat' | 'market'
 
-// 모드별 지도 카테고리
 const MAP_CATEGORIES: Record<string, { icon: string; label: string; query: string }[]> = {
   preparing: [
     { icon: '🏥', label: '산부인과', query: '산부인과' },
     { icon: '🧪', label: '난임클리닉', query: '난임클리닉' },
     { icon: '💊', label: '약국', query: '약국' },
-    { icon: '🧘', label: '요가·필라테스', query: '임산부요가' },
+    { icon: '🧘', label: '요가', query: '임산부요가' },
   ],
   pregnant: [
     { icon: '🏥', label: '산부인과', query: '산부인과' },
@@ -30,10 +28,13 @@ const MAP_CATEGORIES: Record<string, { icon: string; label: string; query: strin
   ],
 }
 
+interface Place {
+  id: string; name: string; address: string; phone: string; distance: string; category: string
+}
+
 export default function TownPage() {
   const [subTab, setSubTab] = useState<SubTab>('map')
   const [mode, setMode] = useState('parenting')
-  const router = useRouter()
 
   useEffect(() => {
     const saved = localStorage.getItem('dodam_mode')
@@ -46,10 +47,9 @@ export default function TownPage() {
     <div className="min-h-[100dvh] bg-[#F5F4F1]">
       <header className="sticky top-0 z-40 bg-white border-b border-[#f0f0f0]">
         <div className="max-w-lg mx-auto">
-          <div className="flex items-center h-14 px-5">
+          <div className="flex items-center h-12 px-5">
             <h1 className="text-[17px] font-bold text-[#1A1918]">동네</h1>
           </div>
-          {/* 서브탭 */}
           <div className="flex px-5 gap-1 pb-2">
             {[
               { key: 'map' as SubTab, label: '지도' },
@@ -66,180 +66,234 @@ export default function TownPage() {
       </header>
 
       <div className="max-w-lg mx-auto">
-        {/* ===== 지도 탭 ===== */}
-        {subTab === 'map' && (
-          <div className="pb-28">
-            {/* 지도 프리뷰 (탭하면 전체 지도로) */}
-            <Link href="/map" className="block relative bg-[#E8F0E8] h-40 flex items-center justify-center active:opacity-90">
-              <div className="text-center">
-                <span className="text-3xl">🗺️</span>
-                <p className="text-[13px] font-semibold text-[#1A1918] mt-1">지도 열기</p>
-                <p className="text-[10px] text-[#868B94]">내 주변 시설 검색</p>
+        {subTab === 'map' && <MapTab categories={categories} />}
+        {subTab === 'chat' && <ChatTab />}
+        {subTab === 'market' && <MarketTab />}
+      </div>
+    </div>
+  )
+}
+
+// ===== 지도 탭 — 카카오맵 직접 임베드 =====
+function MapTab({ categories }: { categories: { icon: string; label: string; query: string }[] }) {
+  const mapRef = useRef<HTMLDivElement>(null)
+  const [activeIdx, setActiveIdx] = useState(0)
+  const [places, setPlaces] = useState<Place[]>([])
+  const [loading, setLoading] = useState(true)
+  const mapObjRef = useRef<any>(null)
+
+  const searchPlaces = useCallback((query: string) => {
+    setLoading(true)
+    setPlaces([])
+
+    if (!window.kakao?.maps) { setLoading(false); return }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords
+        const latlng = new window.kakao.maps.LatLng(latitude, longitude)
+
+        if (!mapObjRef.current && mapRef.current) {
+          mapObjRef.current = new window.kakao.maps.Map(mapRef.current, { center: latlng, level: 5 })
+        } else if (mapObjRef.current) {
+          mapObjRef.current.setCenter(latlng)
+        }
+
+        const ps = new window.kakao.maps.services.Places()
+        ps.keywordSearch(query, (data: any[], status: string) => {
+          if (status === window.kakao.maps.services.Status.OK) {
+            const results: Place[] = data.slice(0, 10).map((p: any) => ({
+              id: p.id, name: p.place_name, address: p.road_address_name || p.address_name,
+              phone: p.phone || '', distance: p.distance ? `${Math.round(Number(p.distance))}m` : '',
+              category: p.category_group_name || '',
+            }))
+            setPlaces(results)
+
+            // 지도에 마커 표시
+            if (mapObjRef.current) {
+              data.slice(0, 10).forEach((p: any) => {
+                new window.kakao.maps.Marker({
+                  map: mapObjRef.current,
+                  position: new window.kakao.maps.LatLng(p.y, p.x),
+                })
+              })
+            }
+          }
+          setLoading(false)
+        }, { location: latlng, radius: 5000, sort: (window.kakao.maps.services as any).SortBy?.DISTANCE })
+      },
+      () => { setLoading(false) },
+      { enableHighAccuracy: true }
+    )
+  }, [])
+
+  useEffect(() => {
+    // 카카오맵 SDK 로드 대기
+    const initMap = () => {
+      if (window.kakao?.maps) {
+        window.kakao.maps.load(() => {
+          searchPlaces(categories[0]?.query || '소아과')
+        })
+      } else {
+        setTimeout(initMap, 300)
+      }
+    }
+    initMap()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleCategory = (idx: number) => {
+    setActiveIdx(idx)
+    searchPlaces(categories[idx].query)
+  }
+
+  return (
+    <div className="pb-28">
+      {/* 지도 */}
+      <div ref={mapRef} className="w-full h-48 bg-[#E8F0E8]" />
+
+      {/* 카테고리 칩 */}
+      <div className="flex gap-1.5 overflow-x-auto hide-scrollbar px-4 py-3">
+        {categories.map((cat, i) => (
+          <button key={cat.query} onClick={() => handleCategory(i)}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-[12px] font-semibold flex items-center gap-1 ${activeIdx === i ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#868B94] border border-[#f0f0f0]'}`}>
+            <span className="text-sm">{cat.icon}</span> {cat.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 결과 리스트 */}
+      <div className="px-4 space-y-2">
+        {loading ? (
+          <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
+        ) : places.length === 0 ? (
+          <p className="text-[13px] text-[#AEB1B9] text-center py-8">주변에 검색 결과가 없어요</p>
+        ) : (
+          places.map(p => (
+            <Link key={p.id} href={`/map/${p.id}`} className="block bg-white rounded-xl border border-[#f0f0f0] p-3 active:bg-[#F5F4F1]">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold text-[#1A1918] truncate">{p.name}</p>
+                  <p className="text-[10px] text-[#868B94] mt-0.5 truncate">{p.address}</p>
+                  {p.phone && <p className="text-[10px] text-[#3D8A5A] mt-0.5">{p.phone}</p>}
+                </div>
+                {p.distance && <span className="text-[10px] text-[#AEB1B9] shrink-0 ml-2">{p.distance}</span>}
               </div>
             </Link>
-
-            <div className="px-5 pt-3 space-y-3">
-              {/* 카테고리 바로가기 */}
-              <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-5 px-5">
-                {categories.map(cat => (
-                  <Link key={cat.query} href={`/map?q=${encodeURIComponent(cat.query)}`}
-                    className="shrink-0 bg-white rounded-xl border border-[#f0f0f0] px-4 py-2.5 flex items-center gap-2 active:bg-[#F5F4F1]">
-                    <span className="text-lg">{cat.icon}</span>
-                    <p className="text-[12px] font-semibold text-[#1A1918]">{cat.label}</p>
-                  </Link>
-                ))}
-              </div>
-
-              {/* 정부 지원 */}
-              <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
-                <p className="text-[13px] font-bold text-[#1A1918] mb-3">🏛️ 지원 정보</p>
-                <GovSupports mode={mode} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ===== 수다 탭 ===== */}
-        {subTab === 'chat' && (
-          <div className="px-5 pt-4 pb-28">
-            <CommunityFeed />
-          </div>
-        )}
-
-        {/* ===== 장터 탭 ===== */}
-        {subTab === 'market' && (
-          <div className="px-5 pt-4 pb-28">
-            <MarketFeed />
-          </div>
+          ))
         )}
       </div>
     </div>
   )
 }
 
-// ===== 정부 지원 정보 (모드별) =====
-const GOV_DATA: Record<string, { title: string; desc: string; link: string }[]> = {
-  preparing: [
-    { title: '난임부부 시술비 지원', desc: '체외수정 최대 110만원 · 인공수정 최대 30만원', link: 'https://www.gov.kr/portal/service/serviceInfo/SME000000100' },
-    { title: '임신 사전건강관리', desc: '보건소 무료 산전검사 · 풍진/빈혈 검사', link: 'https://www.mohw.go.kr/menu.es?mid=a10711020200' },
-    { title: '엽산제·철분제 무료 지원', desc: '보건소 등록 시 무료 제공', link: 'https://www.gov.kr/portal/service/serviceInfo/SD0000016094' },
-    { title: '난임 원스톱 서비스', desc: '난임 시술비·심리상담 통합 지원', link: 'https://www.gov.kr/portal/onestopSvc/Infertility' },
-    { title: '행복출산 원스톱', desc: '출산 관련 서비스 한번에 신청', link: 'https://www.gov.kr/portal/onestopSvc/happyBirth' },
-  ],
-  pregnant: [
-    { title: '국민행복카드 (임신출산 진료비)', desc: '임신 1회당 100만원 (다태아 140만원)', link: 'https://www.gov.kr/portal/service/serviceInfo/SD0000007672' },
-    { title: '고위험 임산부 의료비', desc: '입원치료비 90% 지원 (소득 무관)', link: 'https://www.gov.kr/portal/service/serviceInfo/135200000114' },
-    { title: '임산부 영양플러스', desc: '저소득 임산부 보충식품 지원', link: 'https://www.mohw.go.kr/menu.es?mid=a10711020200' },
-    { title: '엽산제·철분제 무료', desc: '보건소 등록 임산부 대상', link: 'https://www.gov.kr/portal/service/serviceInfo/SD0000016094' },
-    { title: '임신출산 지원 종합', desc: '출산정책 전체 안내 (복지부)', link: 'https://www.mohw.go.kr/menu.es?mid=a10711020100' },
-  ],
-  parenting: [
-    { title: '부모급여 (0~1세)', desc: '0세 월 100만원 · 1세 월 50만원', link: 'https://www.gov.kr/portal/service/serviceInfo/135200000143' },
-    { title: '아동수당', desc: '만 8세 미만 월 10만원', link: 'https://www.gov.kr/portal/service/serviceInfo/135200000120' },
-    { title: '첫만남이용권', desc: '출생 시 200만원 바우처', link: 'https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do?wlfareInfoId=WLF00004656' },
-    { title: '영유아 건강검진', desc: '생후 14일~72개월 무료 검진', link: 'https://www.mohw.go.kr/menu.es?mid=a10711020200' },
-    { title: '행복출산 원스톱', desc: '출산 후 서비스 한번에 신청', link: 'https://www.gov.kr/portal/onestopSvc/happyBirth' },
-    { title: '임신출산 양육 종합', desc: '정부 지원 정책 전체 안내', link: 'https://www.mohw.go.kr/menu.es?mid=a10711020100' },
-  ],
-}
-
-function GovSupports({ mode }: { mode: string }) {
-  const items = GOV_DATA[mode] || GOV_DATA.parenting
-  return (
-    <div className="space-y-2">
-      {items.map(item => (
-        <a key={item.title} href={item.link} target="_blank" rel="noopener noreferrer"
-          className="block p-3 bg-[#F5F4F1] rounded-xl active:bg-[#ECECEC]">
-          <p className="text-[13px] font-semibold text-[#1A1918]">{item.title}</p>
-          <p className="text-[11px] text-[#868B94]">{item.desc}</p>
-          <p className="text-[10px] text-[#3D8A5A] mt-0.5">자세히 보기 →</p>
-        </a>
-      ))}
-    </div>
-  )
-}
-
-// ===== 수다 — Supabase에서 직접 목록 로드 =====
-function CommunityFeed() {
+// ===== 수다 탭 — 바로 리스트 =====
+function ChatTab() {
   const [posts, setPosts] = useState<any[]>([])
-  const [loadingPosts, setLoadingPosts] = useState(true)
-  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [newPost, setNewPost] = useState('')
+  const [posting, setPosting] = useState(false)
 
   useEffect(() => {
     async function load() {
       const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
-      const { data } = await supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(10)
+      const { data } = await supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(20)
       setPosts(data || [])
-      setLoadingPosts(false)
+      setLoading(false)
     }
     load()
   }, [])
 
-  return (
-    <div className="space-y-2">
-      {/* 글쓰기 바로가기 */}
-      <Link href="/community" className="block bg-[#F0F9F4] rounded-xl p-3 text-center active:opacity-80">
-        <p className="text-[12px] text-[#3D8A5A] font-semibold">✏️ 수다 떨러가기</p>
-      </Link>
+  const handlePost = async () => {
+    if (!newPost.trim() || posting) return
+    setPosting(true)
+    const { createClient } = await import('@/lib/supabase/client')
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setPosting(false); return }
 
-      {loadingPosts ? (
-        <div className="flex justify-center py-6"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
+    const { data, error } = await supabase.from('posts').insert({ user_id: user.id, content: newPost.trim() }).select().single()
+    if (!error && data) {
+      setPosts(prev => [data, ...prev])
+      setNewPost('')
+    }
+    setPosting(false)
+  }
+
+  return (
+    <div className="px-4 pt-3 pb-28 space-y-2">
+      {/* 글쓰기 */}
+      <div className="bg-white rounded-xl border border-[#f0f0f0] p-3">
+        <textarea value={newPost} onChange={e => setNewPost(e.target.value.slice(0, 500))} placeholder="동네 엄마들과 수다 떨어보세요..."
+          className="w-full h-16 text-[13px] resize-none focus:outline-none" />
+        <div className="flex justify-between items-center mt-1">
+          <span className="text-[9px] text-[#AEB1B9]">{newPost.length}/500</span>
+          <button onClick={handlePost} disabled={!newPost.trim() || posting}
+            className={`px-4 py-1.5 rounded-lg text-[12px] font-semibold ${newPost.trim() && !posting ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}>
+            {posting ? '...' : '올리기'}
+          </button>
+        </div>
+      </div>
+
+      {/* 글 목록 */}
+      {loading ? (
+        <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
       ) : posts.length === 0 ? (
-        <p className="text-[13px] text-[#AEB1B9] text-center py-6">아직 글이 없어요</p>
+        <p className="text-[13px] text-[#AEB1B9] text-center py-8">첫 수다를 시작해보세요!</p>
       ) : (
         posts.map(post => (
-          <Link key={post.id} href="/community" className="block bg-white rounded-xl border border-[#f0f0f0] p-3 active:bg-[#F5F4F1]">
-            <p className="text-[13px] text-[#1A1918] line-clamp-2">{post.content}</p>
-            <div className="flex items-center gap-3 mt-1.5">
+          <div key={post.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
+            <p className="text-[13px] text-[#1A1918] leading-relaxed">{post.content}</p>
+            <div className="flex items-center gap-3 mt-2">
               <span className="text-[10px] text-[#868B94]">❤️ {post.like_count || 0}</span>
               <span className="text-[10px] text-[#868B94]">💬 {post.comment_count || 0}</span>
-              <span className="text-[10px] text-[#AEB1B9]">{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
+              <span className="text-[10px] text-[#AEB1B9] ml-auto">{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
             </div>
-          </Link>
+          </div>
         ))
       )}
     </div>
   )
 }
 
-// ===== 장터 — Supabase에서 직접 목록 로드 =====
-function MarketFeed() {
+// ===== 장터 탭 — 바로 리스트 =====
+function MarketTab() {
   const [items, setItems] = useState<any[]>([])
-  const [loadingItems, setLoadingItems] = useState(true)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function load() {
       const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
-      const { data } = await supabase.from('market_items').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(10)
+      const { data } = await supabase.from('market_items').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(20)
       setItems(data || [])
-      setLoadingItems(false)
+      setLoading(false)
     }
     load()
   }, [])
 
   return (
-    <div className="space-y-2">
-      {loadingItems ? (
+    <div className="px-4 pt-3 pb-28 space-y-2">
+      {/* 등록 버튼 */}
+      <Link href="/community?tab=market" className="block bg-[#F0F9F4] rounded-xl p-3 text-center active:opacity-80">
+        <p className="text-[12px] text-[#3D8A5A] font-semibold">+ 장터에 올리기</p>
+      </Link>
+
+      {loading ? (
         <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
       ) : items.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-[13px] text-[#AEB1B9]">아직 장터 글이 없어요</p>
-          <Link href="/community?tab=market" className="text-[12px] text-[#3D8A5A] font-semibold mt-2 inline-block">첫 글 쓰러가기 →</Link>
-        </div>
+        <p className="text-[13px] text-[#AEB1B9] text-center py-8">아직 장터 글이 없어요</p>
       ) : (
-        <>
-          {items.map(item => (
-            <Link key={item.id} href="/community?tab=market" className="block bg-white rounded-xl border border-[#f0f0f0] p-3 active:bg-[#F5F4F1]">
-              <div className="flex items-center justify-between">
-                <p className="text-[13px] font-semibold text-[#1A1918] line-clamp-1">{item.title}</p>
-                <p className="text-[12px] font-bold text-[#3D8A5A]">{item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔'}</p>
-              </div>
-              <p className="text-[10px] text-[#868B94] mt-0.5 line-clamp-1">{item.description}</p>
-            </Link>
-          ))}
-        </>
+        items.map(item => (
+          <div key={item.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-semibold text-[#1A1918] line-clamp-1 flex-1">{item.title}</p>
+              <p className="text-[12px] font-bold text-[#3D8A5A] shrink-0 ml-2">{item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔'}</p>
+            </div>
+            <p className="text-[10px] text-[#868B94] mt-0.5 line-clamp-1">{item.description}</p>
+            <p className="text-[9px] text-[#AEB1B9] mt-1">{new Date(item.created_at).toLocaleDateString('ko-KR')}</p>
+          </div>
+        ))
       )}
     </div>
   )
