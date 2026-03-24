@@ -512,7 +512,7 @@ export default function PreparingPage() {
             prob = Math.max(5, Math.min(45, prob))
             return (
               <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
-                <p className="text-[10px] text-[#868B94]">🎯 이번 주기</p>
+                <p className="text-[10px] text-[#868B94]">🤰 임신 가능성</p>
                 <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{prob}%</p>
                 <div className="w-full h-1 bg-[#F0F0F0] rounded-full mt-1">
                   <div className="h-full bg-[#3D8A5A] rounded-full" style={{ width: `${prob}%` }} />
@@ -564,16 +564,17 @@ export default function PreparingPage() {
                   { key: 'dinner', label: '저녁', icon: '🌙', data: aiMeal.dinner },
                   { key: 'snack', label: '간식', icon: '🍎', data: aiMeal.snack },
                 ].map((m) => m.data && (
-                  <div key={m.label} className={`flex items-start gap-2.5 ${m.key === currentMeal ? 'bg-[#F0F9F4] -mx-2 px-2 py-1.5 rounded-lg' : ''}`}>
-                    <span className="text-sm mt-0.5">{m.icon}</span>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] w-6 ${m.key === currentMeal ? 'text-[#3D8A5A] font-bold' : 'text-[#AEB1B9]'}`}>{m.label}</span>
-                        <p className="text-[13px] font-semibold text-[#1A1918]">{m.data.menu}</p>
-                        {m.key === currentMeal && <span className="text-[8px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
+                  <div key={m.label} className={`flex items-center gap-2 ${m.key === currentMeal ? 'bg-[#F0F9F4] -mx-2 px-2 py-1.5 rounded-lg' : 'py-0.5'}`}>
+                    <span className="text-sm shrink-0">{m.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[10px] ${m.key === currentMeal ? 'text-[#3D8A5A] font-bold' : 'text-[#AEB1B9]'}`}>{m.label}</span>
+                        <p className="text-[12px] font-semibold text-[#1A1918] truncate">{m.data.menu}</p>
+                        {m.key === currentMeal && <span className="text-[7px] bg-[#3D8A5A] text-white px-1 rounded shrink-0">지금</span>}
                       </div>
-                      <p className="text-[10px] text-[#868B94] ml-8">{m.data.reason}</p>
                     </div>
+                    <Link href={`/map?q=${encodeURIComponent(m.data.menu.replace(/[()（）]/g, '').split(' ')[0] + ' 맛집')}`}
+                      className="shrink-0 text-[9px] text-[#3D8A5A] active:opacity-60">📍</Link>
                   </div>
                 ))
               })()}
@@ -583,19 +584,6 @@ export default function PreparingPage() {
                   {aiMeal.avoid && <p className="text-[11px] text-[#D08068] mt-0.5">주의: {aiMeal.avoid}</p>}
                 </div>
               )}
-              {/* 근처 식당 검색 */}
-              {(() => {
-                const hour = new Date().getHours()
-                const meal = hour < 10 ? aiMeal.breakfast : hour < 14 ? aiMeal.lunch : hour < 18 ? aiMeal.snack : aiMeal.dinner
-                if (!meal?.menu) return null
-                const keyword = meal.menu.replace(/[()（）]/g, '').split(' ')[0] // 첫 단어만
-                return (
-                  <Link href={`/map?q=${encodeURIComponent(keyword + ' 맛집')}`} className="flex items-center gap-2 mt-2 p-2 bg-[#F5F4F1] rounded-lg active:bg-[#ECECEC]">
-                    <span className="text-sm">📍</span>
-                    <p className="text-[11px] text-[#3D8A5A] font-medium">근처 "{keyword}" 식당 찾기</p>
-                  </Link>
-                )
-              })()}
             </div>
           ) : (
             <>

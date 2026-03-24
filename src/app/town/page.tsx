@@ -206,49 +206,33 @@ function PlaceCard({ place: p }: { place: Place }) {
 
   return (
     <div className="bg-white rounded-xl border border-[#f0f0f0] p-3">
-      {/* 장소 정보 */}
-      <div className="flex items-start justify-between">
+      {/* 상단: 이름 + 별점 + 거리 */}
+      <div className="flex items-center gap-2">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <p className="text-[13px] font-semibold text-[#1A1918] truncate">{p.name}</p>
-            {avgRating && (
-              <span className="text-[10px] text-[#C4A35A] font-semibold shrink-0">★ {avgRating}</span>
-            )}
-            {reviews.length > 0 && (
-              <span className="text-[9px] text-[#AEB1B9] shrink-0">({reviews.length})</span>
-            )}
-          </div>
-          <p className="text-[10px] text-[#868B94] mt-0.5 truncate">{p.address}</p>
+          <p className="text-[13px] font-semibold text-[#1A1918] truncate">{p.name}</p>
         </div>
-        {p.distance && <span className="text-[10px] text-[#AEB1B9] shrink-0 ml-2">{p.distance}</span>}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {avgRating ? (
+            <span className="text-[11px] text-[#C4A35A] font-bold">★ {avgRating}<span className="text-[9px] text-[#AEB1B9] font-normal"> ({reviews.length})</span></span>
+          ) : (
+            <span className="text-[9px] text-[#AEB1B9]">리뷰 없음</span>
+          )}
+          {p.distance && <span className="text-[10px] text-[#AEB1B9]">{p.distance}</span>}
+        </div>
       </div>
+      <p className="text-[10px] text-[#868B94] mt-0.5 truncate">{p.address}</p>
 
-      {/* 액션 */}
-      <div className="flex items-center justify-around mt-2.5 pt-2.5 border-t border-[#f0f0f0]">
-        {p.phone ? (
-          <a href={`tel:${p.phone}`} className="flex flex-col items-center gap-0.5 active:opacity-60">
-            <div className="w-9 h-9 rounded-full bg-[#F0F9F4] flex items-center justify-center"><span className="text-[14px]">📞</span></div>
-            <span className="text-[9px] text-[#868B94]">전화</span>
-          </a>
-        ) : (
-          <div className="flex flex-col items-center gap-0.5 opacity-40">
-            <div className="w-9 h-9 rounded-full bg-[#F5F4F1] flex items-center justify-center"><span className="text-[14px]">📞</span></div>
-            <span className="text-[9px] text-[#AEB1B9]">전화</span>
-          </div>
+      {/* 액션: 한 줄 컴팩트 */}
+      <div className="flex items-center gap-1.5 mt-2">
+        {p.phone && (
+          <a href={`tel:${p.phone}`} className="px-2.5 py-1 rounded-full bg-[#F5F4F1] text-[10px] text-[#868B94] active:opacity-60">📞 전화</a>
         )}
         <a href={`https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lng}`} target="_blank" rel="noopener noreferrer"
-          className="flex flex-col items-center gap-0.5 active:opacity-60">
-          <div className="w-9 h-9 rounded-full bg-[#F0F9F4] flex items-center justify-center"><span className="text-[14px]">🧭</span></div>
-          <span className="text-[9px] text-[#868B94]">길찾기</span>
-        </a>
-        <button onClick={loadReviews} className="flex flex-col items-center gap-0.5 active:opacity-60">
-          <div className="w-9 h-9 rounded-full bg-[#F0F9F4] flex items-center justify-center"><span className="text-[14px]">⭐</span></div>
-          <span className="text-[9px] text-[#868B94]">리뷰{loaded && reviews.length > 0 ? ` ${reviews.length}` : ''}</span>
+          className="px-2.5 py-1 rounded-full bg-[#F5F4F1] text-[10px] text-[#868B94] active:opacity-60">🧭 길찾기</a>
+        <button onClick={loadReviews} className="px-2.5 py-1 rounded-full bg-[#F5F4F1] text-[10px] text-[#868B94] active:opacity-60">
+          💬 리뷰{loaded && reviews.length > 0 ? ` ${reviews.length}` : ''}
         </button>
-        <Link href={`/map/${p.id}/review`} className="flex flex-col items-center gap-0.5 active:opacity-60">
-          <div className="w-9 h-9 rounded-full bg-[#3D8A5A] flex items-center justify-center"><span className="text-[14px]">✏️</span></div>
-          <span className="text-[9px] text-[#3D8A5A] font-semibold">쓰기</span>
-        </Link>
+        <Link href={`/map/${p.id}/review`} className="px-2.5 py-1 rounded-full bg-[#3D8A5A] text-[10px] text-white font-semibold active:opacity-80 ml-auto">✏️ 리뷰 쓰기</Link>
       </div>
 
       {/* 리뷰 목록 (펼침) */}
