@@ -5,7 +5,6 @@ import './globals.css'
 import BottomNav from '@/components/bnb/BottomNav'
 import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt'
 import KakaoSDK from '@/components/ui/KakaoSDK'
-import DarkModeProvider from '@/components/ui/DarkModeProvider'
 import DevResetButton from '@/components/ui/DevResetButton'
 
 export const metadata: Metadata = {
@@ -42,7 +41,6 @@ export default function RootLayout({
             strategy="beforeInteractive"
           />
           <KakaoSDK />
-          <DarkModeProvider />
           <main className="flex-1 pb-20">{children}</main>
           <BottomNav />
           <PWAInstallPrompt />

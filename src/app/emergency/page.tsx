@@ -130,7 +130,7 @@ export default function EmergencyPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#f5f5f5] dark:bg-[#0A0B0D]">
+    <div className="min-h-[100dvh] bg-[#f5f5f5]">
       {/* 헤더 */}
       <div className="bg-gradient-to-b from-[#E53935] to-[#C62828] px-5 pt-14 pb-6">
         <div className="max-w-lg mx-auto w-full">
@@ -163,16 +163,16 @@ export default function EmergencyPage() {
         )}
 
         {/* 면책 배너 */}
-        <div className="mx-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800">
-          <p className="text-xs text-amber-700 dark:text-amber-300">
+        <div className="mx-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
+          <p className="text-xs text-amber-700">
             ⚠️ 영업시간 정보가 정확하지 않을 수 있어요. 전화로 확인해주세요.
           </p>
         </div>
 
         {/* 위치 에러 */}
         {locationError && (
-          <div className="mx-4 mt-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800">
-            <p className="text-xs text-blue-700 dark:text-blue-300">
+          <div className="mx-4 mt-3 p-3 rounded-xl bg-blue-50 border border-blue-200">
+            <p className="text-xs text-blue-700">
               📍 위치 권한을 허용하면 더 정확한 결과를 볼 수 있어요.
             </p>
           </div>
@@ -187,10 +187,10 @@ export default function EmergencyPage() {
         ) : clinics.length === 0 ? (
           /* 결과 없음 */
           <div className="flex flex-col items-center justify-center py-16 mx-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#f0f0f0] dark:bg-[#2a2a2a] flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-[#f0f0f0] flex items-center justify-center mb-4">
               <MapIcon className="w-8 h-8 text-[#9B9B9B]" />
             </div>
-            <p className="text-base font-semibold text-[#0A0B0D] dark:text-white">근처에 영업 중인 소아과가 없어요</p>
+            <p className="text-base font-semibold text-[#0A0B0D]">근처에 영업 중인 소아과가 없어요</p>
             <p className="text-sm text-[#9B9B9B] mt-1">검색 범위를 넓혀볼까요?</p>
             <div className="flex gap-3 mt-4">
               <button
@@ -198,7 +198,7 @@ export default function EmergencyPage() {
                 className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   radius === 5
                     ? 'bg-[#FF6F0F] text-white'
-                    : 'bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[#0A0B0D] dark:text-white'
+                    : 'bg-white border border-[#E8E4DF] text-[#0A0B0D]'
                 }`}
               >
                 5km
@@ -208,7 +208,7 @@ export default function EmergencyPage() {
                 className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   radius === 10
                     ? 'bg-[#FF6F0F] text-white'
-                    : 'bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[#0A0B0D] dark:text-white'
+                    : 'bg-white border border-[#E8E4DF] text-[#0A0B0D]'
                 }`}
               >
                 10km
@@ -221,16 +221,16 @@ export default function EmergencyPage() {
             {clinics.map((clinic) => (
               <div
                 key={clinic.id}
-                className="p-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a]"
+                className="p-4 rounded-2xl bg-white border border-[#E8E4DF]"
               >
                 {/* 상단: 이름 + 거리 */}
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h3 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">
+                    <h3 className="text-[15px] font-bold text-[#0A0B0D]">
                       🏥 {clinic.name}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs font-medium text-green-600 dark:text-green-400">
+                      <span className="text-xs font-medium text-green-600">
                         영업중 · {clinic.closing_time}까지
                       </span>
                       <span className="text-xs text-[#9B9B9B]">⭐ {clinic.rating}</span>
@@ -275,7 +275,7 @@ export default function EmergencyPage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                   radius === r
                     ? 'bg-[#E53935] text-white'
-                    : 'bg-white dark:bg-[#1a1a1a] text-[#9B9B9B] border border-[#E8E4DF] dark:border-[#2a2a2a]'
+                    : 'bg-white text-[#9B9B9B] border border-[#E8E4DF]'
                 }`}
               >
                 {r}km

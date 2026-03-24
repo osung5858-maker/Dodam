@@ -92,21 +92,21 @@ export default function InvitePage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-white dark:bg-[#0A0B0D] flex flex-col">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl">
+    <div className="min-h-[100dvh] bg-white flex flex-col">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <button onClick={() => router.back()} className="text-sm text-[#9B9B9B]">닫기</button>
-          <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">가족 초대</h1>
+          <h1 className="text-[15px] font-bold text-[#0A0B0D]">가족 초대</h1>
           <div className="w-8" />
         </div>
       </header>
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 max-w-lg mx-auto w-full">
-        <div className="w-20 h-20 rounded-3xl bg-green-50 dark:bg-green-950 flex items-center justify-center mb-6">
+        <div className="w-20 h-20 rounded-3xl bg-green-50 flex items-center justify-center mb-6">
           <span className="text-4xl">💌</span>
         </div>
 
-        <h2 className="text-xl font-bold text-[#0A0B0D] dark:text-white text-center">
+        <h2 className="text-xl font-bold text-[#0A0B0D] text-center">
           가족과 함께 기록해요
         </h2>
         <p className="text-sm text-[#9B9B9B] text-center mt-2 leading-relaxed">
@@ -117,7 +117,7 @@ export default function InvitePage() {
         {inviteLink ? (
           <div className="w-full mt-8 space-y-3">
             {/* 링크 표시 */}
-            <div className="p-3 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a]">
+            <div className="p-3 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF]">
               <p className="text-xs text-[#9B9B9B] truncate font-mono">{inviteLink}</p>
             </div>
 
@@ -133,7 +133,7 @@ export default function InvitePage() {
             {/* 링크 복사 */}
             <button
               onClick={handleCopy}
-              className="w-full h-[48px] rounded-xl font-medium text-[15px] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[#0A0B0D] dark:text-white active:scale-[0.98] transition-transform"
+              className="w-full h-[48px] rounded-xl font-medium text-[15px] border border-[#E8E4DF] text-[#0A0B0D] active:scale-[0.98] transition-transform"
             >
               {copied ? '✅ 복사 완료!' : '📋 링크 복사'}
             </button>

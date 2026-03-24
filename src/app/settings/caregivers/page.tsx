@@ -44,36 +44,36 @@ export default function CaregiversPage() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="min-h-[100dvh] bg-[#f5f5f5] dark:bg-[#0A0B0D]">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl border-b border-[#E8E4DF] dark:border-[#2a2a2a]">
+    <div className="min-h-[100dvh] bg-[#f5f5f5]">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-[#E8E4DF]">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <button onClick={() => router.back()} className="text-sm text-[#9B9B9B]">뒤로</button>
-          <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">공동양육자</h1>
+          <h1 className="text-[15px] font-bold text-[#0A0B0D]">공동양육자</h1>
           <div className="w-8" />
         </div>
       </header>
 
       <div className="max-w-lg mx-auto w-full pb-24">
-        <div className="m-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] overflow-hidden">
+        <div className="m-4 rounded-2xl bg-white border border-[#E8E4DF] overflow-hidden">
           {caregivers.length === 0 ? (
             <div className="px-4 py-8 text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#f5f5f5] dark:bg-[#2a2a2a] flex items-center justify-center mx-auto mb-3">
+              <div className="w-16 h-16 rounded-2xl bg-[#f5f5f5] flex items-center justify-center mx-auto mb-3">
                 <span className="text-3xl">👨‍👩‍👧</span>
               </div>
-              <p className="text-sm font-semibold text-[#0A0B0D] dark:text-white">아직 연결된 가족이 없어요</p>
+              <p className="text-sm font-semibold text-[#0A0B0D]">아직 연결된 가족이 없어요</p>
               <p className="text-xs text-[#9B9B9B] mt-1">함께 기록하면 더 도담해요</p>
             </div>
           ) : (
             caregivers.map((cg) => (
               <div
                 key={cg.id}
-                className="flex items-center gap-3 px-4 py-3.5 border-b border-[#E8E4DF] dark:border-[#2a2a2a] last:border-b-0"
+                className="flex items-center gap-3 px-4 py-3.5 border-b border-[#E8E4DF] last:border-b-0"
               >
-                <div className="w-9 h-9 rounded-full bg-green-50 dark:bg-green-950 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-full bg-green-50 flex items-center justify-center">
                   <span className="text-sm">👤</span>
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-[#0A0B0D] dark:text-white">
+                  <p className="text-sm font-medium text-[#0A0B0D]">
                     {cg.role === 'primary' ? '주 양육자' : '공동양육자'}
                   </p>
                   <p className="text-xs text-[#9B9B9B]">
@@ -86,9 +86,9 @@ export default function CaregiversPage() {
 
           <Link
             href="/settings/caregivers/invite"
-            className="flex items-center gap-3 px-4 py-3.5 border-t border-[#E8E4DF] dark:border-[#2a2a2a] active:bg-[#f5f5f5] dark:active:bg-[#2a2a2a] transition-colors"
+            className="flex items-center gap-3 px-4 py-3.5 border-t border-[#E8E4DF] active:bg-[#f5f5f5] transition-colors"
           >
-            <div className="w-9 h-9 rounded-full bg-[#f5f5f5] dark:bg-[#2a2a2a] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-[#f5f5f5] flex items-center justify-center">
               <span className="text-[#FF6F0F] text-lg font-light">+</span>
             </div>
             <p className="text-sm font-medium text-[#FF6F0F]">가족 초대하기</p>

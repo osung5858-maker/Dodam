@@ -89,11 +89,11 @@ export default function WriteReviewPage() {
   const isValid = rating > 0 && content.length >= 10
 
   return (
-    <div className="min-h-[100dvh] bg-white dark:bg-[#0A0B0D] flex flex-col">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl">
+    <div className="min-h-[100dvh] bg-white flex flex-col">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <button onClick={() => router.back()} className="text-sm text-[#9B9B9B]">취소</button>
-          <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">리뷰 쓰기</h1>
+          <h1 className="text-[15px] font-bold text-[#0A0B0D]">리뷰 쓰기</h1>
           <button
             onClick={handleSubmit}
             disabled={loading || !isValid}
@@ -115,7 +115,7 @@ export default function WriteReviewPage() {
                 onClick={() => setRating(star)}
                 className="text-3xl transition-transform active:scale-110"
               >
-                <span className={star <= rating ? 'text-amber-400' : 'text-[#e0e0e0] dark:text-[#3a3a3a]'}>
+                <span className={star <= rating ? 'text-amber-400' : 'text-[#e0e0e0]'}>
                   ★
                 </span>
               </button>
@@ -131,7 +131,7 @@ export default function WriteReviewPage() {
             placeholder="육아하면서 느낀 솔직한 후기를 남겨주세요 (10자 이상)"
             maxLength={500}
             rows={5}
-            className="w-full p-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white placeholder-[#c0c0c0] resize-none focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full p-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] placeholder-[#c0c0c0] resize-none focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
           <div className="flex justify-between mt-1.5">
             <span className={`text-xs ${content.length < 10 && content.length > 0 ? 'text-red-500' : 'text-[#c0c0c0]'}`}>
@@ -143,7 +143,7 @@ export default function WriteReviewPage() {
 
         {/* 태그 */}
         <div className="mb-6">
-          <p className="text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-3 uppercase tracking-wide">
+          <p className="text-xs font-semibold text-[#6B6B6B] mb-3 uppercase tracking-wide">
             태그 선택 (최대 5개)
           </p>
           <div className="flex flex-wrap gap-2">
@@ -154,7 +154,7 @@ export default function WriteReviewPage() {
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${
                   selectedTags.includes(tag)
                     ? 'bg-[#FF6F0F] text-white'
-                    : 'bg-[#f5f5f5] dark:bg-[#1a1a1a] text-[#6B6B6B] dark:text-[#9B9B9B] border border-[#E8E4DF] dark:border-[#2a2a2a]'
+                    : 'bg-[#f5f5f5] text-[#6B6B6B] border border-[#E8E4DF]'
                 }`}
               >
                 {tag}
@@ -171,7 +171,7 @@ export default function WriteReviewPage() {
         )}
 
         {error && (
-          <div className="mt-4 p-3 rounded-xl bg-red-50 dark:bg-red-950 text-sm text-red-600 dark:text-red-400 text-center">
+          <div className="mt-4 p-3 rounded-xl bg-red-50 text-sm text-red-600 text-center">
             {error}
           </div>
         )}

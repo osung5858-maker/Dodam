@@ -121,29 +121,3 @@ input:focus, textarea:focus, select:focus {
   animation: fadeIn 0.15s ease-out;
 }
 
-/* ===== 다크 모드 ===== */
-html.dark body { background: #121212; color: #E0E0E0; }
-html.dark .bg-white { background: #1E1E1E !important; }
-html.dark .bg-\[\#FFF9F5\] { background: #121212 !important; }
-html.dark .bg-\[\#F5F4F1\] { background: #121212 !important; }
-html.dark .bg-\[\#F0EDE8\] { background: #1A1A1A !important; }
-html.dark .bg-\[\#F7F8FA\] { background: #121212 !important; }
-html.dark .bg-\[\#F9F9F7\] { background: #1A1A1A !important; }
-html.dark .bg-\[\#F0F0F0\] { background: #2A2A2A !important; }
-html.dark .bg-\[\#F0F9F4\] { background: #1A2E1F !important; }
-html.dark .bg-\[\#FFF8F3\] { background: #2E1F1A !important; }
-html.dark .bg-\[\#FFF0EC\] { background: #2E1A1A !important; }
-html.dark .bg-\[\#FFF8F0\] { background: #2E251A !important; }
-html.dark .border-\[\#f0f0f0\] { border-color: #333 !important; }
-html.dark .border-\[\#E8E4DF\] { border-color: #333 !important; }
-html.dark .border-\[\#F0EDE8\] { border-color: #2A2A2A !important; }
-html.dark .border-\[\#C8F0D8\] { border-color: #2A4A32 !important; }
-html.dark .text-\[\#1A1918\] { color: #E0E0E0 !important; }
-html.dark .text-\[\#212124\] { color: #E0E0E0 !important; }
-html.dark .text-\[\#6B6966\] { color: #AAA !important; }
-html.dark .text-\[\#868B94\] { color: #999 !important; }
-html.dark .text-\[\#9E9A95\] { color: #888 !important; }
-html.dark .text-\[\#AEB1B9\] { color: #777 !important; }
-html.dark .bg-gray-100 { background: #0A0A0A !important; }
-html.dark .shadow-xl { box-shadow: none !important; }
-html.dark .dodam-card { background: #1E1E1E; border-color: #333; box-shadow: none; }

@@ -127,7 +127,7 @@ export default function AICardFeed({ events }: Props) {
       {visibleCards.map((card) => (
         <div
           key={card.id}
-          className="flex rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] overflow-hidden"
+          className="flex rounded-2xl bg-white border border-[#E8E4DF] overflow-hidden"
         >
           {/* 좌측 컬러 바 */}
           <div className={`w-1 ${card.colorBar} shrink-0`} />
@@ -137,7 +137,7 @@ export default function AICardFeed({ events }: Props) {
             <div className="flex items-start gap-2">
               <span className="text-base shrink-0">{card.icon}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-[#0A0B0D] dark:text-white leading-relaxed">
+                <p className="text-sm text-[#0A0B0D] leading-relaxed">
                   {card.body}
                 </p>
                 {card.disclaimer && (

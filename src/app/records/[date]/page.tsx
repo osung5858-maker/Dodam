@@ -78,12 +78,12 @@ export default function RecordDetailPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#f5f5f5] dark:bg-[#0A0B0D]">
+    <div className="min-h-[100dvh] bg-[#f5f5f5]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl border-b border-[#E8E4DF] dark:border-[#2a2a2a]">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-[#E8E4DF]">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <button onClick={() => router.back()} className="text-sm text-[#9B9B9B]">뒤로</button>
-          <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">기록 상세</h1>
+          <h1 className="text-[15px] font-bold text-[#0A0B0D]">기록 상세</h1>
           <div className="w-8" />
         </div>
       </header>
@@ -93,18 +93,18 @@ export default function RecordDetailPage() {
         <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={() => router.push(`/records/${prevDate}`)}
-            className="w-9 h-9 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform"
+            className="w-9 h-9 rounded-xl bg-white border border-[#E8E4DF] flex items-center justify-center active:scale-95 transition-transform"
           >
             <ChevronRightIcon className="w-4 h-4 text-[#9B9B9B] rotate-180" />
           </button>
-          <p className="text-sm font-semibold text-[#0A0B0D] dark:text-white">
+          <p className="text-sm font-semibold text-[#0A0B0D]">
             {formatDateKr(dateStr)}
             {isToday && <span className="text-[#FF6F0F] ml-1">오늘</span>}
           </p>
           <button
             onClick={() => canGoNext && router.push(`/records/${nextDate}`)}
             disabled={!canGoNext}
-            className="w-9 h-9 rounded-xl bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-30"
+            className="w-9 h-9 rounded-xl bg-white border border-[#E8E4DF] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-30"
           >
             <ChevronRightIcon className="w-4 h-4 text-[#9B9B9B]" />
           </button>
@@ -114,36 +114,36 @@ export default function RecordDetailPage() {
         {events.length > 0 && (
           <div className="mx-4 mb-3 flex gap-2 overflow-x-auto hide-scrollbar">
             {feedCount > 0 && (
-              <div className="shrink-0 px-3 py-2 rounded-xl bg-blue-50 dark:bg-blue-950 border border-blue-100 dark:border-blue-900">
+              <div className="shrink-0 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
                 <p className="text-[10px] text-blue-500 font-medium">수유</p>
-                <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                <p className="text-sm font-bold text-blue-600">
                   {feedCount}회{feedTotal > 0 && ` · ${feedTotal}ml`}
                 </p>
               </div>
             )}
             {sleepCount > 0 && (
-              <div className="shrink-0 px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 border border-indigo-100 dark:border-indigo-900">
+              <div className="shrink-0 px-3 py-2 rounded-xl bg-indigo-50 border border-indigo-100">
                 <p className="text-[10px] text-indigo-500 font-medium">수면</p>
-                <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{sleepCount}회</p>
+                <p className="text-sm font-bold text-indigo-600">{sleepCount}회</p>
               </div>
             )}
             {poopCount > 0 && (
-              <div className="shrink-0 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950 border border-amber-100 dark:border-amber-900">
+              <div className="shrink-0 px-3 py-2 rounded-xl bg-amber-50 border border-amber-100">
                 <p className="text-[10px] text-amber-600 font-medium">대변</p>
-                <p className="text-sm font-bold text-amber-700 dark:text-amber-400">{poopCount}회</p>
+                <p className="text-sm font-bold text-amber-700">{poopCount}회</p>
               </div>
             )}
             {peeCount > 0 && (
-              <div className="shrink-0 px-3 py-2 rounded-xl bg-cyan-50 dark:bg-cyan-950 border border-cyan-100 dark:border-cyan-900">
+              <div className="shrink-0 px-3 py-2 rounded-xl bg-cyan-50 border border-cyan-100">
                 <p className="text-[10px] text-cyan-500 font-medium">소변</p>
-                <p className="text-sm font-bold text-cyan-600 dark:text-cyan-400">{peeCount}회</p>
+                <p className="text-sm font-bold text-cyan-600">{peeCount}회</p>
               </div>
             )}
           </div>
         )}
 
         {/* 기록 목록 */}
-        <div className="mx-4 rounded-2xl bg-white dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] overflow-hidden">
+        <div className="mx-4 rounded-2xl bg-white border border-[#E8E4DF] overflow-hidden">
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <div className="w-8 h-8 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />

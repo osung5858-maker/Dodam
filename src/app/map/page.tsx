@@ -80,23 +80,23 @@ function MapPageInner() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#f5f5f5] dark:bg-[#0A0B0D] flex flex-col">
+    <div className="min-h-[100dvh] bg-[#f5f5f5] flex flex-col">
       {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl border-b border-[#E8E4DF] dark:border-[#2a2a2a]">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-[#E8E4DF]">
         <div className="flex items-center justify-center h-14 px-5 max-w-lg mx-auto w-full">
-          <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">동네 육아 지도</h1>
+          <h1 className="text-[15px] font-bold text-[#0A0B0D]">동네 육아 지도</h1>
         </div>
       </header>
 
       {/* 카카오맵 */}
-      <div className="relative h-56 bg-[#e8e8e8] dark:bg-[#1a1a1a]">
+      <div className="relative h-56 bg-[#e8e8e8]">
         <KakaoMap
           searchKeyword={selectedCategory.keyword}
           onPlacesFound={handlePlacesFound}
           onMapReady={() => setMapReady(true)}
         />
         {!mapReady && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#f5f5f5] dark:bg-[#1a1a1a]">
+          <div className="absolute inset-0 flex items-center justify-center bg-[#f5f5f5]">
             <div className="text-center">
               <MapIcon className="w-8 h-8 text-[#c0c0c0] mx-auto mb-2" />
               <p className="text-xs text-[#9B9B9B]">지도를 불러오는 중...</p>
@@ -106,7 +106,7 @@ function MapPageInner() {
       </div>
 
       {/* 카테고리 필터 */}
-      <div className="sticky top-14 z-30 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl border-b border-[#E8E4DF] dark:border-[#2a2a2a]">
+      <div className="sticky top-14 z-30 bg-white/80 backdrop-blur-xl border-b border-[#E8E4DF]">
         <div className="max-w-lg mx-auto w-full px-5 py-2.5 flex gap-2 overflow-x-auto hide-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
@@ -115,7 +115,7 @@ function MapPageInner() {
               className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 ${
                 selectedCategory.keyword === cat.keyword
                   ? 'bg-[#FF6F0F] text-white shadow-[0_2px_8px_rgba(0,82,255,0.2)]'
-                  : 'bg-white dark:bg-[#1a1a1a] text-[#6B6B6B] dark:text-[#9B9B9B] border border-[#E8E4DF] dark:border-[#2a2a2a]'
+                  : 'bg-white text-[#6B6B6B] border border-[#E8E4DF]'
               }`}
             >
               {cat.emoji} {cat.label}
@@ -132,10 +132,10 @@ function MapPageInner() {
           </div>
         ) : places.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 rounded-2xl bg-[#f0f0f0] dark:bg-[#2a2a2a] flex items-center justify-center mb-3">
+            <div className="w-16 h-16 rounded-2xl bg-[#f0f0f0] flex items-center justify-center mb-3">
               <MapIcon className="w-8 h-8 text-[#9B9B9B]" />
             </div>
-            <p className="text-sm font-semibold text-[#0A0B0D] dark:text-white">주변에 장소가 없어요</p>
+            <p className="text-sm font-semibold text-[#0A0B0D]">주변에 장소가 없어요</p>
             <p className="text-xs text-[#9B9B9B] mt-1">다른 카테고리를 선택해보세요</p>
           </div>
         ) : (

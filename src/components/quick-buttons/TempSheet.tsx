@@ -27,7 +27,7 @@ export default function TempSheet({ open, onClose, onSubmit }: Props) {
     <BottomSheet open={open} onClose={onClose} title="체온 입력">
       <div className="flex flex-col items-center gap-4">
         <div className={`text-5xl font-bold transition-colors ${
-          isCritical ? 'text-red-500' : isHigh ? 'text-orange-500' : 'text-[#0A0B0D] dark:text-white'
+          isCritical ? 'text-red-500' : isHigh ? 'text-orange-500' : 'text-[#0A0B0D]'
         }`}>
           {value}°C
         </div>

@@ -55,14 +55,14 @@ export default function AddChildPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-white dark:bg-[#0A0B0D] flex flex-col">
+    <div className="min-h-[100dvh] bg-white flex flex-col">
       {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <button onClick={() => router.back()} className="text-[#9B9B9B] text-sm">
             취소
           </button>
-          <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">도담이 등록</h1>
+          <h1 className="text-[15px] font-bold text-[#0A0B0D]">도담이 등록</h1>
           <div className="w-8" />
         </div>
       </header>
@@ -78,7 +78,7 @@ export default function AddChildPage() {
 
         {/* 이름 */}
         <div className="mb-6">
-          <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-2 uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">
             이름
           </label>
           <input
@@ -87,13 +87,13 @@ export default function AddChildPage() {
             onChange={(e) => setName(e.target.value)}
             placeholder="도담이"
             maxLength={20}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white placeholder-[#9B9B9B] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] placeholder-[#9B9B9B] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
         {/* 생년월일 */}
         <div className="mb-6">
-          <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-2 uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">
             생년월일 <span className="text-[#FF6F0F]">*</span>
           </label>
           <input
@@ -101,13 +101,13 @@ export default function AddChildPage() {
             value={birthdate}
             onChange={(e) => setBirthdate(e.target.value)}
             max={new Date().toISOString().split('T')[0]}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
         {/* 성별 */}
         <div className="mb-8">
-          <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-3 uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-[#6B6B6B] mb-3 uppercase tracking-wide">
             성별
           </label>
           <div className="flex gap-3">
@@ -123,7 +123,7 @@ export default function AddChildPage() {
                 className={`flex-1 h-11 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   sex === option.value
                     ? 'bg-[#FF6F0F] text-white shadow-[0_4px_12px_rgba(0,82,255,0.2)]'
-                    : 'bg-[#f5f5f5] dark:bg-[#1a1a1a] text-[#6B6B6B] dark:text-[#9B9B9B] border border-[#E8E4DF] dark:border-[#2a2a2a]'
+                    : 'bg-[#f5f5f5] text-[#6B6B6B] border border-[#E8E4DF]'
                 }`}
               >
                 {option.label}
@@ -134,7 +134,7 @@ export default function AddChildPage() {
 
         {/* 에러 */}
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950 text-sm text-red-600 dark:text-red-400 text-center">
+          <div className="mb-4 p-3 rounded-xl bg-red-50 text-sm text-red-600 text-center">
             {error}
           </div>
         )}

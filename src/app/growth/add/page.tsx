@@ -77,11 +77,11 @@ export default function AddGrowthPage() {
   const hasValue = weightKg || heightCm || headCm
 
   return (
-    <div className="min-h-[100dvh] bg-white dark:bg-[#0A0B0D] flex flex-col">
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl">
+    <div className="min-h-[100dvh] bg-white flex flex-col">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <button onClick={() => router.back()} className="text-sm text-[#9B9B9B]">취소</button>
-          <h1 className="text-[15px] font-bold text-[#0A0B0D] dark:text-white">성장 기록 추가</h1>
+          <h1 className="text-[15px] font-bold text-[#0A0B0D]">성장 기록 추가</h1>
           <div className="w-8" />
         </div>
       </header>
@@ -89,7 +89,7 @@ export default function AddGrowthPage() {
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col px-6 pt-6 max-w-lg mx-auto w-full">
         {/* 측정일 */}
         <div className="mb-6">
-          <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-2 uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">
             측정일
           </label>
           <input
@@ -97,13 +97,13 @@ export default function AddGrowthPage() {
             value={measuredAt}
             onChange={(e) => setMeasuredAt(e.target.value)}
             max={new Date().toISOString().split('T')[0]}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
         {/* 몸무게 */}
         <div className="mb-6">
-          <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-2 uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">
             몸무게 (kg)
           </label>
           <input
@@ -112,13 +112,13 @@ export default function AddGrowthPage() {
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
             placeholder="예: 9.8"
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white placeholder-[#c0c0c0] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] placeholder-[#c0c0c0] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
         {/* 키 */}
         <div className="mb-6">
-          <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-2 uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">
             키 (cm)
           </label>
           <input
@@ -127,13 +127,13 @@ export default function AddGrowthPage() {
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
             placeholder="예: 76.5"
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white placeholder-[#c0c0c0] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] placeholder-[#c0c0c0] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
         {/* 머리둘레 */}
         <div className="mb-8">
-          <label className="block text-xs font-semibold text-[#6B6B6B] dark:text-[#9B9B9B] mb-2 uppercase tracking-wide">
+          <label className="block text-xs font-semibold text-[#6B6B6B] mb-2 uppercase tracking-wide">
             머리둘레 (cm)
           </label>
           <input
@@ -142,12 +142,12 @@ export default function AddGrowthPage() {
             value={headCm}
             onChange={(e) => setHeadCm(e.target.value)}
             placeholder="예: 46.0"
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] dark:bg-[#1a1a1a] border border-[#E8E4DF] dark:border-[#2a2a2a] text-[15px] text-[#0A0B0D] dark:text-white placeholder-[#c0c0c0] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] placeholder-[#c0c0c0] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
           />
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950 text-sm text-red-600 dark:text-red-400 text-center">
+          <div className="mb-4 p-3 rounded-xl bg-red-50 text-sm text-red-600 text-center">
             {error}
           </div>
         )}

@@ -22,7 +22,7 @@ export default function PoopSheet({ open, onClose, onSelect }: Props) {
           <button
             key={opt.value}
             onClick={() => onSelect(opt.value)}
-            className="w-full h-14 rounded-xl bg-[#f5f5f5] dark:bg-[#2a2a2a] flex items-center justify-center gap-2 text-sm font-semibold text-[#0A0B0D] dark:text-white active:bg-[#0052FF] active:text-white transition-colors"
+            className="w-full h-14 rounded-xl bg-[#f5f5f5] flex items-center justify-center gap-2 text-sm font-semibold text-[#0A0B0D] active:bg-[#0052FF] active:text-white transition-colors"
           >
             <span className="text-lg">{opt.emoji}</span> {opt.label}
           </button>
