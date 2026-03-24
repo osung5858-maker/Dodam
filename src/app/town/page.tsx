@@ -82,33 +82,72 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
   const [places, setPlaces] = useState<Place[]>([])
   const [loading, setLoading] = useState(true)
   const mapObjRef = useRef<any>(null)
+  const markersRef = useRef<any[]>([])
+  const cacheRef = useRef<Record<string, Place[]>>({}) // 검색 결과 캐시
+  const posRef = useRef<{ lat: number; lng: number } | null>(null)
+
+  // 마커 초기화
+  const clearMarkers = () => {
+    markersRef.current.forEach(m => m.setMap(null))
+    markersRef.current = []
+  }
 
   const searchPlaces = useCallback((query: string) => {
+    // 캐시 히트
+    if (cacheRef.current[query]) {
+      setPlaces(cacheRef.current[query])
+      setLoading(false)
+      // 마커만 다시 그리기
+      clearMarkers()
+      if (mapObjRef.current) {
+        cacheRef.current[query].forEach(p => {
+          const marker = new window.kakao.maps.Marker({ map: mapObjRef.current, position: new window.kakao.maps.LatLng(p.lat, p.lng) })
+          markersRef.current.push(marker)
+        })
+      }
+      return
+    }
+
     setLoading(true); setPlaces([])
     if (!window.kakao?.maps) { setLoading(false); return }
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const { latitude, longitude } = pos.coords
-      const latlng = new window.kakao.maps.LatLng(latitude, longitude)
+
+    const doSearch = (lat: number, lng: number) => {
+      const latlng = new window.kakao.maps.LatLng(lat, lng)
       if (!mapObjRef.current && mapRef.current) {
         mapObjRef.current = new window.kakao.maps.Map(mapRef.current, { center: latlng, level: 5 })
       } else if (mapObjRef.current) { mapObjRef.current.setCenter(latlng) }
+
+      clearMarkers()
       const ps = new window.kakao.maps.services.Places()
       ps.keywordSearch(query, (data: any[], status: string) => {
         if (status === window.kakao.maps.services.Status.OK) {
-          setPlaces(data.slice(0, 10).map((p: any) => ({
+          const results = data.slice(0, 10).map((p: any) => ({
             id: p.id, name: p.place_name, address: p.road_address_name || p.address_name,
             phone: p.phone || '', distance: p.distance ? `${Math.round(Number(p.distance))}m` : '',
             lat: Number(p.y), lng: Number(p.x),
-          })))
+          }))
+          setPlaces(results)
+          cacheRef.current[query] = results // 캐시 저장
           if (mapObjRef.current) {
-            data.slice(0, 10).forEach((p: any) => {
-              new window.kakao.maps.Marker({ map: mapObjRef.current, position: new window.kakao.maps.LatLng(p.y, p.x) })
+            results.forEach(p => {
+              const marker = new window.kakao.maps.Marker({ map: mapObjRef.current, position: new window.kakao.maps.LatLng(p.lat, p.lng) })
+              markersRef.current.push(marker)
             })
           }
         }
         setLoading(false)
       }, { location: latlng, radius: 5000, sort: (window.kakao.maps.services as any).SortBy?.DISTANCE })
-    }, () => setLoading(false), { enableHighAccuracy: true })
+    }
+
+    // 위치 캐시 활용
+    if (posRef.current) {
+      doSearch(posRef.current.lat, posRef.current.lng)
+    } else {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        posRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+        doSearch(pos.coords.latitude, pos.coords.longitude)
+      }, () => setLoading(false), { enableHighAccuracy: true })
+    }
   }, [])
 
   useEffect(() => {
