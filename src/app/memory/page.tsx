@@ -11,6 +11,21 @@ import type { Child, GrowthRecord, CareEvent } from '@/types'
 
 // ===== 여정 타임라인 — 기다림→임신→육아 통합 =====
 function JourneyTimeline({ childName }: { childName: string }) {
+  const [showForm, setShowForm] = useState(false)
+  const [newText, setNewText] = useState('')
+  const [journeyEntries, setJourneyEntries] = useState<any[]>(() => {
+    try { return JSON.parse(localStorage.getItem('dodam_journey_entries') || '[]') } catch { return [] }
+  })
+
+  const addJourneyEntry = () => {
+    if (!newText.trim()) return
+    const entry = { id: Date.now(), date: new Date().toISOString().split('T')[0], text: newText.trim(), createdAt: new Date().toISOString() }
+    const updated = [entry, ...journeyEntries]
+    setJourneyEntries(updated)
+    localStorage.setItem('dodam_journey_entries', JSON.stringify(updated))
+    setNewText(''); setShowForm(false)
+  }
+
   // localStorage에서 모든 기다림/임신 데이터 수집
   const letters = (() => { try { return JSON.parse(localStorage.getItem('dodam_letters') || '[]') } catch { return [] } })()
   const diaries = (() => { try { return JSON.parse(localStorage.getItem('dodam_preg_diary') || '[]') } catch { return [] } })()
@@ -30,6 +45,9 @@ function JourneyTimeline({ childName }: { childName: string }) {
   })
   pregTests.forEach((t: any) => {
     if (t.result === '양성') timeline.push({ date: t.date, type: 'positive', emoji: '🎉', title: '양성! 아이가 찾아왔어요', content: `D+${t.dpo}에 확인` })
+  })
+  journeyEntries.forEach((e: any) => {
+    timeline.push({ date: e.date, type: 'manual', emoji: '💭', title: '추억 한마디', content: e.text?.slice(0, 80) || '' })
   })
 
   // 날짜 정렬 (최신 먼저)
@@ -54,6 +72,22 @@ function JourneyTimeline({ childName }: { childName: string }) {
         )}
         {!hasJourney && <p className="text-[12px] text-[#868B94] mt-2">편지, 태교일기, 검진 기록이 여기에 모여요</p>}
       </div>
+
+      {/* 추억 남기기 */}
+      {!showForm ? (
+        <button onClick={() => setShowForm(true)} className="w-full py-2.5 bg-white rounded-xl border border-[#f0f0f0] text-[13px] text-[#3D8A5A] font-semibold active:bg-[#F9F9F7]">
+          💭 추억 남기기
+        </button>
+      ) : (
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="이 순간을 기록해보세요..."
+            className="w-full h-20 text-[13px] bg-[#F9F9F7] rounded-lg p-3 resize-none focus:outline-none focus:ring-1 focus:ring-[#3D8A5A]" maxLength={200} />
+          <div className="flex justify-end gap-2 mt-2">
+            <button onClick={() => { setShowForm(false); setNewText('') }} className="px-3 py-1.5 text-[12px] text-[#868B94]">취소</button>
+            <button onClick={addJourneyEntry} disabled={!newText.trim()} className="px-4 py-1.5 bg-[#3D8A5A] text-white text-[12px] rounded-lg font-semibold disabled:opacity-40">저장</button>
+          </div>
+        </div>
+      )}
 
       {/* 타임라인 */}
       {timeline.length > 0 ? (

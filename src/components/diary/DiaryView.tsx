@@ -75,6 +75,53 @@ export default function DiaryView({ events, childName }: Props) {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [memo, setMemo] = useState('')
   const [editingMemo, setEditingMemo] = useState(false)
+  const [photos, setPhotos] = useState<string[]>([])
+
+  // 날짜별 메모 + 사진 localStorage 저장/복원
+  const dateKey = selectedDate.toISOString().split('T')[0]
+  const loadDayData = (date: string) => {
+    const saved = localStorage.getItem(`dodam_diary_${date}`)
+    if (saved) {
+      try {
+        const d = JSON.parse(saved)
+        setMemo(d.memo || '')
+        setPhotos(d.photos || [])
+      } catch { setMemo(''); setPhotos([]) }
+    } else { setMemo(''); setPhotos([]) }
+  }
+  const saveDayData = (m: string, p: string[]) => {
+    localStorage.setItem(`dodam_diary_${dateKey}`, JSON.stringify({ memo: m, photos: p }))
+  }
+
+  // 사진 추가 (파일 → base64)
+  const handleAddPhoto = () => {
+    const input = document.createElement('input')
+    input.type = 'file'; input.accept = 'image/*'; input.multiple = true
+    input.onchange = (e) => {
+      const files = (e.target as HTMLInputElement).files
+      if (!files) return
+      Array.from(files).forEach(file => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          setPhotos(prev => {
+            const updated = [...prev, reader.result as string].slice(0, 10)
+            saveDayData(memo, updated)
+            return updated
+          })
+        }
+        reader.readAsDataURL(file)
+      })
+    }
+    input.click()
+  }
+
+  const removePhoto = (idx: number) => {
+    setPhotos(prev => {
+      const updated = prev.filter((_, i) => i !== idx)
+      saveDayData(memo, updated)
+      return updated
+    })
+  }
 
   const dateStr = selectedDate.toISOString().split('T')[0]
   const dayEvents = useMemo(
@@ -90,8 +137,14 @@ export default function DiaryView({ events, childName }: Props) {
   const navigateDay = (delta: number) => {
     const d = new Date(selectedDate)
     d.setDate(d.getDate() + delta)
-    if (d <= new Date()) setSelectedDate(d)
+    if (d <= new Date()) {
+      setSelectedDate(d)
+      loadDayData(d.toISOString().split('T')[0])
+    }
   }
+
+  // 초기 로드
+  useState(() => { loadDayData(dateKey) })
 
   // 오늘의 감정 태그 (기록 기반 자동 생성)
   const emotionTags = useMemo(() => {
@@ -123,12 +176,22 @@ export default function DiaryView({ events, childName }: Props) {
         </button>
       </div>
 
-      {/* 사진 영역 (플레이스홀더) */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        <button className="shrink-0 w-24 h-24 rounded-xl border-2 border-dashed border-[#ECECEC] flex flex-col items-center justify-center gap-1 active:bg-[#F7F8FA]">
-          <span className="text-xl text-[#AEB1B9]">📷</span>
-          <span className="text-[10px] text-[#AEB1B9]">사진 추가</span>
-        </button>
+      {/* 사진 영역 */}
+      <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
+        {photos.map((src, i) => (
+          <div key={i} className="relative shrink-0 w-24 h-24">
+            <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
+            <button onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+              <span className="text-white text-[10px]">✕</span>
+            </button>
+          </div>
+        ))}
+        {photos.length < 10 && (
+          <button onClick={handleAddPhoto} className="shrink-0 w-24 h-24 rounded-xl border-2 border-dashed border-[#ECECEC] flex flex-col items-center justify-center gap-1 active:bg-[#F7F8FA]">
+            <span className="text-xl text-[#AEB1B9]">📷</span>
+            <span className="text-[10px] text-[#AEB1B9]">사진 추가</span>
+          </button>
+        )}
       </div>
 
       {/* 감정 태그 */}
@@ -146,8 +209,11 @@ export default function DiaryView({ events, childName }: Props) {
       <div className="bg-white rounded-2xl border border-[#f0f0f0] p-4">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-[13px] font-semibold text-[#868B94]">메모</h3>
-          <button onClick={() => setEditingMemo(!editingMemo)} className="text-[11px] text-[#3D8A5A] font-semibold">
-            {editingMemo ? '완료' : '✏️ 편집'}
+          <button onClick={() => {
+            if (editingMemo) saveDayData(memo, photos)
+            setEditingMemo(!editingMemo)
+          }} className="text-[11px] text-[#3D8A5A] font-semibold">
+            {editingMemo ? '저장' : '✏️ 편집'}
           </button>
         </div>
         {editingMemo ? (
