@@ -83,7 +83,7 @@ function SleepHeatmap({ events, dates }: { events: CareEvent[]; dates: string[] 
         <div className="flex gap-0.5">
           <div className="w-6" />
           {[0, 3, 6, 9, 12, 15, 18, 21].map((h) => (
-            <div key={h} className="flex-1 text-[8px] text-[#AEB1B9] text-center">{h}</div>
+            <div key={h} className="flex-1 text-[9px] text-[#AEB1B9] text-center">{h}</div>
           ))}
         </div>
         {dates.map((date) => (

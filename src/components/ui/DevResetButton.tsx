@@ -62,7 +62,7 @@ export default function DevResetButton() {
             🗑️ 로컬 데이터 리셋
           </button>
 
-          <p className="text-[8px] text-[#AEB1B9] text-center">로그인은 유지됩니다</p>
+          <p className="text-[9px] text-[#AEB1B9] text-center">로그인은 유지됩니다</p>
         </div>
       )}
     </>

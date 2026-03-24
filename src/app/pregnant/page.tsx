@@ -219,13 +219,13 @@ function CheckupRecord({ currentWeek }: { currentWeek: number }) {
                 <div key={i} className="w-16 h-16 rounded-lg overflow-hidden relative">
                   <img src={url} alt="" className="w-full h-full object-cover" />
                   <button onClick={() => setPhotos(prev => prev.filter((_, j) => j !== i))}
-                    className="absolute top-0 right-0 w-4 h-4 bg-black/50 text-white text-[8px] rounded-bl-lg">×</button>
+                    className="absolute top-0 right-0 w-6 h-6 bg-black/50 text-white text-[10px] rounded-bl-lg">×</button>
                 </div>
               ))}
               {photos.length < 5 && (
                 <label className="w-16 h-16 rounded-lg border-2 border-dashed border-[#AEB1B9] flex flex-col items-center justify-center cursor-pointer active:opacity-60">
                   <span className="text-lg text-[#AEB1B9]">{uploading ? '...' : '📷'}</span>
-                  <span className="text-[8px] text-[#AEB1B9]">{uploading ? '업로드' : '추가'}</span>
+                  <span className="text-[9px] text-[#AEB1B9]">{uploading ? '업로드' : '추가'}</span>
                   <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
                 </label>
               )}
@@ -660,9 +660,9 @@ export default function PregnantPage() {
             <div>
               <p className="text-[10px] text-[#868B94] mb-1">태동</p>
               <div className="flex items-center justify-center h-9 gap-2">
-                <button onClick={() => setFetalMove(Math.max(0, fetalMove - 1))} className="w-7 h-7 rounded-full bg-[#F5F4F1] text-[14px]">−</button>
+                <button onClick={() => setFetalMove(Math.max(0, fetalMove - 1))} className="w-10 h-10 rounded-full bg-[#F5F4F1] text-[16px]">−</button>
                 <span className="text-[14px] font-bold w-6 text-center">{fetalMove}</span>
-                <button onClick={() => setFetalMove(fetalMove + 1)} className="w-7 h-7 rounded-full bg-[#3D8A5A] text-white text-[14px]">+</button>
+                <button onClick={() => setFetalMove(fetalMove + 1)} className="w-10 h-10 rounded-full bg-[#3D8A5A] text-white text-[16px]">+</button>
               </div>
             </div>
           </div>
@@ -736,7 +736,7 @@ export default function PregnantPage() {
                         <span className="text-sm">{m.icon}</span>
                         <span className={`text-[10px] ${isCurrent ? 'text-[#3D8A5A] font-bold' : 'text-[#AEB1B9]'}`}>{m.label}</span>
                         <p className="text-[12px] font-semibold text-[#1A1918]">{m.data.menu}</p>
-                        {isCurrent && <span className="text-[7px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
+                        {isCurrent && <span className="text-[9px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
                       </div>
                       <Link href={`/map?q=${encodeURIComponent(m.data.menu.split(' ')[0] + ' 맛집')}`} className="text-[9px] text-[#3D8A5A]">📍</Link>
                     </div>
@@ -799,17 +799,17 @@ export default function PregnantPage() {
               <div className={`bg-white rounded-xl border p-2.5 text-center ${bagDone < bagTotal ? 'border-[#C8F0D8]' : 'border-[#f0f0f0]'}`}>
                 <p className="text-[10px] text-[#868B94]">🎒 출산 가방</p>
                 <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{bagDone}<span className="text-[12px] text-[#AEB1B9]">/{bagTotal}</span></p>
-                {bagDone < bagTotal && <p className="text-[8px] text-[#3D8A5A]">준비하세요!</p>}
+                {bagDone < bagTotal && <p className="text-[9px] text-[#3D8A5A]">준비하세요!</p>}
               </div>
               <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
                 <p className="text-[10px] text-[#868B94]">👶 오늘 태동</p>
                 <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[12px] text-[#AEB1B9]">회</span></p>
-                {fetalMove > 0 && fetalMove < 10 && <p className="text-[8px] text-[#D08068]">10회 이상 확인</p>}
+                {fetalMove > 0 && fetalMove < 10 && <p className="text-[9px] text-[#D08068]">10회 이상 확인</p>}
               </div>
               <div className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center">
                 <p className="text-[10px] text-[#868B94]">🎯 D-day</p>
                 <p className={`text-[20px] font-bold mt-0.5 ${daysLeft <= 14 ? 'text-[#D08068]' : 'text-[#1A1918]'}`}>{daysLeft}<span className="text-[12px] text-[#AEB1B9]">일</span></p>
-                {daysLeft <= 14 && <p className="text-[8px] text-[#D08068]">곧 만나요!</p>}
+                {daysLeft <= 14 && <p className="text-[9px] text-[#D08068]">곧 만나요!</p>}
               </div>
             </div>
           )
@@ -940,7 +940,7 @@ export default function PregnantPage() {
               {CHECKUPS.map(c => (
                 <button key={c.id} onClick={() => toggleCheckup(c.id)} className="w-full flex items-center gap-2 py-1.5">
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${checkupDone[c.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
-                    {checkupDone[c.id] && <span className="text-white text-[8px]">✓</span>}
+                    {checkupDone[c.id] && <span className="text-white text-[9px]">✓</span>}
                   </div>
                   <span className={`text-[12px] flex-1 text-left ${checkupDone[c.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{c.icon} {c.title}</span>
                   <span className={`text-[10px] ${c.week <= currentWeek && !checkupDone[c.id] ? 'text-[#D08068] font-semibold' : 'text-[#AEB1B9]'}`}>{c.week}주</span>
@@ -969,7 +969,7 @@ export default function PregnantPage() {
                     {urgent.map(b => (
                       <button key={b.id} onClick={() => toggleBenefit(b.id)} className="w-full flex items-start gap-2 py-1.5 active:bg-[#F5F4F1] rounded-lg">
                         <div className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${benefitDone[b.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#D08068]'}`}>
-                          {benefitDone[b.id] && <span className="text-white text-[8px]">✓</span>}
+                          {benefitDone[b.id] && <span className="text-white text-[9px]">✓</span>}
                         </div>
                         <div className="flex-1 text-left">
                           <p className="text-[12px] font-semibold text-[#1A1918]">{b.icon} {b.title}</p>
@@ -985,7 +985,7 @@ export default function PregnantPage() {
                     {upcoming.map(b => (
                       <button key={b.id} onClick={() => toggleBenefit(b.id)} className="w-full flex items-start gap-2 py-1.5 active:bg-[#F5F4F1] rounded-lg">
                         <div className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${benefitDone[b.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
-                          {benefitDone[b.id] && <span className="text-white text-[8px]">✓</span>}
+                          {benefitDone[b.id] && <span className="text-white text-[9px]">✓</span>}
                         </div>
                         <div className="flex-1 text-left">
                           <p className={`text-[12px] ${benefitDone[b.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{b.icon} {b.title}</p>
@@ -999,7 +999,7 @@ export default function PregnantPage() {
                     {afterBirth.map(b => (
                       <button key={b.id} onClick={() => toggleBenefit(b.id)} className="w-full flex items-start gap-2 py-1.5 active:bg-[#F5F4F1] rounded-lg">
                         <div className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${benefitDone[b.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
-                          {benefitDone[b.id] && <span className="text-white text-[8px]">✓</span>}
+                          {benefitDone[b.id] && <span className="text-white text-[9px]">✓</span>}
                         </div>
                         <div className="flex-1 text-left">
                           <p className={`text-[12px] ${benefitDone[b.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{b.icon} {b.title}</p>

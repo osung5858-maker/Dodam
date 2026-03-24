@@ -557,7 +557,7 @@ export default function PreparingPage() {
                   {history.reverse().map((h: any, i: number) => (
                     <div key={i} className="text-center">
                       <span className="text-[12px]">{moodEmojis[h.value] || '·'}</span>
-                      <p className="text-[7px] text-[#AEB1B9]">{h.date.slice(5)}</p>
+                      <p className="text-[9px] text-[#AEB1B9]">{h.date.slice(5)}</p>
                     </div>
                   ))}
                 </div>
@@ -636,7 +636,7 @@ export default function PreparingPage() {
                         <span className="text-sm">{m.icon}</span>
                         <span className={`text-[10px] ${m.key === currentMeal ? 'text-[#3D8A5A] font-bold' : 'text-[#AEB1B9]'}`}>{m.label}</span>
                         <p className="text-[13px] font-semibold text-[#1A1918]">{m.data.menu}</p>
-                        {m.key === currentMeal && <span className="text-[7px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
+                        {m.key === currentMeal && <span className="text-[9px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
                       </div>
                       <Link href={`/map?q=${encodeURIComponent((() => {
                         const menu = m.data.menu
@@ -736,7 +736,7 @@ export default function PreparingPage() {
                     <div className="flex-1 text-left">
                       <div className="flex items-center gap-1.5">
                         <span className={`text-[13px] font-semibold ${appointments[a.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{a.title}</span>
-                        {a.priority === 'high' && !appointments[a.id] && <span className="text-[8px] px-1 rounded bg-[#FDE8E8] text-[#D08068]">필수</span>}
+                        {a.priority === 'high' && !appointments[a.id] && <span className="text-[9px] px-1 rounded bg-[#FDE8E8] text-[#D08068]">필수</span>}
                       </div>
                       <p className="text-[11px] text-[#868B94] mt-0.5">{a.desc}</p>
                       <p className="text-[10px] text-[#3D8A5A] mt-0.5">📍 {a.where}</p>

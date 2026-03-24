@@ -220,7 +220,7 @@ JSON만 출력.`
                 </button>
               </div>
             )}
-            <p className="text-[8px] text-[#AEB1B9] mt-2 text-center">재미로만 봐주세요 😊</p>
+            <p className="text-[9px] text-[#AEB1B9] mt-2 text-center">재미로만 봐주세요 😊</p>
           </div>
         )}
 

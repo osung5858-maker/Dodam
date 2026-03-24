@@ -151,11 +151,14 @@ export default function LullabyPage() {
   }, [playing])
 
   const getYouTubeEmbedUrl = (track: Track): string | null => {
-    if (track.playlistId) {
-      return `https://www.youtube.com/embed/videoseries?list=${track.playlistId}&autoplay=1&loop=1`
-    }
     if (track.youtubeId) {
       return `https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&loop=1&playlist=${track.youtubeId}`
+    }
+    if (track.playlistId) {
+      // playlist 내 곡 인덱스 계산 (역순 — YouTube playlist는 최신이 먼저)
+      const catTracks = TRACKS.filter(t => t.category === track.category && t.playlistId === track.playlistId)
+      const idx = catTracks.length - 1 - catTracks.indexOf(track)
+      return `https://www.youtube.com/embed/videoseries?list=${track.playlistId}&index=${Math.max(0, idx)}&autoplay=1`
     }
     return null
   }
@@ -187,7 +190,16 @@ export default function LullabyPage() {
         {currentTrack && !getYouTubeEmbedUrl(currentTrack) && (
           <div className="mx-5 mt-2 rounded-xl bg-[#2a2a2a] p-6 text-center">
             <p className="text-[14px] font-medium text-white/80">{currentTrack.title}</p>
-            <p className="text-[11px] text-white/40 mt-1">곧 추가될 예정이에요</p>
+            <p className="text-[11px] text-white/40 mt-1">재생 준비 중...</p>
+          </div>
+        )}
+
+        {/* 카테고리별 곡 수 표시 */}
+        {!currentTrack && (
+          <div className="mx-5 mt-4 text-center">
+            <p className="text-3xl mb-2">🌙</p>
+            <p className="text-[16px] font-bold text-white/90">수면 도우미</p>
+            <p className="text-[12px] text-white/50 mt-1">자장가 {LULLABY_TRACKS.length}곡 · 동요 {NURSERY_TRACKS.length}곡 · 자연음 {NATURE_TRACKS.length}곡</p>
           </div>
         )}
 

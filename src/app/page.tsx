@@ -609,7 +609,7 @@ function KidsnoteCard() {
                 <div key={i} className="relative aspect-square cursor-pointer active:opacity-80"
                   onClick={() => { setViewerImages(allImages); setViewerStart(i) }}>
                   <img src={img.thumbnail} alt="" className="w-full h-full object-cover" />
-                  {i === 0 && <span className="absolute top-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">NEW</span>}
+                  {i === 0 && <span className="absolute top-1 left-1 text-[9px] bg-black/50 text-white px-1 rounded">NEW</span>}
                 </div>
               ))}
             </div>

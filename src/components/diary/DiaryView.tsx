@@ -181,7 +181,7 @@ export default function DiaryView({ events, childName }: Props) {
         {photos.map((src, i) => (
           <div key={i} className="relative shrink-0 w-24 h-24">
             <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
-            <button onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center">
+            <button onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center">
               <span className="text-white text-[10px]">✕</span>
             </button>
           </div>

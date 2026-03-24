@@ -478,7 +478,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                           {(comments[post.id] || []).map((c) => (
                             <div key={c.id} className="flex gap-2">
                               <div className="w-6 h-6 rounded-full bg-[#F5F4F1] flex items-center justify-center shrink-0 mt-0.5">
-                                <span className="text-[8px] font-bold text-[#3D8A5A]">도</span>
+                                <span className="text-[9px] font-bold text-[#3D8A5A]">도</span>
                               </div>
                               <div className="flex-1">
                                 <p className="text-[12px] text-[#1A1918] leading-relaxed">{c.content}</p>
@@ -716,14 +716,14 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       <button
                         onClick={() => setMPhotos((prev) => prev.filter((_, j) => j !== i))}
-                        className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/50 rounded-full text-white text-[8px] flex items-center justify-center"
+                        className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/50 rounded-full text-white text-[9px] flex items-center justify-center"
                       >✕</button>
                     </div>
                   ))}
                   {mPhotos.length < 3 && (
                     <label className="w-16 h-16 rounded-xl border-2 border-dashed border-[#AEB1B9] flex flex-col items-center justify-center cursor-pointer active:bg-[#F5F4F1]">
                       <span className="text-lg text-[#AEB1B9]">{uploading ? '...' : '📷'}</span>
-                      <span className="text-[8px] text-[#AEB1B9]">{uploading ? '업로드' : '추가'}</span>
+                      <span className="text-[9px] text-[#AEB1B9]">{uploading ? '업로드' : '추가'}</span>
                       <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
                     </label>
                   )}

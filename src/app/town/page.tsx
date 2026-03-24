@@ -314,7 +314,7 @@ function PlaceCard({ place: p, stats }: { place: Place; stats?: { avg: string; c
                   <p className="text-[12px] text-[#1A1918] leading-relaxed">{r.content}</p>
                   {r.tags && r.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1.5">
-                      {r.tags.map(t => <span key={t} className="text-[8px] px-1.5 py-0.5 rounded-full bg-white text-[#868B94]">{t}</span>)}
+                      {r.tags.map(t => <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full bg-white text-[#868B94]">{t}</span>)}
                     </div>
                   )}
                 </div>

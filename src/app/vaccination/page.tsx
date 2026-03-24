@@ -125,7 +125,7 @@ export default function VaccinationPage() {
                   <div className="flex-1 text-left">
                     <div className="flex items-center gap-1.5">
                       <span className={`text-[12px] font-medium ${done[v.id] ? 'text-[#AEB1B9] line-through' : 'text-[#1A1918]'}`}>{v.name}</span>
-                      {!v.required && <span className="text-[8px] px-1 rounded bg-[#F5F4F1] text-[#868B94]">선택</span>}
+                      {!v.required && <span className="text-[9px] px-1 rounded bg-[#F5F4F1] text-[#868B94]">선택</span>}
                     </div>
                     <p className="text-[10px] text-[#868B94]">{v.desc}</p>
                   </div>

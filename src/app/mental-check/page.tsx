@@ -88,7 +88,7 @@ export default function MentalCheckPage() {
                   <div className="w-full h-12 bg-[#F0F0F0] rounded relative">
                     <div className="absolute bottom-0 w-full rounded" style={{ height: `${(h.score / 30) * 100}%`, backgroundColor: getResult(h.score).color }} />
                   </div>
-                  <p className="text-[8px] text-[#AEB1B9] mt-0.5">{h.date.slice(5)}</p>
+                  <p className="text-[9px] text-[#AEB1B9] mt-0.5">{h.date.slice(5)}</p>
                 </div>
               ))}
             </div>
