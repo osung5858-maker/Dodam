@@ -129,23 +129,35 @@ export default function TimelapsePage() {
     return () => clearInterval(timer)
   }, [playingRoutine, routineData.length])
 
-  // 사진 업로드
+  // 사진 업로드 (리사이즈 + 용량 제한)
+  const MAX_PHOTOS = 30
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = (ev) => {
+    if (photos.length >= MAX_PHOTOS) { alert(`사진은 최대 ${MAX_PHOTOS}장까지 저장할 수 있어요`); return }
+    // 이미지 리사이즈 (최대 400px, JPEG 60% 품질)
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const maxSize = 400
+      let w = img.width, h = img.height
+      if (w > h) { if (w > maxSize) { h = h * maxSize / w; w = maxSize } }
+      else { if (h > maxSize) { w = w * maxSize / h; h = maxSize } }
+      canvas.width = w; canvas.height = h
+      canvas.getContext('2d')?.drawImage(img, 0, 0, w, h)
+      const compressed = canvas.toDataURL('image/jpeg', 0.6)
       const entry: PhotoEntry = {
         id: crypto.randomUUID(),
-        url: ev.target?.result as string,
+        url: compressed,
         date: new Date().toISOString().split('T')[0],
         label: child ? getAgeLabel(child.birthdate, new Date().toISOString()) : '',
       }
       const updated = [...photos, entry]
       setPhotos(updated)
-      localStorage.setItem('dodam-photos', JSON.stringify(updated))
+      try { localStorage.setItem('dodam-photos', JSON.stringify(updated)) }
+      catch { alert('저장 공간이 부족해요. 오래된 사진을 삭제해주세요.') }
     }
-    reader.readAsDataURL(file)
+    img.src = URL.createObjectURL(file)
   }
 
   if (loading) {

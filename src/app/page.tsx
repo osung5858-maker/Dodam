@@ -160,6 +160,34 @@ export default function HomePage() {
     return () => window.removeEventListener('devicemotion', handler)
   }, [router])
 
+  // 오프라인 이벤트 재동기화
+  useEffect(() => {
+    const syncPending = async () => {
+      if (!navigator.onLine || !user) return
+      try {
+        const { getPendingEvents, clearSyncedEvents } = await import('@/lib/offline/db')
+        const pending = await getPendingEvents()
+        if (pending.length === 0) return
+        const toSync = pending.filter((e: any) => !e.synced)
+        for (const evt of toSync) {
+          const { id, synced, created_at, ...data } = evt as any
+          const { error } = await supabase.from('events').insert(data)
+          if (!error) evt.synced = true
+        }
+        await clearSyncedEvents()
+        // 동기화 완료 후 이벤트 새로고침
+        if (toSync.length > 0 && child) {
+          const today = new Date().toISOString().split('T')[0]
+          const { data } = await supabase.from('events').select('*').eq('child_id', child.id).gte('start_ts', today).order('start_ts', { ascending: false })
+          if (data) setEvents(data as CareEvent[])
+        }
+      } catch { /* */ }
+    }
+    syncPending()
+    window.addEventListener('online', syncPending)
+    return () => window.removeEventListener('online', syncPending)
+  }, [user, child, supabase])
+
   const insertEvent = async (type: EventType, extra?: Record<string, unknown>) => {
     if (!user || !child) return null
     const eventData = { child_id: child.id, recorder_id: user.id, type, start_ts: new Date().toISOString(), source: 'quick_button' as const, ...extra }

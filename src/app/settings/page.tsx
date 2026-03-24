@@ -36,10 +36,19 @@ export default function SettingsPage() {
   }
 
   const handleDeleteAccount = async () => {
-    if (!confirm('정말 탈퇴하시겠어요? 30일 후 모든 데이터가 삭제됩니다.')) return
-    // TODO: 실제 탈퇴 로직 (status → withdrawn)
-    await supabase.auth.signOut()
-    window.location.href = '/onboarding'
+    if (!confirm('정말 탈퇴하시겠어요?\n\n• 30일 유예 기간 후 모든 데이터가 삭제됩니다\n• 아이 기록, 성장 데이터, 커뮤니티 글이 모두 사라져요\n• 유예 기간 내 재로그인하면 복구할 수 있어요')) return
+    if (!confirm('마지막 확인입니다. 정말 탈퇴하시겠어요?')) return
+    try {
+      // 사용자 상태를 withdrawn으로 변경
+      await supabase.from('users').update({ status: 'withdrawn', updated_at: new Date().toISOString() }).eq('id', user?.id)
+      // 로컬 데이터 정리
+      const keysToRemove = Object.keys(localStorage).filter(k => k.startsWith('dodam_') || k.startsWith('kn_'))
+      keysToRemove.forEach(k => localStorage.removeItem(k))
+      await supabase.auth.signOut()
+      window.location.href = '/onboarding'
+    } catch {
+      alert('탈퇴 처리 중 오류가 발생했어요. 다시 시도해주세요.')
+    }
   }
 
   const nickname = user?.user_metadata?.name || user?.user_metadata?.full_name || '사용자'

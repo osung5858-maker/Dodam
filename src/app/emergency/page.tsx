@@ -143,6 +143,12 @@ export default function EmergencyPage() {
               <p className="text-sm text-white/70">지금 영업 중인 소아과만 보여드려요</p>
             </div>
           </div>
+          <a href="tel:119" className="block w-full py-2.5 bg-white rounded-xl text-center text-[#E53935] font-bold text-[14px] active:opacity-80 mb-2">
+            🚨 119 응급 전화 바로 걸기
+          </a>
+          <div className="bg-white/15 rounded-lg px-3 py-2">
+            <p className="text-[10px] text-white/80 leading-relaxed">⚠️ 아래 목록은 참고용입니다. 정확하지 않을 수 있으니 방문 전 전화로 확인해주세요. 응급 상황에는 119를 먼저 이용해주세요.</p>
+          </div>
         </div>
       </div>
 

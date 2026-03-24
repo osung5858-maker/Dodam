@@ -46,13 +46,18 @@ export default function VaccinationPage() {
   const [ageMonths, setAgeMonths] = useState(0)
 
   useEffect(() => {
-    // 아이 생년월일에서 월령 계산
-    const child = localStorage.getItem('dodam_child_birthdate')
-    if (child) {
-      const birth = new Date(child)
-      const now = new Date()
-      setAgeMonths((now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth()))
+    // 아이 생년월일에서 월령 계산 (포커스 시 갱신)
+    const calcAge = () => {
+      const child = localStorage.getItem('dodam_child_birthdate')
+      if (child) {
+        const birth = new Date(child)
+        const now = new Date()
+        setAgeMonths((now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth()))
+      }
     }
+    calcAge()
+    window.addEventListener('focus', calcAge)
+    return () => window.removeEventListener('focus', calcAge)
   }, [])
 
   const toggleDone = (id: string) => {

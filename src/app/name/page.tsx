@@ -61,7 +61,7 @@ export default function NamePage() {
       })
       const data = await res.json()
       if (data.error) setError(data.error); else setNickResult(data)
-    } catch (e) { setError(`${e}`) }
+    } catch (e) { setError('일시적 오류가 발생했어요. 잠시 후 다시 시도해주세요.') }
     setLoading(false)
   }
 
@@ -75,7 +75,7 @@ export default function NamePage() {
       })
       const data = await res.json()
       if (data.error) setError(data.error); else setSuggestResult(data)
-    } catch (e) { setError(`${e}`) }
+    } catch (e) { setError('일시적 오류가 발생했어요. 잠시 후 다시 시도해주세요.') }
     setLoading(false)
   }
 
@@ -89,7 +89,7 @@ export default function NamePage() {
       })
       const data = await res.json()
       if (data.error) setError(data.error); else setAnalyzeResult(data)
-    } catch (e) { setError(`${e}`) }
+    } catch (e) { setError('일시적 오류가 발생했어요. 잠시 후 다시 시도해주세요.') }
     setLoading(false)
   }
 
@@ -104,7 +104,7 @@ export default function NamePage() {
       })
       const data = await res.json()
       if (data.error) setError(data.error); else setCompareResult(data)
-    } catch (e) { setError(`${e}`) }
+    } catch (e) { setError('일시적 오류가 발생했어요. 잠시 후 다시 시도해주세요.') }
     setLoading(false)
   }
 

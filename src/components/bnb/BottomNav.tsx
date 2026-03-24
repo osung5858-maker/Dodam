@@ -8,6 +8,7 @@ import {
   PlusIcon, XIcon,
   BottleIcon, MoonIcon, DropletIcon, ThermometerIcon, PillIcon,
 } from '@/components/ui/Icons'
+import { autoBackup, restoreLocalData } from '@/lib/storage/backup'
 
 interface Tab {
   href: string
@@ -170,6 +171,12 @@ export default function BottomNav() {
     if (typeof window !== 'undefined') return localStorage.getItem('dodam_mode') || 'parenting'
     return 'parenting'
   })
+
+  // 앱 시작 시 데이터 자동 백업 + 복원
+  useEffect(() => {
+    restoreLocalData()
+    autoBackup()
+  }, [])
 
   // pathname 기반 모드 자동 감지 (localStorage보다 우선)
   useEffect(() => {

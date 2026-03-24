@@ -29,7 +29,11 @@ export default function MentalCheckPage() {
   const [showResult, setShowResult] = useState(false)
   const [currentQ, setCurrentQ] = useState(0)
 
-  const score = answers.reduce<number>((sum, a) => sum + (a ?? 0), 0)
+  // EPDS 채점: Q1,Q2는 정순(0-3), Q3-Q10은 역순(3-0)
+  const score = answers.reduce<number>((sum, a, i) => {
+    if (a === null) return sum
+    return sum + (QUESTIONS[i].reverse ? (3 - a) : a)
+  }, 0)
   const allAnswered = answers.every(a => a !== null)
   const result = getResult(score)
 

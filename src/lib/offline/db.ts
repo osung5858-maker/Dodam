@@ -28,6 +28,8 @@ export interface PendingEvent {
   amount_ml?: number
   tags?: Record<string, unknown>
   source: string
+  synced?: boolean
+  created_at?: string
 }
 
 export async function savePendingEvent(event: PendingEvent) {
@@ -53,4 +55,13 @@ export async function clearPendingEvents() {
 export async function getPendingCount(): Promise<number> {
   const db = await getDB()
   return db.count(STORE_NAME)
+}
+
+// 동기화 완료된 이벤트 제거
+export async function clearSyncedEvents() {
+  const db = await getDB()
+  const all = await db.getAll(STORE_NAME)
+  for (const evt of all) {
+    if ((evt as any).synced) await db.delete(STORE_NAME, evt.id)
+  }
 }

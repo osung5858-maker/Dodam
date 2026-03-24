@@ -128,7 +128,7 @@ export default function KidsnotePage() {
       } else {
         setStep('data')
       }
-    } catch (e) { setError(`연결 실패: ${e}`) }
+    } catch (e) { setError('연결에 실패했어요. 네트워크를 확인해주세요.') }
     setLoading(false)
   }
 
