@@ -513,7 +513,7 @@ function KidsnoteCard() {
       )}
 
       {reports.map((r: any) => (
-        <div key={r.id} className="py-2 border-t border-[#f5f5f5] first:border-t-0">
+        <Link key={r.id} href="/kidsnote" className="block py-2 border-t border-[#f5f5f5] first:border-t-0 active:opacity-70">
           {/* 사진 가로 스크롤 */}
           {r.images && r.images.length > 0 && (
             <div className="flex gap-1.5 mb-2 overflow-x-auto hide-scrollbar">
@@ -527,7 +527,7 @@ function KidsnoteCard() {
             <span className="text-[9px] text-[#AEB1B9]">{r.author}</span>
             <span className="text-[9px] text-[#AEB1B9]">{r.created ? new Date(r.created).toLocaleDateString('ko-KR') : ''}</span>
           </div>
-        </div>
+        </Link>
       ))}
     </div>
   )
