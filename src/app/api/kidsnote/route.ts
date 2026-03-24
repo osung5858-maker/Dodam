@@ -2,10 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const KN_BASE = 'https://www.kidsnote.com/api'
 
-// 프록시 — 사용자 비밀번호 서버 저장 안 함, 세션만 전달
+// 키즈노트 응답을 도담 형식으로 변환
+function normalizeItem(item: any) {
+  return {
+    id: item.id,
+    title: item.title || item.child_name || '',
+    content: item.content || '',
+    created: item.created || item.date_written || '',
+    author: item.author_name || item.author?.name || '',
+    images: (item.attached_images || []).map((img: any) => ({
+      original: img.original || '',
+      thumbnail: img.small || img.small_resize || img.original || '',
+      large: img.large || img.large_resize || img.original || '',
+    })),
+    weather: item.weather || null,
+    childName: item.child_name || '',
+  }
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { action, username, password, sessionCookie, childId, page } = body
+  const { action, username, password, sessionCookie, childId, cursor } = body
 
   try {
     // === 로그인 ===
@@ -17,7 +34,6 @@ export async function POST(request: NextRequest) {
         redirect: 'manual',
       })
 
-      // 쿠키 추출
       const setCookies = res.headers.getSetCookie?.() || []
       const cookies = setCookies.map(c => c.split(';')[0]).join('; ')
 
@@ -26,53 +42,60 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: '로그인 실패. 아이디/비밀번호를 확인해주세요.', detail: errText }, { status: 401 })
       }
 
-      // 내 정보 가져오기
-      const infoRes = await fetch(`${KN_BASE}/v1/me/info`, {
-        headers: { Cookie: cookies },
-      })
+      const infoRes = await fetch(`${KN_BASE}/v1/me/info`, { headers: { Cookie: cookies } })
       const info = await infoRes.json().catch(() => null)
 
-      return NextResponse.json({
-        success: true,
-        sessionCookie: cookies,
-        info,
-      })
+      // children 정규화
+      const children = (info?.children || []).map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        birthdate: c.date_birth,
+        gender: c.gender,
+        picture: c.picture,
+      }))
+
+      return NextResponse.json({ success: true, sessionCookie: cookies, children })
     }
 
     // === 내 아이 목록 ===
     if (action === 'children') {
       if (!sessionCookie) return NextResponse.json({ error: '로그인 필요' }, { status: 401 })
-
-      const res = await fetch(`${KN_BASE}/v1/me/info`, {
-        headers: { Cookie: sessionCookie },
-      })
+      const res = await fetch(`${KN_BASE}/v1/me/info`, { headers: { Cookie: sessionCookie } })
       const data = await res.json()
-
-      return NextResponse.json(data)
+      const children = (data?.children || []).map((c: any) => ({
+        id: c.id, name: c.name, birthdate: c.date_birth, gender: c.gender,
+      }))
+      return NextResponse.json({ children })
     }
 
-    // === 앨범 (알림장) ===
+    // === 앨범 ===
     if (action === 'albums') {
       if (!sessionCookie || !childId) return NextResponse.json({ error: '파라미터 부족' }, { status: 400 })
-
-      const res = await fetch(`${KN_BASE}/v1_2/children/${childId}/albums?page=${page || 1}&page_size=20`, {
-        headers: { Cookie: sessionCookie },
-      })
+      const url = cursor
+        ? `${KN_BASE}/v1_2/children/${childId}/albums?cursor=${cursor}&page_size=20`
+        : `${KN_BASE}/v1_2/children/${childId}/albums?page_size=20`
+      const res = await fetch(url, { headers: { Cookie: sessionCookie } })
       const data = await res.json()
-
-      return NextResponse.json(data)
+      return NextResponse.json({
+        count: data.count || 0,
+        next: data.next || null,
+        results: (data.results || []).map(normalizeItem),
+      })
     }
 
-    // === 알림장 (reports) ===
+    // === 알림장 ===
     if (action === 'reports') {
       if (!sessionCookie || !childId) return NextResponse.json({ error: '파라미터 부족' }, { status: 400 })
-
-      const res = await fetch(`${KN_BASE}/v1_2/children/${childId}/reports?page=${page || 1}&page_size=20`, {
-        headers: { Cookie: sessionCookie },
-      })
+      const url = cursor
+        ? `${KN_BASE}/v1_2/children/${childId}/reports?cursor=${cursor}&page_size=20`
+        : `${KN_BASE}/v1_2/children/${childId}/reports?page_size=20`
+      const res = await fetch(url, { headers: { Cookie: sessionCookie } })
       const data = await res.json()
-
-      return NextResponse.json(data)
+      return NextResponse.json({
+        count: data.count || 0,
+        next: data.next || null,
+        results: (data.results || []).map(normalizeItem),
+      })
     }
 
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 })

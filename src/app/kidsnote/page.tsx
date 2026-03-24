@@ -66,8 +66,17 @@ export default function KidsnotePage() {
         localStorage.removeItem('kn_credentials')
         setPassword('') // 비밀번호 즉시 삭제
       }
-      setStep('children')
-      await loadChildren(data.sessionCookie)
+      // 로그인 응답에 children이 바로 포함됨
+      const kids = data.children || []
+      setChildren(kids)
+      if (kids.length === 1) {
+        setSelectedChild(kids[0].id)
+        setStep('data')
+      } else if (kids.length > 1) {
+        setStep('children')
+      } else {
+        setStep('data')
+      }
     } catch (e) { setError(`연결 실패: ${e}`) }
     setLoading(false)
   }
@@ -96,20 +105,20 @@ export default function KidsnotePage() {
   const loadAlbums = async (cookie: string, childId: number) => {
     setLoadingAlbums(true); setAlbumProgress(0); setAlbumTotal(0); setAlbums([])
     try {
-      let page = 1; let all: any[] = []; let hasMore = true
+      let all: any[] = []; let nextCursor: string | null = null; let hasMore = true
       while (hasMore) {
-        const res = await fetch('/api/kidsnote', {
+        const r: Response = await fetch('/api/kidsnote', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'albums', sessionCookie: cookie, childId, page }),
+          body: JSON.stringify({ action: 'albums', sessionCookie: cookie, childId, cursor: nextCursor }),
         })
-        const data = await res.json()
-        const items = data.results || data.albums || []
-        const total = data.count || data.total || 0
+        const d: { results?: any[]; count?: number; next?: string | null } = await r.json()
+        const items = d.results || []
+        const total = d.count || 0
         all = [...all, ...items]
         setAlbums([...all]); setAlbumTotal(total || all.length)
         setAlbumProgress(total ? Math.min(100, Math.round((all.length / total) * 100)) : 100)
-        hasMore = items.length >= 20 && (total ? all.length < total : true)
-        page++
+        nextCursor = d.next || null
+        hasMore = !!nextCursor && items.length > 0
       }
       setAlbumProgress(100)
     } catch { /* */ }
@@ -119,20 +128,20 @@ export default function KidsnotePage() {
   const loadReports = async (cookie: string, childId: number) => {
     setLoadingReports(true); setReportProgress(0); setReportTotal(0); setReports([])
     try {
-      let page = 1; let all: any[] = []; let hasMore = true
+      let all: any[] = []; let nextCursor: string | null = null; let hasMore = true
       while (hasMore) {
-        const res = await fetch('/api/kidsnote', {
+        const r: Response = await fetch('/api/kidsnote', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'reports', sessionCookie: cookie, childId, page }),
+          body: JSON.stringify({ action: 'reports', sessionCookie: cookie, childId, cursor: nextCursor }),
         })
-        const data = await res.json()
-        const items = data.results || data.reports || []
-        const total = data.count || data.total || 0
+        const d: { results?: any[]; count?: number; next?: string | null } = await r.json()
+        const items = d.results || []
+        const total = d.count || 0
         all = [...all, ...items]
         setReports([...all]); setReportTotal(total || all.length)
         setReportProgress(total ? Math.min(100, Math.round((all.length / total) * 100)) : 100)
-        hasMore = items.length >= 20 && (total ? all.length < total : true)
-        page++
+        nextCursor = d.next || null
+        hasMore = !!nextCursor && items.length > 0
       }
       setReportProgress(100)
     } catch { /* */ }
