@@ -304,41 +304,96 @@ export default function HomePage() {
               ))}
             </div>
 
-            {/* AI 메시지 */}
-            <p className="text-[12px] text-[#1A1918] leading-relaxed">
-              {events.length === 0
-                ? `${child?.name || '아이'}의 오늘 첫 기록을 남겨보세요. AI가 리듬을 분석해드려요.`
-                : events.length < 3
-                  ? `${child?.name || '아이'}가 오늘 ${events.length}건 기록. 조금 더 쌓이면 패턴을 분석할 수 있어요.`
-                  : `수유 ${todayFeedCount}회${todaySleepCount > 0 ? ` · 수면 ${todaySleepCount}회` : ''}${todayPoopCount > 0 ? ` · 배변 ${todayPoopCount}회` : ''} — 안정적인 리듬이에요 💚`
-              }
-            </p>
+            {/* AI 인사이트 */}
+            <div className="space-y-1.5">
+              {events.length === 0 ? (
+                <p className="text-[12px] text-[#868B94]">{child?.name || '아이'}의 오늘 첫 기록을 남겨보세요</p>
+              ) : (
+                <>
+                  <p className="text-[12px] text-[#1A1918] leading-relaxed">
+                    {`수유 ${todayFeedCount}회${todaySleepCount > 0 ? ` · 수면 ${todaySleepCount}회` : ''}${todayPoopCount > 0 ? ` · 배변 ${todayPoopCount}회` : ''}`}
+                  </p>
+                  {/* 마지막 수유로부터 경과 시간 */}
+                  {(() => {
+                    const lastFeed = events.find(e => e.type === 'feed')
+                    const lastSleep = events.find(e => e.type === 'sleep')
+                    if (!lastFeed && !lastSleep) return null
+                    const insights: string[] = []
+                    if (lastFeed) {
+                      const min = Math.round((Date.now() - new Date(lastFeed.start_ts).getTime()) / 60000)
+                      if (min < 60) insights.push(`🍼 마지막 수유 ${min}분 전`)
+                      else insights.push(`🍼 마지막 수유 ${Math.floor(min / 60)}시간 ${min % 60}분 전`)
+                    }
+                    if (lastSleep) {
+                      if (lastSleep.end_ts) {
+                        const dur = Math.round((new Date(lastSleep.end_ts).getTime() - new Date(lastSleep.start_ts).getTime()) / 60000)
+                        insights.push(`💤 최근 수면 ${dur}분`)
+                      } else {
+                        const min = Math.round((Date.now() - new Date(lastSleep.start_ts).getTime()) / 60000)
+                        insights.push(`💤 수면 중 (${min}분째)`)
+                      }
+                    }
+                    if (todayFeedCount >= 3) {
+                      const feedTimes = events.filter(e => e.type === 'feed').map(e => new Date(e.start_ts).getTime())
+                      if (feedTimes.length >= 2) {
+                        const avgGap = Math.round((feedTimes[0] - feedTimes[feedTimes.length - 1]) / (feedTimes.length - 1) / 60000)
+                        insights.push(`📊 평균 수유 간격 ${Math.floor(avgGap / 60)}시간 ${avgGap % 60}분`)
+                      }
+                    }
+                    return (
+                      <div className="flex flex-wrap gap-1.5">
+                        {insights.map((t, i) => (
+                          <span key={i} className="text-[10px] text-[#3D8A5A] bg-[#E8F5E9] px-2 py-0.5 rounded-full">{t}</span>
+                        ))}
+                      </div>
+                    )
+                  })()}
+                </>
+              )}
+            </div>
           </div>
 
-          {/* ━━━ 2. 최근 기록 ━━━ */}
+          {/* ━━━ 2. 최근 기록 (스크롤) ━━━ */}
           <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[14px] font-bold text-[#1A1918]">최근 기록</p>
-              <Link href={`/records/${new Date().toISOString().split('T')[0]}`} className="text-[11px] text-[#3D8A5A]">전체보기 →</Link>
-            </div>
+            <p className="text-[14px] font-bold text-[#1A1918] mb-2">최근 기록</p>
             {events.length === 0 ? (
-              <p className="text-[12px] text-[#AEB1B9] text-center py-3">아직 기록이 없어요</p>
+              <p className="text-[12px] text-[#AEB1B9] text-center py-3">아직 기록이 없어요. FAB(+)으로 첫 기록을 남겨보세요!</p>
             ) : (
-              <div className="space-y-1">
-                {events.slice(0, 4).map((e) => {
+              <div className="max-h-[240px] overflow-y-auto space-y-1.5 hide-scrollbar">
+                {events.map((e) => {
                   const time = new Date(e.start_ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
                   const icons: Record<string, string> = { feed: '🍼', sleep: '💤', poop: '💩', pee: '💧', temp: '🌡️', memo: '💊' }
                   const labels: Record<string, string> = { feed: '수유', sleep: '수면', poop: '대변', pee: '소변', temp: '체온', memo: '투약' }
-                  const detail = e.amount_ml ? ` ${e.amount_ml}ml` : e.end_ts ? ` ${Math.round((new Date(e.end_ts).getTime() - new Date(e.start_ts).getTime()) / 60000)}분` : ''
+                  const amount = e.amount_ml ? `${e.amount_ml}ml` : ''
+                  const duration = e.end_ts ? `${Math.round((new Date(e.end_ts).getTime() - new Date(e.start_ts).getTime()) / 60000)}분` : ''
+                  const tempVal = e.tags?.celsius ? `${e.tags.celsius}°C` : ''
+                  const poopStatus = e.tags?.status ? ({ normal: '정상', watery: '묽음', hard: '단단' }[e.tags.status as string] || '') : ''
+                  const side = e.tags?.side ? (e.tags.side === 'left' ? '왼쪽' : e.tags.side === 'right' ? '오른쪽' : '양쪽') : ''
+                  const elapsed = Math.round((Date.now() - new Date(e.start_ts).getTime()) / 60000)
+                  const elapsedText = elapsed < 60 ? `${elapsed}분 전` : `${Math.floor(elapsed / 60)}시간 전`
+
                   return (
-                    <div key={e.id} className="flex items-center gap-2 py-1">
-                      <span className="text-[11px] w-10 text-[#AEB1B9] shrink-0">{time}</span>
-                      <span className="text-[11px]">{icons[e.type] || '📝'}</span>
-                      <span className="text-[11px] text-[#1A1918]">{labels[e.type] || e.type}{detail}</span>
+                    <div key={e.id} className="flex items-center gap-2.5 py-2 px-2 bg-[#F9F9F7] rounded-lg">
+                      <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
+                        <span className="text-[16px]">{icons[e.type] || '📝'}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[12px] font-semibold text-[#1A1918]">{labels[e.type] || e.type}</span>
+                          {side && <span className="text-[9px] text-[#3D8A5A] bg-[#E8F5E9] px-1 py-0.5 rounded">{side}</span>}
+                          {poopStatus && <span className="text-[9px] text-[#868B94] bg-[#F0F0F0] px-1 py-0.5 rounded">{poopStatus}</span>}
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[10px] text-[#AEB1B9]">{time}</span>
+                          {amount && <span className="text-[10px] text-[#3D8A5A] font-medium">{amount}</span>}
+                          {duration && <span className="text-[10px] text-[#3D8A5A] font-medium">{duration}</span>}
+                          {tempVal && <span className="text-[10px] text-[#D08068] font-medium">{tempVal}</span>}
+                        </div>
+                      </div>
+                      <span className="text-[9px] text-[#AEB1B9] shrink-0">{elapsedText}</span>
                     </div>
                   )
                 })}
-                {events.length > 4 && <p className="text-[10px] text-[#AEB1B9] text-center pt-1">+ {events.length - 4}건 더</p>}
               </div>
             )}
           </div>
@@ -390,25 +445,54 @@ export default function HomePage() {
           <StreakCard mode="parenting" />
           <CommunityTeaser />
 
-          {/* ━━━ 4. 더보기 ━━━ */}
-          <div className="space-y-2">
-            {/* 빠른 링크 */}
-            <div className="grid grid-cols-2 gap-2">
-              <Link href="/lullaby" className="bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center gap-2">
-                <span className="text-lg">🌙</span>
-                <div>
-                  <p className="text-[12px] font-semibold text-[#1A1918]">자장가 · 동요</p>
-                  <p className="text-[9px] text-[#868B94]">120곡+</p>
+          {/* ━━━ 4. 오늘의 팁 ━━━ */}
+          {(() => {
+            const tips = [
+              { age: [0, 3], emoji: '🤱', title: '모유 수유 자세', desc: '크로스 크래들, 사이드 라잉 등 편한 자세를 찾아보세요', href: '/care' },
+              { age: [0, 6], emoji: '💤', title: '수면 교육', desc: `${ageMonths}개월은 ${ageMonths < 3 ? '아직 수면 패턴이 없어요. 편하게 재워주세요' : '서서히 수면 루틴을 만들어볼 시기예요'}`, href: '/care' },
+              { age: [4, 7], emoji: '🥣', title: '이유식 시작', desc: '쌀미음부터 시작해서 한 가지씩 늘려보세요', href: '/care' },
+              { age: [6, 12], emoji: '👶', title: '발달 체크', desc: `${ageMonths}개월 발달 이정표를 확인해보세요`, href: '/memory' },
+              { age: [0, 24], emoji: '💉', title: '예방접종', desc: '다음 접종 일정을 확인하세요', href: '/vaccination' },
+            ]
+            const tip = tips.find(t => ageMonths >= t.age[0] && ageMonths <= t.age[1]) || tips[tips.length - 1]
+            return (
+              <Link href={tip.href} className="bg-gradient-to-r from-[#FFF8F0] to-[#F0F9F4] rounded-xl border border-[#f0f0f0] p-3.5 flex items-center gap-3 active:opacity-80">
+                <span className="text-2xl">{tip.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold text-[#1A1918]">{tip.title}</p>
+                  <p className="text-[10px] text-[#868B94] mt-0.5 line-clamp-1">{tip.desc}</p>
                 </div>
+                <ChevronRightIcon className="w-4 h-4 text-[#AEB1B9] shrink-0" />
               </Link>
-              <Link href="/health" className="bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center gap-2">
-                <span className="text-lg">💚</span>
-                <div>
-                  <p className="text-[12px] font-semibold text-[#1A1918]">내 건강</p>
-                  <p className="text-[9px] text-[#868B94]">Google Fit 연동</p>
-                </div>
-              </Link>
-            </div>
+            )
+          })()}
+
+          {/* ━━━ 5. 빠른 링크 ━━━ */}
+          <div className="grid grid-cols-3 gap-2">
+            <Link href="/lullaby" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
+              <span className="text-lg">🌙</span>
+              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">자장가</p>
+            </Link>
+            <Link href="/health" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
+              <span className="text-lg">💚</span>
+              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">내 건강</p>
+            </Link>
+            <Link href="/vaccination" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
+              <span className="text-lg">💉</span>
+              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">예방접종</p>
+            </Link>
+            <Link href="/memory" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
+              <span className="text-lg">📖</span>
+              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">추억</p>
+            </Link>
+            <Link href="/name" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
+              <span className="text-lg">✨</span>
+              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">이름 짓기</p>
+            </Link>
+            <Link href="/mental-check" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
+              <span className="text-lg">🧘</span>
+              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">마음 체크</p>
+            </Link>
           </div>
 
         </div>
@@ -512,23 +596,27 @@ function KidsnoteCard() {
         <p className="text-[11px] text-[#AEB1B9] py-2 text-center">새 알림장이 없어요</p>
       )}
 
-      {reports.map((r: any) => (
-        <Link key={r.id} href="/kidsnote" className="block py-2 border-t border-[#f5f5f5] first:border-t-0 active:opacity-70">
-          {/* 사진 가로 스크롤 */}
-          {r.images && r.images.length > 0 && (
-            <div className="flex gap-1.5 mb-2 overflow-x-auto hide-scrollbar">
-              {r.images.slice(0, 5).map((img: any, j: number) => (
-                <img key={j} src={img.thumbnail} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
+      {/* 최근 사진 그리드 */}
+      <Link href="/kidsnote" className="block active:opacity-70">
+        {(() => {
+          const allImages = reports.flatMap((r: any) => (r.images || []).map((img: any) => ({ ...img, date: r.created })))
+          if (allImages.length === 0) return null
+          const recent = allImages.slice(0, 6)
+          return (
+            <div className="grid grid-cols-3 gap-1 rounded-lg overflow-hidden">
+              {recent.map((img: any, i: number) => (
+                <div key={i} className="relative aspect-square">
+                  <img src={img.thumbnail} alt="" className="w-full h-full object-cover" />
+                  {i === 0 && <span className="absolute top-1 left-1 text-[8px] bg-black/50 text-white px-1 rounded">NEW</span>}
+                </div>
               ))}
             </div>
-          )}
-          <p className="text-[11px] text-[#1A1918] line-clamp-2">{r.content}</p>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-[9px] text-[#AEB1B9]">{r.author}</span>
-            <span className="text-[9px] text-[#AEB1B9]">{r.created ? new Date(r.created).toLocaleDateString('ko-KR') : ''}</span>
-          </div>
-        </Link>
-      ))}
+          )
+        })()}
+        <p className="text-[10px] text-[#AEB1B9] text-center mt-1.5">
+          {reports[0]?.created ? new Date(reports[0].created).toLocaleDateString('ko-KR') : ''} · {reports[0]?.author || ''}
+        </p>
+      </Link>
     </div>
   )
 }
