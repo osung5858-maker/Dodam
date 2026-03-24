@@ -297,14 +297,19 @@ export default function PreparingPage() {
     if (next[id]) delete next[id]; else next[id] = new Date().toISOString().split('T')[0]
     setAppointments(next); localStorage.setItem('dodam_appointments', JSON.stringify(next))
   }
-  // 주기 설정 저장 (완료 버튼 시에만)
+  // 주기 설정 저장
   const [tempPeriod, setTempPeriod] = useState(lastPeriod)
   const [tempCycleLen, setTempCycleLen] = useState(cycleLength)
   const [tempMotherBirth, setTempMotherBirth] = useState(motherBirth)
   const [tempFatherBirth, setTempFatherBirth] = useState(fatherBirth)
+  const [myRole, setMyRole] = useState<'mom' | 'dad'>(() => {
+    if (typeof window !== 'undefined') return (localStorage.getItem('dodam_my_role') as 'mom' | 'dad') || 'mom'
+    return 'mom'
+  })
 
   const handleSaveCycleSetup = () => {
     if (!tempPeriod) return
+    localStorage.setItem('dodam_my_role', myRole)
     setLastPeriod(tempPeriod); localStorage.setItem('dodam_last_period', tempPeriod)
     setCycleLength(tempCycleLen); localStorage.setItem('dodam_cycle_length', String(tempCycleLen))
     if (tempMotherBirth) { setMotherBirth(tempMotherBirth); localStorage.setItem('dodam_mother_birth', tempMotherBirth) }
@@ -314,49 +319,88 @@ export default function PreparingPage() {
 
   // 주기 설정 화면
   if (editingCycle) {
-    const tempMotherAge = calcAge(tempMotherBirth)
-    const tempFatherAge = calcAge(tempFatherBirth)
+    const myBirth = myRole === 'mom' ? tempMotherBirth : tempFatherBirth
+    const partnerBirth = myRole === 'mom' ? tempFatherBirth : tempMotherBirth
+    const myAge = calcAge(myBirth)
+    const partnerAge = calcAge(partnerBirth)
+    const setMyBirth = (v: string) => { if (myRole === 'mom') setTempMotherBirth(v); else setTempFatherBirth(v) }
+    const setPartnerBirth = (v: string) => { if (myRole === 'mom') setTempFatherBirth(v); else setTempMotherBirth(v) }
 
     return (
-      <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6">
-        <h1 className="text-[22px] font-bold text-[#1A1918] mb-2">기본 정보를 알려주세요</h1>
-        <p className="text-[13px] text-[#868B94] mb-6">배란일과 맞춤 조언을 위해 필요해요</p>
-        <div className="w-full max-w-xs space-y-4">
-          <div>
-            <p className="text-[12px] font-semibold text-[#868B94] mb-1">마지막 생리 시작일</p>
-            <input type="date" value={tempPeriod} onChange={(e) => setTempPeriod(e.target.value)} className="w-full h-12 rounded-xl border border-[#f0f0f0] px-4 text-[14px]" />
+      <div className="min-h-[100dvh] bg-white">
+        <div className="max-w-xs mx-auto pt-12 pb-20 px-6">
+          <h1 className="text-[22px] font-bold text-[#1A1918] mb-1">기본 정보</h1>
+          <p className="text-[13px] text-[#868B94] mb-6">맞춤 조언을 위해 필요해요</p>
+
+          {/* 나는 누구? */}
+          <div className="mb-5">
+            <p className="text-[12px] font-semibold text-[#868B94] mb-2">나는</p>
+            <div className="flex gap-2">
+              <button onClick={() => setMyRole('mom')}
+                className={`flex-1 py-3 rounded-xl text-[14px] font-semibold ${myRole === 'mom' ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
+                🤰 예비맘
+              </button>
+              <button onClick={() => setMyRole('dad')}
+                className={`flex-1 py-3 rounded-xl text-[14px] font-semibold ${myRole === 'dad' ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
+                👨 예비파파
+              </button>
+            </div>
           </div>
-          <div>
-            <p className="text-[12px] font-semibold text-[#868B94] mb-1">평균 주기 <span className="text-[#3D8A5A] font-bold">{tempCycleLen}일</span></p>
-            <input type="range" min={21} max={40} value={tempCycleLen} onChange={(e) => setTempCycleLen(Number(e.target.value))} className="w-full accent-[#3D8A5A]" />
-            <div className="flex justify-between text-[9px] text-[#AEB1B9]"><span>21일</span><span>28일</span><span>40일</span></div>
-          </div>
-          <div>
-            <p className="text-[12px] font-semibold text-[#868B94] mb-1">엄마 출생연도 {tempMotherAge > 0 && <span className="text-[#3D8A5A] font-bold">{tempMotherAge}세</span>}</p>
-            <select value={tempMotherBirth} onChange={(e) => setTempMotherBirth(e.target.value)} className="w-full h-12 rounded-xl border border-[#f0f0f0] px-3 text-[14px] bg-white">
+
+          {/* 내 생년월일 */}
+          <div className="mb-5">
+            <p className="text-[12px] font-semibold text-[#868B94] mb-1">내 출생연도 {myAge > 0 && <span className="text-[#3D8A5A] font-bold">{myAge}세</span>}</p>
+            <select value={myBirth} onChange={(e) => setMyBirth(e.target.value)} className="w-full h-12 rounded-xl border border-[#f0f0f0] px-3 text-[14px] bg-white">
               <option value="">선택</option>
               {Array.from({ length: 40 }, (_, i) => new Date().getFullYear() - 20 - i).map(y => (
                 <option key={y} value={`${y}-06-15`}>{y}년생</option>
               ))}
             </select>
           </div>
-          <div>
-            <p className="text-[12px] font-semibold text-[#868B94] mb-1">아빠 출생연도 {tempFatherAge > 0 && <span className="text-[#3D8A5A] font-bold">{tempFatherAge}세</span>}</p>
-            <select value={tempFatherBirth} onChange={(e) => setTempFatherBirth(e.target.value)} className="w-full h-12 rounded-xl border border-[#f0f0f0] px-3 text-[14px] bg-white">
+
+          {/* 파트너 생년월일 */}
+          <div className="mb-5">
+            <p className="text-[12px] font-semibold text-[#868B94] mb-1">파트너 출생연도 {partnerAge > 0 && <span className="text-[#3D8A5A] font-bold">{partnerAge}세</span>}</p>
+            <select value={partnerBirth} onChange={(e) => setPartnerBirth(e.target.value)} className="w-full h-12 rounded-xl border border-[#f0f0f0] px-3 text-[14px] bg-white">
               <option value="">선택</option>
               {Array.from({ length: 40 }, (_, i) => new Date().getFullYear() - 20 - i).map(y => (
                 <option key={y} value={`${y}-06-15`}>{y}년생</option>
               ))}
             </select>
           </div>
+
+          {/* 생리 주기 (예비맘만) */}
+          {myRole === 'mom' && (
+            <>
+              <div className="mb-5">
+                <p className="text-[12px] font-semibold text-[#868B94] mb-1">마지막 생리 시작일</p>
+                <input type="date" value={tempPeriod} onChange={(e) => setTempPeriod(e.target.value)} className="w-full h-12 rounded-xl border border-[#f0f0f0] px-4 text-[14px]" />
+              </div>
+              <div className="mb-5">
+                <p className="text-[12px] font-semibold text-[#868B94] mb-1">평균 주기 <span className="text-[#3D8A5A] font-bold">{tempCycleLen}일</span></p>
+                <input type="range" min={21} max={40} value={tempCycleLen} onChange={(e) => setTempCycleLen(Number(e.target.value))} className="w-full accent-[#3D8A5A]" />
+                <div className="flex justify-between text-[9px] text-[#AEB1B9]"><span>21일</span><span>28일</span><span>40일</span></div>
+              </div>
+            </>
+          )}
+
+          {/* 예비파파는 파트너 초대 유도 */}
+          {myRole === 'dad' && !tempPeriod && (
+            <div className="mb-5 bg-[#F0F9F4] rounded-xl p-4 text-center">
+              <p className="text-[13px] font-semibold text-[#3D8A5A] mb-1">파트너를 초대하세요</p>
+              <p className="text-[11px] text-[#868B94] mb-3">파트너가 생리 주기를 입력하면 더 정확한 조언을 받을 수 있어요</p>
+              <a href="/settings/caregivers/invite" className="inline-block px-4 py-2 bg-[#3D8A5A] text-white text-[12px] font-semibold rounded-xl">💌 파트너 초대하기</a>
+            </div>
+          )}
+
+          <button
+            onClick={handleSaveCycleSetup}
+            disabled={myRole === 'mom' ? !tempPeriod : !myBirth}
+            className={`w-full py-3 rounded-xl text-[14px] font-semibold ${(myRole === 'mom' ? tempPeriod : myBirth) ? 'bg-[#3D8A5A] text-white active:opacity-80' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}
+          >
+            완료
+          </button>
         </div>
-        <button
-          onClick={handleSaveCycleSetup}
-          disabled={!tempPeriod}
-          className={`mt-6 w-full max-w-xs py-3 rounded-xl text-[14px] font-semibold ${tempPeriod ? 'bg-[#3D8A5A] text-white active:opacity-80' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}
-        >
-          완료
-        </button>
       </div>
     )
   }
