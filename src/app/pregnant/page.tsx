@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { shareFetalSize, shareDday } from '@/lib/kakao/share-pregnant'
+import BabyIllust from '@/components/pregnant/BabyIllust'
 import StreakCard from '@/components/engagement/StreakCard'
 import CommunityTeaser from '@/components/engagement/CommunityTeaser'
 
@@ -380,8 +381,8 @@ export default function PregnantPage() {
         <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[#C8F0D8] p-4">
           {/* 태아 비주얼 — 감성 */}
           <div className="text-center mb-3">
-            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-[#FFF8F3] to-[#F0F9F4] flex items-center justify-center shadow-sm mb-2">
-              <span className="text-4xl">{currentFetal.fruit}</span>
+            <div className="mx-auto mb-1">
+              <BabyIllust week={currentWeek} />
             </div>
             <p className="text-[14px] font-bold text-[#1A1918]">{currentWeek}주차 — <span className="text-[#3D8A5A]">{currentFetal.name}</span>만해요</p>
             <div className="flex justify-center gap-4 mt-1">
