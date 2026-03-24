@@ -105,6 +105,114 @@ const MOODS = [
   { emoji: '😴', key: 'tired', label: '피곤' },
 ]
 
+// ===== 검진 기록 =====
+function CheckupRecord({ currentWeek }: { currentWeek: number }) {
+  const [records, setRecords] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') { try { return JSON.parse(localStorage.getItem('dodam_checkup_records') || '[]') } catch { return [] } }
+    return []
+  })
+  const [formOpen, setFormOpen] = useState(false)
+  const [week, setWeek] = useState(String(currentWeek))
+  const [note, setNote] = useState('')
+  const [babyWeight, setBabyWeight] = useState('')
+  const [babyStatus, setBabyStatus] = useState('')
+  const [doctorNote, setDoctorNote] = useState('')
+
+  const save = () => {
+    if (!note.trim() && !doctorNote.trim()) return
+    const entry = {
+      id: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      week: Number(week),
+      note: note.trim(),
+      babyWeight: babyWeight.trim(),
+      babyStatus,
+      doctorNote: doctorNote.trim(),
+    }
+    const next = [entry, ...records]
+    setRecords(next)
+    localStorage.setItem('dodam_checkup_records', JSON.stringify(next))
+    setNote(''); setBabyWeight(''); setBabyStatus(''); setDoctorNote('')
+    setFormOpen(false)
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[14px] font-bold text-[#1A1918]">🏥 검진 기록</p>
+        <button onClick={() => setFormOpen(!formOpen)} className="text-[11px] text-[#3D8A5A] font-semibold">
+          {formOpen ? '취소' : '+ 기록'}
+        </button>
+      </div>
+
+      {formOpen && (
+        <div className="space-y-2 mb-3 pb-3 border-b border-[#f0f0f0]">
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <p className="text-[10px] text-[#868B94] mb-0.5">검진 주차</p>
+              <input type="number" value={week} onChange={e => setWeek(e.target.value)} className="w-full h-9 rounded-lg border border-[#f0f0f0] px-2 text-[13px] text-center" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] text-[#868B94] mb-0.5">아기 체중 (g)</p>
+              <input type="text" value={babyWeight} onChange={e => setBabyWeight(e.target.value)} placeholder="예: 500g" className="w-full h-9 rounded-lg border border-[#f0f0f0] px-2 text-[13px]" />
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[10px] text-[#868B94] mb-0.5">아기 상태</p>
+            <div className="flex gap-1.5">
+              {['정상 👍', '주의 ⚠️', '정밀 검사 필요'].map(s => (
+                <button key={s} onClick={() => setBabyStatus(s)}
+                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium ${babyStatus === s ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[10px] text-[#868B94] mb-0.5">의사 소견 / 메모</p>
+            <textarea value={doctorNote} onChange={e => setDoctorNote(e.target.value)} placeholder="의사 선생님이 말씀하신 내용..."
+              className="w-full h-14 text-[12px] p-2 bg-[#F5F4F1] rounded-lg resize-none focus:outline-none" />
+          </div>
+
+          <div>
+            <p className="text-[10px] text-[#868B94] mb-0.5">특이사항 메모</p>
+            <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="초음파 결과, 느낀 점 등"
+              className="w-full h-9 rounded-lg border border-[#f0f0f0] px-2 text-[12px]" />
+          </div>
+
+          <button onClick={save} className="w-full py-2 bg-[#3D8A5A] text-white text-[12px] font-semibold rounded-lg active:opacity-80">검진 기록 저장</button>
+          <p className="text-[9px] text-[#AEB1B9] text-center">초음파 사진/영상은 갤러리에서 직접 보관해주세요 (앱 저장 준비 중)</p>
+        </div>
+      )}
+
+      {/* 기록 목록 */}
+      {records.length === 0 ? (
+        <p className="text-[11px] text-[#AEB1B9] text-center py-2">검진 기록이 없어요</p>
+      ) : (
+        <div className="space-y-2">
+          {records.slice(0, 3).map((r: any) => (
+            <div key={r.id} className="bg-[#F5F4F1] rounded-lg p-2.5">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[12px] font-semibold text-[#1A1918]">{r.week}주차 검진</span>
+                <div className="flex items-center gap-2">
+                  {r.babyWeight && <span className="text-[10px] text-[#3D8A5A]">⚖️ {r.babyWeight}</span>}
+                  <span className="text-[9px] text-[#AEB1B9]">{r.date}</span>
+                </div>
+              </div>
+              {r.babyStatus && <p className="text-[10px] text-[#1A1918] mb-0.5">{r.babyStatus}</p>}
+              {r.doctorNote && <p className="text-[10px] text-[#868B94]">👨‍⚕️ {r.doctorNote}</p>}
+              {r.note && <p className="text-[10px] text-[#868B94]">📝 {r.note}</p>}
+            </div>
+          ))}
+          {records.length > 3 && <p className="text-[9px] text-[#AEB1B9] text-center">+{records.length - 3}건 더</p>}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ===== AI 디스플레이 — 요약 + 펼치기 =====
 function PregnantAIDisplay({ briefing, onRefresh, week, daysLeft, fruit }: { briefing: any; onRefresh: () => void; week: number; daysLeft: number; fruit: string }) {
   const [expanded, setExpanded] = useState(false)
@@ -520,6 +628,9 @@ export default function PregnantPage() {
             )}
           </div>
         </div>
+
+        {/* ━━━ 검진 기록 ━━━ */}
+        <CheckupRecord currentWeek={currentWeek} />
 
         {/* ━━━ 식단 추천 ━━━ */}
         <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
