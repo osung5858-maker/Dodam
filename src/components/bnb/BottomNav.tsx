@@ -36,17 +36,14 @@ const TABS_BY_MODE: Record<string, Tab[]> = {
   ],
 }
 
-// 2단계 기록 카테고리
+// 2단계 기록 카테고리 (사용 빈도 높은 것만)
 const RECORD_CATEGORIES = [
   { key: 'eat', emoji: '🍼', label: '먹기', color: '#3D8A5A',
     items: [
       { type: 'breast_left', label: '모유(왼)', emoji: '🤱' },
       { type: 'breast_right', label: '모유(오)', emoji: '🤱' },
-      { type: 'breast_both', label: '모유(양쪽)', emoji: '🤱' },
       { type: 'feed', label: '분유', emoji: '🍼', hasInput: 'ml' },
       { type: 'babyfood', label: '이유식', emoji: '🥣' },
-      { type: 'snack', label: '간식', emoji: '🍪' },
-      { type: 'water', label: '물', emoji: '💧' },
       { type: 'pump', label: '유축', emoji: '🫙', hasInput: 'ml' },
     ]
   },
@@ -61,20 +58,16 @@ const RECORD_CATEGORIES = [
       { type: 'poop_normal', label: '대변 (정상)', emoji: '💩' },
       { type: 'poop_soft', label: '대변 (묽음)', emoji: '💩' },
       { type: 'poop_hard', label: '대변 (단단)', emoji: '💩' },
-      { type: 'pee_poop', label: '소변+대변', emoji: '🩲' },
     ]
   },
   { key: 'health', emoji: '🏥', label: '건강', color: '#D08068',
     items: [
       { type: 'temp', label: '체온', emoji: '🌡️', hasInput: '°C' },
       { type: 'memo', label: '투약', emoji: '💊' },
-      { type: 'hospital', label: '병원 방문', emoji: '🏥' },
     ]
   },
-  { key: 'activity', emoji: '📝', label: '활동', color: '#4A90D9',
+  { key: 'more', emoji: '📝', label: '더보기', color: '#868B94',
     items: [
-      { type: 'bath', label: '목욕', emoji: '🛁' },
-      { type: 'walk', label: '산책', emoji: '🚶' },
       { type: 'note', label: '메모', emoji: '📝' },
     ]
   },
