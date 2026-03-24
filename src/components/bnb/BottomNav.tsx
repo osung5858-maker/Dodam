@@ -36,10 +36,83 @@ const TABS_BY_MODE: Record<string, Tab[]> = {
   ],
 }
 
-// 2단계 기록 카테고리
+// 월령별 기록 카테고리 생성
+function getAgeMonths(): number {
+  if (typeof window === 'undefined') return 6
+  const childBirth = localStorage.getItem('dodam_child_birthdate')
+  if (!childBirth) return 6 // 기본값
+  const birth = new Date(childBirth)
+  const now = new Date()
+  return (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth())
+}
+
+function buildCategories(ageMonths: number): RecordCategory[] {
+  const cats: RecordCategory[] = []
+
+  // 먹기 — 월령별 구성
+  const eatItems: RecordItem[] = []
+  if (ageMonths < 13) { // 모유는 12개월까지
+    eatItems.push(
+      { type: 'breast_left', label: '모유(왼)', emoji: '🤱', baseType: 'feed', tags: { side: 'left' },
+        step3: [{ label: '5분', value: 5, unit: '분' }, { label: '10분', value: 10, unit: '분' }, { label: '15분', value: 15, unit: '분' }, { label: '20분', value: 20, unit: '분' }, { label: '30분', value: 30, unit: '분' }] },
+      { type: 'breast_right', label: '모유(오)', emoji: '🤱', baseType: 'feed', tags: { side: 'right' },
+        step3: [{ label: '5분', value: 5, unit: '분' }, { label: '10분', value: 10, unit: '분' }, { label: '15분', value: 15, unit: '분' }, { label: '20분', value: 20, unit: '분' }, { label: '30분', value: 30, unit: '분' }] },
+    )
+  }
+  if (ageMonths < 13) { // 분유
+    eatItems.push({ type: 'feed', label: '분유', emoji: '🍼',
+      step3: [{ label: '60', value: 60, unit: 'ml' }, { label: '90', value: 90, unit: 'ml' }, { label: '120', value: 120, unit: 'ml' }, { label: '150', value: 150, unit: 'ml' }, { label: '180', value: 180, unit: 'ml' }] })
+  }
+  if (ageMonths >= 5) { // 이유식 5개월+
+    eatItems.push({ type: 'babyfood', label: ageMonths < 7 ? '이유식(미음)' : ageMonths < 10 ? '이유식(죽)' : '이유식', emoji: '🥣',
+      step3: ageMonths < 7
+        ? [{ label: '쌀미음', value: 'rice' }, { label: '감자', value: 'potato' }, { label: '고구마', value: 'sweet_potato' }]
+        : [{ label: '야채죽', value: 'veggie' }, { label: '고기죽', value: 'meat' }, { label: '생선죽', value: 'fish' }, { label: '과일', value: 'fruit' }, { label: '기타', value: 'etc' }]
+    })
+  }
+  if (ageMonths >= 10) { // 간식 10개월+
+    eatItems.push({ type: 'snack', label: '간식', emoji: '🍪' })
+  }
+  if (ageMonths >= 13) { // 유아식 13개월+
+    eatItems.push({ type: 'toddler_meal', label: '유아식', emoji: '🍚' })
+  }
+  if (ageMonths < 7) { // 유축 초기만
+    eatItems.push({ type: 'pump', label: '유축', emoji: '🫙', baseType: 'feed',
+      step3: [{ label: '30', value: 30, unit: 'ml' }, { label: '60', value: 60, unit: 'ml' }, { label: '90', value: 90, unit: 'ml' }, { label: '120', value: 120, unit: 'ml' }, { label: '150', value: 150, unit: 'ml' }] })
+  }
+  cats.push({ key: 'eat', emoji: '🍼', label: '먹기', color: '#3D8A5A', items: eatItems })
+
+  // 잠 — 항상
+  cats.push({ key: 'sleep', emoji: '💤', label: '잠', color: '#6366F1',
+    items: [{ type: 'sleep', label: '수면 시작/종료', emoji: '💤' }] })
+
+  // 기저귀 — 항상
+  cats.push({ key: 'diaper', emoji: '🩲', label: '기저귀', color: '#D89575',
+    items: [
+      { type: 'pee', label: '소변', emoji: '💧' },
+      { type: 'poop_normal', label: '정상', emoji: '💩', baseType: 'poop', tags: { status: 'normal' } },
+      { type: 'poop_soft', label: '묽음', emoji: '💩', baseType: 'poop', tags: { status: 'soft' } },
+      { type: 'poop_hard', label: '단단', emoji: '💩', baseType: 'poop', tags: { status: 'hard' } },
+    ] })
+
+  // 건강 — 항상
+  cats.push({ key: 'health', emoji: '🏥', label: '건강', color: '#D08068',
+    items: [
+      { type: 'temp', label: '체온', emoji: '🌡️',
+        step3: [{ label: '36.5', value: 36.5, unit: '°C' }, { label: '37.0', value: 37.0, unit: '°C' }, { label: '37.5', value: 37.5, unit: '°C' }, { label: '38.0', value: 38.0, unit: '°C' }, { label: '38.5', value: 38.5, unit: '°C' }] },
+      { type: 'memo', label: '투약', emoji: '💊' },
+    ] })
+
+  // 더보기 — 항상
+  cats.push({ key: 'more', emoji: '📝', label: '더보기', color: '#868B94',
+    items: [{ type: 'note', label: '메모', emoji: '📝' }] })
+
+  return cats
+}
+
 interface RecordItem {
   type: string; label: string; emoji: string
-  hasInput?: string // legacy
+  hasInput?: string
   step3?: { label: string; value: number | string; unit?: string }[]
   tags?: Record<string, string>
   baseType?: string
@@ -111,6 +184,7 @@ export default function BottomNav() {
   }, [pathname])
 
   const tabs = TABS_BY_MODE[mode] || TABS_BY_MODE.parenting
+  const DYNAMIC_CATEGORIES = buildCategories(getAgeMonths())
 
   // 다른 페이지로 이동하면 FAB 닫기
   useEffect(() => { setFabOpen(false) }, [pathname])
@@ -216,7 +290,7 @@ export default function BottomNav() {
               <div className="fixed inset-0 z-[60] bg-black/50" onClick={() => setFabOpen(false)} />
               <div className="fixed z-[70] bottom-[60px] left-1/2" style={{ maxWidth: 430 }}>
                 <div className="relative" style={{ width: 0, height: 0 }}>
-                  {RECORD_CATEGORIES.map((cat, i) => (
+                  {DYNAMIC_CATEGORIES.map((cat, i) => (
                     <div key={cat.key} className="absolute flex flex-col items-center gap-1.5"
                       style={{ left: ARC[i].x - 28, top: ARC[i].y - 28, animation: `fabItemPop 0.25s ${i * 0.04}s both cubic-bezier(0.34, 1.56, 0.64, 1)` }}>
                       <button onClick={() => {
@@ -235,7 +309,7 @@ export default function BottomNav() {
         }
         // 3단계: 프리셋 선택 (반원형 유지)
         if (selectedItem) {
-          const item = RECORD_CATEGORIES.flatMap(c => c.items).find(i => i.type === selectedItem)
+          const item = DYNAMIC_CATEGORIES.flatMap(c => c.items).find(i => i.type === selectedItem)
           if (!item || !item.step3) return null
           const presets = item.step3
           return (
@@ -279,7 +353,7 @@ export default function BottomNav() {
         }
 
         // 2단계: 세부 (같은 반원형에서 변신)
-        const cat = RECORD_CATEGORIES.find(c => c.key === selectedCategory)
+        const cat = DYNAMIC_CATEGORIES.find(c => c.key === selectedCategory)
         if (!cat) return null
         return (
           <>
@@ -382,7 +456,7 @@ export default function BottomNav() {
 
 // 더보기 전체 기록 그리드
 function RecordGrid({ onRecord }: { onRecord: (type: string, extra?: Record<string, unknown>) => void }) {
-  const ALL_ITEMS = RECORD_CATEGORIES.flatMap(cat => cat.items.map(item => ({ ...item, catColor: cat.color })))
+  const ALL_ITEMS = buildCategories(getAgeMonths()).flatMap(cat => cat.items.map(item => ({ ...item, catColor: cat.color })))
   return (
     <div className="grid grid-cols-4 gap-2">
       {ALL_ITEMS.map(item => (
