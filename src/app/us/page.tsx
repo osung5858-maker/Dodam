@@ -76,6 +76,7 @@ const MENUS: Record<string, { label: string; items: { href: string; icon: string
         { href: '/lullaby', icon: '🌙', title: '자장가 · 동요', desc: '수면 도우미 · 120곡+' },
         { href: '/vaccination', icon: '💉', title: '예방접종', desc: '전체 스케줄 · 완료 체크' },
         { href: '/memory', icon: '📋', title: '발달 체크', desc: '월령별 발달 · AI 분석' },
+        { href: '/growth/analyze', icon: '📄', title: '검진표 AI 분석', desc: '영유아검진 결과표 업로드 → AI 분석' },
       ],
     },
     {

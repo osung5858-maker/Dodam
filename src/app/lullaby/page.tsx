@@ -19,21 +19,72 @@ interface Track {
 const LULLABY_PLAYLIST = 'PLAyG7B7am9daqQ9u267CZoOIJzihXIYTA'
 const NURSERY_PLAYLIST = 'PLAyG7B7am9dZ90gGtuco9wzMj_kdkUlMD'
 
-const TRACKS: Track[] = [
-  { id: 'l1', title: '잘자요 우리 아기', category: 'lullaby', duration: '3:24', youtubeId: '38MBgTBMM7E', avgSleepMin: 8, isRecommended: true },
-  { id: 'l2', title: '꿈나라로 가는 길', category: 'lullaby', duration: '4:12', avgSleepMin: 11 },
-  { id: 'l3', title: '별빛 자장가', category: 'lullaby', duration: '3:48', avgSleepMin: 9 },
-  { id: 'l4', title: '달빛 아래서', category: 'lullaby', duration: '3:55' },
-  { id: 'l5', title: '포근한 밤', category: 'lullaby', duration: '4:30' },
-  { id: 'l6', title: '엄마 품에서', category: 'lullaby', duration: '3:15', avgSleepMin: 7 },
-  { id: 'l7', title: '자장가 통합본 (1시간)', category: 'lullaby', duration: '60:00', playlistId: LULLABY_PLAYLIST },
-  { id: 'l8', title: '자장가 통합본 (2시간)', category: 'lullaby', duration: '120:00', playlistId: LULLABY_PLAYLIST },
-  { id: 'n1', title: '곰 세 마리', category: 'nursery', duration: '2:18', youtubeId: 'd4OaQZtHMF0' },
-  { id: 'n2', title: '작은 별', category: 'nursery', duration: '2:45' },
-  { id: 'n3', title: '나비야', category: 'nursery', duration: '2:12' },
-  { id: 'n4', title: '산토끼', category: 'nursery', duration: '1:58' },
-  { id: 'n5', title: '동요 통합본 (1시간)', category: 'nursery', duration: '60:00', playlistId: NURSERY_PLAYLIST },
-  { id: 'n6', title: '동요 통합본 (2시간)', category: 'nursery', duration: '120:00', playlistId: NURSERY_PLAYLIST },
+// 자장가 60곡 (도하, 오늘도 유튜브 채널)
+const LULLABY_TRACKS: Track[] = Array.from({ length: 60 }, (_, i) => ({
+  id: `l${i + 1}`,
+  title: [
+    '깊은 밤 편안한 수면 자장가', '우리 아이 꿀잠 자는 음악', '숲속 빗소리 새소리 ASMR',
+    '밤새 우는 아기 뚝 그치는 음악', '엄마 뱃속 같은 파도 쉬 소리', '마음이 편안해지는 숲속 소리',
+    '3분 만에 잠드는 마법의 소리', '신생아 수면교육 필수 자장가', '꿈나라로 가는 피아노 자장가',
+    '잠투정 심한 아기 수면음악', '숲속 빗소리 새소리 ASMR', '밤하늘 수면 음악',
+    '파도 소리 통잠 음악', '신생아 3분 꿀잠 백색소음', '신생아 수면교육 음악',
+    '3분 만에 잠드는 수면 유도', '구름처럼 부드러운 수면', '포근한 꿈나라 수면',
+    '숲속 수면 사운드', '바다 꿀잠 유도 432Hz', '반짝이는 별밤 수면',
+    '창밖의 조용한 빗소리', '구름 위를 걷는 꿈', '잔잔한 바다 수면',
+    '달빛 수면 음악', '바다 수면 사운드', '바다 수면 사운드 II',
+    '꿈나라 수면 사운드', '잔잔한 바다 사운드', '바다 수면 사운드 III',
+    '바다 수면 사운드 IV', '구름 수면 사운드', '꿈나라 수면 II',
+    '구름 수면 II', '숲 수면 사운드', '바다 브리즈 수면',
+    '밤하늘 수면', '밤하늘 수면 II', '숲 수면 II',
+    '2시간 30분 연속 수면', '2시간 30분 연속 수면 II', '바다 수면 #020',
+    '숲 수면 #019', '바다 수면 #018', '꿀잠 수면 #016',
+    '3분 꿀잠 백색소음 #015', '수면교육 음악 #014', '파도 통잠 #013',
+    '밤하늘 수면 #012', '숲속 ASMR #011', '수면음악 #010',
+    '피아노 자장가 #009', '수면교육 자장가 #008', '마법의 소리 #007',
+    '숲속 소리 #006', '파도 쉬 소리 #005', '수면 유도 #004',
+    '자연 ASMR #003', '꿀잠 음악 #002', '수면 자장가 #001',
+    '수면 통합본 (4시간+)', '수면 통합본 블랙스크린',
+  ][i] || `자장가 #${String(i + 1).padStart(3, '0')}`,
+  category: 'lullaby' as Category,
+  duration: i >= 58 ? '4:36:16' : i >= 39 ? '2:30:37' : ['2:20','3:15','2:36','3:34','2:09','2:21','3:22','3:02','3:12','7:29','6:57','3:16','4:54','5:54','4:14','4:08','7:44','8:43','3:02','4:14','7:03','10:38','6:28','7:39','6:54','7:04','5:10','9:12','9:59','5:35','7:00','11:22','9:09','10:23','5:35','7:00','9:40','6:05','9:22','8:43','8:12','10:11','8:39','13:42','8:25','13:00','11:35','8:24','8:45','9:40','9:18','9:10','9:41','10:34','6:20','8:43','5:45','8:06','9:40'][i] || '5:00',
+  playlistId: LULLABY_PLAYLIST,
+  isRecommended: i < 3,
+}))
+
+// 동요 59곡 (도하, 오늘도 유튜브 채널)
+const NURSERY_TRACKS: Track[] = Array.from({ length: 59 }, (_, i) => ({
+  id: `n${i + 1}`,
+  title: [
+    '동물 친구들과 춤추며 노래해요', '숫자 123 영어로 세기', '머리 어깨 무릎 발 율동',
+    '손뼉 치며 배우는 리듬감', '신비로운 색깔 여행', '우리 아기 첫 색깔 공부',
+    '동그라미 세모 네모 모양 놀이', '키가 쑥쑥 크는 율동 체조', '빨강 파랑 노랑 색깔 놀이',
+    '풍선으로 배우는 도형 놀이', '삐뽀삐뽀 자동차 출동', '사자 호랑이 동물 소리 배우기',
+    '경찰차 소방차 자동차 동요', '동물 친구들 영어 동요', '숫자 배우는 영어 동요',
+    '색깔 배우는 영어 동요', '색깔 배우는 동요', '따라 움직이는 몸 놀이',
+    '알록달록 보여요 색깔 인지', '동물 친구들 놀이 동요', '동요 20곡 연속 재생',
+    '동요 20곡 블랙스크린', '숫자 세기 놀이 동요', '흔들흔들 쿵쿵 몸 놀이',
+    '짝짝 박수 리듬', '알록달록 색깔 놀이', '흔들흔들 쿵쿵 II',
+    '따라 움직이는 몸 놀이 II', '숫자 노래 1부터 10까지', '색깔 여행 동요',
+    '움직여요 놀이 동요', '하늘 색깔 놀이 동요', '딸기 숫자 놀이 동요',
+    '뛰뛰빵빵 자동차 숫자', '알록달록 예쁜 꽃 나들이', '꼼지락 손놀이 숫자',
+    '칙칙폭폭 기차 숫자', '삐뽀삐뽀 용감한 소방차', '날씨 친구와 함께 놀아요',
+    '동물 친구들 아기 동요', '숫자 노래 1부터 10까지 II', '따라 움직이는 놀이',
+    '동물 친구들 동요 II', '색깔 인지 놀이 II', '경찰차 동요',
+    '까딱 하나 토끼 동요', '톡톡 토끼 손놀이 동요', '부릉차 동요',
+    '멍멍 강아지 동요', '빠방 자동차 동요', '까딱 로봇 동요',
+    '톡톡 오리 물놀이 동요', '딸기 냠냠 동요', '바나나 냠냠 동요',
+    '여우 슥슥 통통 동요', '손 씻기 동요', '숲 동물 동요',
+    '달과 별 동요', '장난감 정리 정돈 동요', '오늘 하루 동요',
+    '동요 통합본 (1시간+)', '동요 통합본 블랙스크린',
+  ][i] || `동요 #${String(i + 1).padStart(3, '0')}`,
+  category: 'nursery' as Category,
+  duration: i >= 57 ? '1:08:23' : i >= 20 && i <= 21 ? '57:07' : ['1:38','1:19','1:22','1:10','1:36','3:59','3:05','3:02','2:53','3:13','2:54','3:20','2:17','1:33','1:51','2:20','2:16','2:52','2:36','3:07','57:07','57:07','2:26','3:08','2:36','3:07','2:52','3:23','3:24','2:32','2:00','3:34','2:10','1:23','2:54','2:11','2:48','2:28','1:52','2:00','2:24','2:28','2:47','3:34','1:29','1:44','3:06','2:00','3:42','3:29','2:15','1:49','2:51','1:09','2:20','1:13','2:11','2:50','2:25'][i] || '2:30',
+  playlistId: NURSERY_PLAYLIST,
+  isRecommended: i < 3,
+}))
+
+// 자연음 10곡
+const NATURE_TRACKS: Track[] = [
   { id: 'w1', title: '빗소리', category: 'nature', duration: '∞', youtubeId: 'yIQd2Ya0Ziw', avgSleepMin: 10, isRecommended: true },
   { id: 'w2', title: '파도소리', category: 'nature', duration: '∞', youtubeId: 'Nep1qytq9JM', avgSleepMin: 12 },
   { id: 'w3', title: '백색소음', category: 'nature', duration: '∞', youtubeId: 'nMfPqeZjc2c', avgSleepMin: 14 },
@@ -45,6 +96,8 @@ const TRACKS: Track[] = [
   { id: 'w9', title: '새소리 (숲)', category: 'nature', duration: '∞', youtubeId: 'xNN7iTA57jM', avgSleepMin: 15 },
   { id: 'w10', title: '뱃속 소리 (자궁음)', category: 'nature', duration: '∞', youtubeId: 'u0gk2Hn6dLA', avgSleepMin: 8, isRecommended: true },
 ]
+
+const TRACKS: Track[] = [...LULLABY_TRACKS, ...NURSERY_TRACKS, ...NATURE_TRACKS]
 
 const CATEGORY_LABELS: Record<Category, string> = {
   lullaby: '자장가',

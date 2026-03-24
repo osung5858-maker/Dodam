@@ -205,10 +205,10 @@ export default function DiaryView({ events, childName }: Props) {
         </div>
       )}
 
-      {/* 메모 */}
+      {/* 일기 쓰기 */}
       <div className="bg-white rounded-2xl border border-[#f0f0f0] p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-[13px] font-semibold text-[#868B94]">메모</h3>
+          <h3 className="text-[13px] font-semibold text-[#1A1918]">✍️ 오늘의 일기</h3>
           <button onClick={() => {
             if (editingMemo) saveDayData(memo, photos)
             setEditingMemo(!editingMemo)
@@ -224,10 +224,13 @@ export default function DiaryView({ events, childName }: Props) {
             className="w-full h-20 text-[13px] text-[#212124] bg-[#F7F8FA] rounded-xl p-3 resize-none focus:outline-none focus:ring-1 focus:ring-[#3D8A5A]"
             maxLength={500}
           />
+        ) : memo ? (
+          <p className="text-[13px] text-[#212124] leading-relaxed whitespace-pre-line">{memo}</p>
         ) : (
-          <p className="text-[13px] text-[#868B94]">
-            {memo || '오늘 하루를 기록해보세요...'}
-          </p>
+          <button onClick={() => setEditingMemo(true)} className="w-full py-4 text-center active:opacity-60">
+            <p className="text-[13px] text-[#AEB1B9]">오늘 하루는 어땠나요?</p>
+            <p className="text-[11px] text-[#3D8A5A] mt-1">탭해서 일기를 남겨보세요 ✏️</p>
+          </button>
         )}
       </div>
 
