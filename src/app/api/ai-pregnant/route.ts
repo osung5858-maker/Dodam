@@ -121,6 +121,34 @@ JSON으로 출력:
       }
     }
 
+    // === 임신 중 식단 추천 ===
+    if (type === 'meal') {
+      const { week } = body
+      const trimester = week <= 13 ? '초기' : week <= 27 ? '중기' : '후기'
+      const prompt = `임신 ${week}주차(${trimester}) 산모를 위한 오늘의 식단을 추천해주세요.
+
+JSON 형식:
+{
+  "breakfast": {"menu": "아침 메뉴명 (한식)", "reason": "이유 1줄"},
+  "lunch": {"menu": "점심 메뉴명", "reason": "이유 1줄"},
+  "dinner": {"menu": "저녁 메뉴명", "reason": "이유 1줄"},
+  "snack": {"menu": "간식", "reason": "이유 1줄"},
+  "keyNutrient": "${trimester}에 가장 중요한 영양소",
+  "avoid": "이 시기에 특히 피할 음식/습관"
+}
+한국 가정식 위주. 현실적으로. JSON만 출력.`
+
+      const { text, error } = await callGemini(prompt, 700)
+      if (!text) return NextResponse.json({ error: error || 'AI failed' }, { status: 500 })
+      try {
+        const match = text.match(/\{[\s\S]*\}/)
+        if (!match) return NextResponse.json({ error: 'parse error' }, { status: 500 })
+        return NextResponse.json(JSON.parse(match[0]))
+      } catch {
+        return NextResponse.json({ error: 'parse error' }, { status: 500 })
+      }
+    }
+
     return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
   } catch {
     return NextResponse.json({ error: 'Server error' }, { status: 500 })

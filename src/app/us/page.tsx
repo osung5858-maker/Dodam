@@ -10,7 +10,6 @@ const MENUS: Record<string, { label: string; items: { href: string; icon: string
     {
       label: '나',
       items: [
-        { href: '/health', icon: '💚', title: '내 건강', desc: 'Google Fit · 수면 · 걸음수 · 심박' },
         { href: '/mental-check', icon: '🧘', title: '마음 체크', desc: '스트레스 자가검사 (EPDS)' },
       ],
     },
@@ -32,7 +31,6 @@ const MENUS: Record<string, { label: string; items: { href: string; icon: string
     {
       label: '나',
       items: [
-        { href: '/health', icon: '💚', title: '내 건강', desc: 'Google Fit · 수면 · 걸음수 · 심박' },
       ],
     },
     {
@@ -66,7 +64,6 @@ const MENUS: Record<string, { label: string; items: { href: string; icon: string
     {
       label: '나',
       items: [
-        { href: '/health', icon: '💚', title: '내 건강', desc: 'Google Fit · 수면 · 걸음수 · 심박' },
       ],
     },
     {

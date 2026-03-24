@@ -440,9 +440,9 @@ export default function HomePage() {
               <span className="text-lg">🌙</span>
               <p className="text-[10px] font-semibold text-[#1A1918] mt-1">자장가</p>
             </Link>
-            <Link href="/health" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
-              <span className="text-lg">💚</span>
-              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">내 건강</p>
+            <Link href="/growth/analyze" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
+              <span className="text-lg">📄</span>
+              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">검진 분석</p>
             </Link>
             <Link href="/vaccination" className="bg-white rounded-xl border border-[#f0f0f0] p-2.5 text-center active:bg-[#F9F9F7]">
               <span className="text-lg">💉</span>

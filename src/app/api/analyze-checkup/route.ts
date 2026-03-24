@@ -66,6 +66,7 @@ export async function POST(request: Request) {
           generationConfig: {
             temperature: 0.3,
             maxOutputTokens: 1000,
+            thinkingConfig: { thinkingBudget: 0 },
           },
         }),
       }
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
     if (!response.ok) {
       const err = await response.text()
       console.error('Gemini error:', err)
-      return NextResponse.json({ error: 'AI 분석에 실패했어요' }, { status: 500 })
+      return NextResponse.json({ error: `AI 분석 실패 (${response.status}). 이미지가 너무 크거나 형식이 맞지 않을 수 있어요.` }, { status: 500 })
     }
 
     const data = await response.json()
@@ -84,8 +85,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '분석 결과가 없어요' }, { status: 500 })
     }
 
-    const jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-    const result = JSON.parse(jsonStr)
+    // JSON 추출 강화
+    const cleaned = content.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/)
+    if (!jsonMatch) {
+      return NextResponse.json({ error: '분석 결과를 파싱할 수 없어요', raw: cleaned.slice(0, 200) }, { status: 500 })
+    }
+    const result = JSON.parse(jsonMatch[0])
 
     return NextResponse.json(result)
   } catch (error) {
