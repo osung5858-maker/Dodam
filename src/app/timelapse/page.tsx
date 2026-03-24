@@ -192,7 +192,7 @@ export default function TimelapsePage() {
 
       {/* 콘텐츠 */}
       <div className="flex-1 overflow-y-auto pb-24">
-        <div className="max-w-lg mx-auto px-4 pt-4">
+        <div className="max-w-lg mx-auto px-5 pt-4">
 
           {/* ===== 사진 타임랩스 ===== */}
           {tab === 'photo' && (

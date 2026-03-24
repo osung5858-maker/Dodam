@@ -375,7 +375,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
       </header>
       )}
 
-      <div className="max-w-lg mx-auto px-5 pb-28">
+      <div className="max-w-lg mx-auto px-5 pt-4 pb-28">
         {/* ===== 이야기 탭 ===== */}
         {tab === 'feed' && (
           <>

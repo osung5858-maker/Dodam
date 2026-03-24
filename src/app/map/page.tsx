@@ -107,7 +107,7 @@ function MapPageInner() {
 
       {/* 카테고리 필터 */}
       <div className="sticky top-14 z-30 bg-white/80 dark:bg-[#0A0B0D]/80 backdrop-blur-xl border-b border-[#f0f0f0] dark:border-[#2a2a2a]">
-        <div className="max-w-lg mx-auto px-4 py-2.5 flex gap-2 overflow-x-auto hide-scrollbar">
+        <div className="max-w-lg mx-auto px-5 py-2.5 flex gap-2 overflow-x-auto hide-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.keyword}

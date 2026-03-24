@@ -56,7 +56,7 @@ export default function PublicPostPage() {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-5 pt-4 pb-20 space-y-3">
+      <div className="max-w-lg mx-auto px-5 pt-4 pb-28 space-y-3">
         {/* 게시글 */}
         <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
           <p className="text-[14px] text-[#1A1918] leading-relaxed whitespace-pre-line">{post.content}</p>

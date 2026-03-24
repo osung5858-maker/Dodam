@@ -93,7 +93,7 @@ export default function PhotoTimelapsePage() {
 
       <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleUpload} className="hidden" />
 
-      <div className="max-w-lg mx-auto px-4 pt-4 pb-24">
+      <div className="max-w-lg mx-auto px-5 pt-4 pb-28">
         {/* 재생 영역 */}
         {photos.length >= 2 && (
           <div className="mb-4">

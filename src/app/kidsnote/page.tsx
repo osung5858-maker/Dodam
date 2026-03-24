@@ -6,22 +6,41 @@ import { PageHeader } from '@/components/layout/PageLayout'
 // 사진 확대 뷰어
 function ImageViewer({ images, startIndex, onClose }: { images: { original: string; thumbnail: string }[]; startIndex: number; onClose: () => void }) {
   const [idx, setIdx] = useState(startIndex)
+  const touchStart = { current: 0 }
+
+  const handleTouchStart = (e: React.TouchEvent) => { touchStart.current = e.touches[0].clientX }
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = e.changedTouches[0].clientX - touchStart.current
+    if (Math.abs(diff) > 50) {
+      if (diff < 0 && idx < images.length - 1) setIdx(p => p + 1)  // 왼쪽 스와이프 → 다음
+      if (diff > 0 && idx > 0) setIdx(p => p - 1)                   // 오른쪽 스와이프 → 이전
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col" onClick={onClose}>
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <span className="text-[13px] text-white/70">{idx + 1} / {images.length}</span>
         <button onClick={onClose} className="text-white text-xl font-light">✕</button>
       </div>
-      <div className="flex-1 flex items-center justify-center px-2" onClick={e => e.stopPropagation()}>
-        <img src={images[idx].original} alt="" className="max-w-full max-h-[80vh] object-contain rounded-lg" />
+      <div className="flex-1 flex items-center justify-center px-2"
+        onClick={e => e.stopPropagation()} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+        <img src={images[idx].original} alt="" className="max-w-full max-h-[80vh] object-contain rounded-lg select-none" draggable={false} />
       </div>
       {images.length > 1 && (
-        <div className="flex items-center justify-center gap-6 py-4">
-          <button onClick={(e) => { e.stopPropagation(); setIdx(p => Math.max(0, p - 1)) }}
-            disabled={idx === 0} className="w-10 h-10 rounded-full bg-white/20 text-white disabled:opacity-30 text-lg">←</button>
-          <button onClick={(e) => { e.stopPropagation(); setIdx(p => Math.min(images.length - 1, p + 1)) }}
-            disabled={idx === images.length - 1} className="w-10 h-10 rounded-full bg-white/20 text-white disabled:opacity-30 text-lg">→</button>
-        </div>
+        <>
+          <div className="flex justify-center gap-1 py-2">
+            {images.map((_, i) => (
+              <div key={i} className={`w-1.5 h-1.5 rounded-full ${i === idx ? 'bg-white' : 'bg-white/30'}`} />
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-6 pb-4">
+            <button onClick={(e) => { e.stopPropagation(); setIdx(p => Math.max(0, p - 1)) }}
+              disabled={idx === 0} className="w-10 h-10 rounded-full bg-white/20 text-white disabled:opacity-30 text-lg">←</button>
+            <button onClick={(e) => { e.stopPropagation(); setIdx(p => Math.min(images.length - 1, p + 1)) }}
+              disabled={idx === images.length - 1} className="w-10 h-10 rounded-full bg-white/20 text-white disabled:opacity-30 text-lg">→</button>
+          </div>
+        </>
       )}
     </div>
   )
