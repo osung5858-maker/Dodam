@@ -16,6 +16,10 @@ export default function KidsnotePage() {
   const [albumTotal, setAlbumTotal] = useState(0)
   const [reportTotal, setReportTotal] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const [agreed, setAgreed] = useState(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('kn_agreed') === 'true'
+    return false
+  })
   const [session, setSession] = useState<string | null>(null)
   const [info, setInfo] = useState<any>(null)
   const [children, setChildren] = useState<any[]>([])
@@ -172,13 +176,45 @@ export default function KidsnotePage() {
 
       <div className="max-w-lg mx-auto px-5 pt-4 pb-28 w-full space-y-3">
 
-        {/* 로그인 */}
-        {step === 'login' && (
+        {/* 동의 화면 */}
+        {step === 'login' && !agreed && (
           <div className="bg-white rounded-xl border border-[#f0f0f0] p-5">
             <div className="text-center mb-4">
               <p className="text-2xl mb-2">🏫</p>
               <p className="text-[15px] font-bold text-[#1A1918]">키즈노트 연동</p>
               <p className="text-[11px] text-[#868B94] mt-1">어린이집 알림장 · 사진을 도담으로 가져와요</p>
+            </div>
+
+            <div className="bg-[#F5F4F1] rounded-xl p-4 space-y-3 text-[11px] text-[#555] leading-relaxed">
+              <p className="text-[13px] font-bold text-[#1A1918]">연동 전 확인사항</p>
+              <div className="space-y-2">
+                <p>1. 도담은 키즈노트와 제휴된 서비스가 아닙니다. 키즈노트 계정 정보를 사용자의 동의 하에 직접 입력받아 데이터를 가져옵니다.</p>
+                <p>2. 입력하신 계정 정보는 <span className="font-semibold text-[#1A1918]">도담 서버에 저장되지 않으며</span>, 연결 확인 후 즉시 폐기됩니다. (저장 선택 시 사용자 기기에만 보관)</p>
+                <p>3. 가져온 데이터(알림장, 사진)는 사용자 기기 내에만 저장되며, 외부로 전송되지 않습니다.</p>
+                <p>4. 키즈노트 서비스 정책 변경 시 연동이 중단될 수 있으며, 이에 대해 도담은 책임지지 않습니다.</p>
+                <p>5. 본 기능 사용으로 발생하는 키즈노트 계정 관련 문제에 대한 책임은 사용자에게 있습니다.</p>
+              </div>
+            </div>
+
+            <button onClick={() => { setAgreed(true); localStorage.setItem('kn_agreed', 'true') }}
+              className="w-full mt-4 py-3 bg-[#3D8A5A] text-white text-[13px] font-semibold rounded-xl active:opacity-80">
+              위 내용을 확인했으며 동의합니다
+            </button>
+
+            <button onClick={() => history.back()}
+              className="w-full mt-2 py-2.5 text-[13px] text-[#868B94] active:opacity-60">
+              돌아가기
+            </button>
+          </div>
+        )}
+
+        {/* 로그인 */}
+        {step === 'login' && agreed && (
+          <div className="bg-white rounded-xl border border-[#f0f0f0] p-5">
+            <div className="text-center mb-4">
+              <p className="text-2xl mb-2">🏫</p>
+              <p className="text-[15px] font-bold text-[#1A1918]">키즈노트 로그인</p>
+              <p className="text-[11px] text-[#868B94] mt-1">키즈노트 계정으로 로그인해주세요</p>
             </div>
 
             {error && <div className="bg-[#FFF0E6] rounded-lg p-2 mb-3"><p className="text-[11px] text-[#D08068]">{error}</p></div>}
@@ -197,7 +233,7 @@ export default function KidsnotePage() {
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={saveCredentials} onChange={e => setSaveCredentials(e.target.checked)}
                   className="w-4 h-4 rounded accent-[#3D8A5A]" />
-                <span className="text-[12px] text-[#868B94]">아이디/비밀번호 저장하기</span>
+                <span className="text-[12px] text-[#868B94]">아이디/비밀번호 이 기기에 저장하기</span>
               </label>
               <button onClick={handleLogin} disabled={loading}
                 className="w-full py-3 bg-[#3D8A5A] text-white text-[13px] font-semibold rounded-xl active:opacity-80 disabled:opacity-50">
@@ -207,8 +243,7 @@ export default function KidsnotePage() {
 
             <div className="mt-4 bg-[#F5F4F1] rounded-lg p-3">
               <p className="text-[10px] text-[#868B94] leading-relaxed">
-                🔒 {saveCredentials ? '계정 정보가 이 기기에만 저장돼요.' : '비밀번호는 서버에 저장되지 않아요. 로그인 후 즉시 삭제됩니다.'}
-                키즈노트 계정 정보는 연결 확인 용도로만 사용돼요.
+                🔒 {saveCredentials ? '계정 정보가 이 기기에만 저장돼요. 서버에는 저장되지 않습니다.' : '비밀번호는 서버에 저장되지 않아요. 로그인 후 즉시 삭제됩니다.'}
               </p>
             </div>
           </div>
