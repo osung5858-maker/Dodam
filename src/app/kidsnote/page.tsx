@@ -11,6 +11,10 @@ export default function KidsnotePage() {
   const [loading, setLoading] = useState(false)
   const [loadingAlbums, setLoadingAlbums] = useState(false)
   const [loadingReports, setLoadingReports] = useState(false)
+  const [albumProgress, setAlbumProgress] = useState(0)
+  const [reportProgress, setReportProgress] = useState(0)
+  const [albumTotal, setAlbumTotal] = useState(0)
+  const [reportTotal, setReportTotal] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [session, setSession] = useState<string | null>(null)
   const [info, setInfo] = useState<any>(null)
@@ -85,28 +89,48 @@ export default function KidsnotePage() {
     } catch { /* */ }
   }
 
-  const loadAlbums = async (cookie: string, childId: number, page = 1) => {
-    setLoadingAlbums(true)
+  const loadAlbums = async (cookie: string, childId: number) => {
+    setLoadingAlbums(true); setAlbumProgress(0); setAlbumTotal(0); setAlbums([])
     try {
-      const res = await fetch('/api/kidsnote', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'albums', sessionCookie: cookie, childId, page }),
-      })
-      const data = await res.json()
-      setAlbums(prev => page === 1 ? (data.results || data.albums || []) : [...prev, ...(data.results || data.albums || [])])
+      let page = 1; let all: any[] = []; let hasMore = true
+      while (hasMore) {
+        const res = await fetch('/api/kidsnote', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'albums', sessionCookie: cookie, childId, page }),
+        })
+        const data = await res.json()
+        const items = data.results || data.albums || []
+        const total = data.count || data.total || 0
+        all = [...all, ...items]
+        setAlbums([...all]); setAlbumTotal(total || all.length)
+        setAlbumProgress(total ? Math.min(100, Math.round((all.length / total) * 100)) : 100)
+        hasMore = items.length >= 20 && (total ? all.length < total : true)
+        page++
+      }
+      setAlbumProgress(100)
     } catch { /* */ }
     setLoadingAlbums(false)
   }
 
-  const loadReports = async (cookie: string, childId: number, page = 1) => {
-    setLoadingReports(true)
+  const loadReports = async (cookie: string, childId: number) => {
+    setLoadingReports(true); setReportProgress(0); setReportTotal(0); setReports([])
     try {
-      const res = await fetch('/api/kidsnote', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reports', sessionCookie: cookie, childId, page }),
-      })
-      const data = await res.json()
-      setReports(prev => page === 1 ? (data.results || data.reports || []) : [...prev, ...(data.results || data.reports || [])])
+      let page = 1; let all: any[] = []; let hasMore = true
+      while (hasMore) {
+        const res = await fetch('/api/kidsnote', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'reports', sessionCookie: cookie, childId, page }),
+        })
+        const data = await res.json()
+        const items = data.results || data.reports || []
+        const total = data.count || data.total || 0
+        all = [...all, ...items]
+        setReports([...all]); setReportTotal(total || all.length)
+        setReportProgress(total ? Math.min(100, Math.round((all.length / total) * 100)) : 100)
+        hasMore = items.length >= 20 && (total ? all.length < total : true)
+        page++
+      }
+      setReportProgress(100)
     } catch { /* */ }
     setLoadingReports(false)
   }
@@ -212,17 +236,31 @@ export default function KidsnotePage() {
                 <span className="w-2 h-2 rounded-full bg-[#3D8A5A]" />
                 <span className="text-[13px] font-semibold text-[#1A1918]">키즈노트 연결됨</span>
               </div>
-              <div className="flex gap-2">
-                <button onClick={() => { if (session && selectedChild) loadAlbums(session, selectedChild) }}
-                  disabled={loadingAlbums}
-                  className="flex-1 py-2.5 bg-[#F5F4F1] rounded-xl text-[13px] font-semibold text-[#1A1918] active:bg-[#ECECEC] disabled:opacity-50">
-                  {loadingAlbums ? '가져오는 중...' : '📸 앨범 가져오기'}
-                </button>
-                <button onClick={() => { if (session && selectedChild) loadReports(session, selectedChild) }}
-                  disabled={loadingReports}
-                  className="flex-1 py-2.5 bg-[#F5F4F1] rounded-xl text-[13px] font-semibold text-[#1A1918] active:bg-[#ECECEC] disabled:opacity-50">
-                  {loadingReports ? '가져오는 중...' : '📋 알림장 가져오기'}
-                </button>
+              <div className="space-y-2">
+                <div>
+                  <button onClick={() => { if (session && selectedChild) loadAlbums(session, selectedChild) }}
+                    disabled={loadingAlbums}
+                    className="w-full py-2.5 bg-[#F5F4F1] rounded-xl text-[13px] font-semibold text-[#1A1918] active:bg-[#ECECEC] disabled:opacity-50">
+                    {loadingAlbums ? `📸 앨범 가져오는 중... (${albums.length}${albumTotal ? `/${albumTotal}` : ''}건)` : `📸 앨범 가져오기${albums.length ? ` (${albums.length}건 완료)` : ''}`}
+                  </button>
+                  {loadingAlbums && (
+                    <div className="mt-1.5 h-1.5 bg-[#E8E8E8] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#3D8A5A] rounded-full transition-all duration-300" style={{ width: `${albumProgress}%` }} />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <button onClick={() => { if (session && selectedChild) loadReports(session, selectedChild) }}
+                    disabled={loadingReports}
+                    className="w-full py-2.5 bg-[#F5F4F1] rounded-xl text-[13px] font-semibold text-[#1A1918] active:bg-[#ECECEC] disabled:opacity-50">
+                    {loadingReports ? `📋 알림장 가져오는 중... (${reports.length}${reportTotal ? `/${reportTotal}` : ''}건)` : `📋 알림장 가져오기${reports.length ? ` (${reports.length}건 완료)` : ''}`}
+                  </button>
+                  {loadingReports && (
+                    <div className="mt-1.5 h-1.5 bg-[#E8E8E8] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#3D8A5A] rounded-full transition-all duration-300" style={{ width: `${reportProgress}%` }} />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 

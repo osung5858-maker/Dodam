@@ -383,6 +383,9 @@ export default function HomePage() {
             </Link>
           </div>
 
+          {/* ━━━ 키즈노트 알림 ━━━ */}
+          <KidsnoteCard />
+
           {/* ━━━ 스트릭 + 커뮤니티 ━━━ */}
           <StreakCard mode="parenting" />
           <CommunityTeaser />
@@ -432,5 +435,41 @@ export default function HomePage() {
       <PoopSheet open={poopSheetOpen} onClose={() => { setPoopSheetOpen(false); handlePoopSelect(null) }} onSelect={handlePoopSelect} />
       <TempSheet open={tempSheetOpen} onClose={() => setTempSheetOpen(false)} onSubmit={handleTempSubmit} />
     </div>
+  )
+}
+
+function KidsnoteCard() {
+  const [items, setItems] = useState<any[]>([])
+  useEffect(() => {
+    const saved = localStorage.getItem('dodam_kidsnote_saved')
+    if (saved) {
+      try { setItems(JSON.parse(saved).slice(0, 3)) } catch { /* */ }
+    }
+  }, [])
+
+  if (items.length === 0) return null
+
+  return (
+    <Link href="/kidsnote" className="block bg-white rounded-xl border border-[#f0f0f0] p-3">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm">🏫</span>
+          <span className="text-[13px] font-bold text-[#1A1918]">키즈노트</span>
+        </div>
+        <ChevronRightIcon className="w-4 h-4 text-[#AEB1B9]" />
+      </div>
+      {items.slice(0, 2).map((item: any, i: number) => (
+        <div key={i} className="flex items-center gap-2 py-1.5">
+          {item.images?.[0] && (
+            <img src={item.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" />
+          )}
+          <div className="min-w-0 flex-1">
+            {item.title && <p className="text-[11px] font-semibold text-[#1A1918] truncate">{item.title}</p>}
+            {item.content && <p className="text-[10px] text-[#868B94] truncate">{item.content}</p>}
+          </div>
+          <span className="text-[9px] text-[#AEB1B9] shrink-0">{item.date ? new Date(item.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : ''}</span>
+        </div>
+      ))}
+    </Link>
   )
 }
