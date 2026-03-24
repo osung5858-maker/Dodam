@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { Suspense } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 type SubTab = 'town' | 'story' | 'market'
 
@@ -35,12 +34,8 @@ interface Place {
 }
 
 export default function TownPage() {
-  return <Suspense><TownPageInner /></Suspense>
-}
-
-function TownPageInner() {
+  const [subTab, setSubTab] = useState<SubTab>('town')
   const [mode, setMode] = useState('parenting')
-  const router = useRouter()
 
   useEffect(() => {
     const saved = localStorage.getItem('dodam_mode')
@@ -48,11 +43,6 @@ function TownPageInner() {
   }, [])
 
   const categories = MAP_CATEGORIES[mode] || MAP_CATEGORIES.parenting
-
-  const handleTab = (key: string) => {
-    if (key === 'story') router.push('/community')
-    else if (key === 'market') router.push('/community?tab=market')
-  }
 
   return (
     <div className="min-h-[100dvh] bg-[#F5F4F1]">
@@ -63,12 +53,12 @@ function TownPageInner() {
           </div>
           <div className="flex px-5 gap-1 pb-2">
             {[
-              { key: 'town', label: '동네' },
-              { key: 'story', label: '이야기' },
-              { key: 'market', label: '도담장터' },
+              { key: 'town' as SubTab, label: '동네' },
+              { key: 'story' as SubTab, label: '이야기' },
+              { key: 'market' as SubTab, label: '도담장터' },
             ].map(t => (
-              <button key={t.key} onClick={() => handleTab(t.key)}
-                className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${t.key === 'town' ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
+              <button key={t.key} onClick={() => setSubTab(t.key)}
+                className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${subTab === t.key ? 'bg-[#3D8A5A] text-white' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
                 {t.label}
               </button>
             ))}
@@ -77,7 +67,9 @@ function TownPageInner() {
       </header>
 
       <div className="max-w-lg mx-auto">
-        <MapTab categories={categories} />
+        {subTab === 'town' && <MapTab categories={categories} />}
+        {subTab === 'story' && <StoryTab />}
+        {subTab === 'market' && <MarketTab />}
       </div>
     </div>
   )
@@ -94,17 +86,12 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
   const searchPlaces = useCallback((query: string) => {
     setLoading(true); setPlaces([])
     if (!window.kakao?.maps) { setLoading(false); return }
-
     navigator.geolocation.getCurrentPosition((pos) => {
       const { latitude, longitude } = pos.coords
       const latlng = new window.kakao.maps.LatLng(latitude, longitude)
-
       if (!mapObjRef.current && mapRef.current) {
         mapObjRef.current = new window.kakao.maps.Map(mapRef.current, { center: latlng, level: 5 })
-      } else if (mapObjRef.current) {
-        mapObjRef.current.setCenter(latlng)
-      }
-
+      } else if (mapObjRef.current) { mapObjRef.current.setCenter(latlng) }
       const ps = new window.kakao.maps.services.Places()
       ps.keywordSearch(query, (data: any[], status: string) => {
         if (status === window.kakao.maps.services.Status.OK) {
@@ -126,9 +113,8 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
 
   useEffect(() => {
     const initMap = () => {
-      if (window.kakao?.maps) {
-        window.kakao.maps.load(() => searchPlaces(categories[0]?.query || '소아과'))
-      } else setTimeout(initMap, 300)
+      if (window.kakao?.maps) { window.kakao.maps.load(() => searchPlaces(categories[0]?.query || '소아과')) }
+      else setTimeout(initMap, 300)
     }
     initMap()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -136,7 +122,6 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
   return (
     <div className="pb-28">
       <div ref={mapRef} className="w-full h-48 bg-[#E8F0E8]" />
-
       <div className="flex gap-1.5 overflow-x-auto hide-scrollbar px-4 py-3">
         {categories.map((cat, i) => (
           <button key={cat.query} onClick={() => { setActiveIdx(i); searchPlaces(cat.query) }}
@@ -145,7 +130,6 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
           </button>
         ))}
       </div>
-
       <div className="px-4 space-y-2">
         {loading ? (
           <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
@@ -163,23 +147,15 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
                   {p.distance && <span className="text-[10px] text-[#AEB1B9] shrink-0 ml-2">{p.distance}</span>}
                 </div>
               </Link>
-              {/* 전화 · 길찾기 · 리뷰 */}
               <div className="flex gap-2 mt-2 pt-2 border-t border-[#f0f0f0]">
                 {p.phone ? (
-                  <a href={`tel:${p.phone}`} className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">
-                    📞 전화
-                  </a>
+                  <a href={`tel:${p.phone}`} className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">📞 전화</a>
                 ) : (
                   <div className="flex-1 py-1.5 bg-[#F5F4F1] rounded-lg text-center text-[11px] text-[#AEB1B9]">📞 전화</div>
                 )}
                 <a href={`https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lng}`} target="_blank" rel="noopener noreferrer"
-                  className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">
-                  🧭 길찾기
-                </a>
-                <Link href={`/map/${p.id}/review`}
-                  className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">
-                  ⭐ 리뷰
-                </Link>
+                  className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">🧭 길찾기</a>
+                <Link href={`/map/${p.id}/review`} className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">⭐ 리뷰</Link>
               </div>
             </div>
           ))
@@ -189,3 +165,197 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
   )
 }
 
+// ===== 이야기 탭 =====
+function StoryTab() {
+  const supabase = createClient()
+  const [posts, setPosts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [newPost, setNewPost] = useState('')
+  const [posting, setPosting] = useState(false)
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({})
+  const [comments, setComments] = useState<Record<string, any[]>>({})
+  const [commentTexts, setCommentTexts] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) setUserId(user.id)
+      const { data } = await supabase.from('posts').select('*').order('created_at', { ascending: false }).limit(30)
+      setPosts(data || []); setLoading(false)
+    }
+    load()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePost = async () => {
+    if (!newPost.trim() || posting || !userId) return
+    setPosting(true)
+    const { data } = await supabase.from('posts').insert({ user_id: userId, content: newPost.trim() }).select().single()
+    if (data) { setPosts(prev => [data, ...prev]); setNewPost('') }
+    setPosting(false)
+  }
+
+  const toggleLike = async (postId: string) => {
+    if (!userId) return
+    const { data: existing } = await supabase.from('post_likes').select('id').eq('post_id', postId).eq('user_id', userId).single()
+    if (existing) {
+      await supabase.from('post_likes').delete().eq('id', existing.id)
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, like_count: Math.max(0, p.like_count - 1) } : p))
+    } else {
+      await supabase.from('post_likes').insert({ post_id: postId, user_id: userId })
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, like_count: (p.like_count || 0) + 1 } : p))
+    }
+  }
+
+  const loadComments = async (postId: string) => {
+    if (expandedComments[postId]) { setExpandedComments(prev => ({ ...prev, [postId]: false })); return }
+    const { data } = await supabase.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: true })
+    setComments(prev => ({ ...prev, [postId]: data || [] }))
+    setExpandedComments(prev => ({ ...prev, [postId]: true }))
+  }
+
+  const addComment = async (postId: string) => {
+    const text = commentTexts[postId]?.trim()
+    if (!text || !userId) return
+    const { data } = await supabase.from('comments').insert({ post_id: postId, user_id: userId, content: text }).select().single()
+    if (data) {
+      setComments(prev => ({ ...prev, [postId]: [...(prev[postId] || []), data] }))
+      setCommentTexts(prev => ({ ...prev, [postId]: '' }))
+      setPosts(prev => prev.map(p => p.id === postId ? { ...p, comment_count: (p.comment_count || 0) + 1 } : p))
+    }
+  }
+
+  return (
+    <div className="px-4 pt-3 pb-28 space-y-2">
+      {/* 글쓰기 */}
+      <div className="bg-white rounded-xl border border-[#f0f0f0] p-3">
+        <textarea value={newPost} onChange={e => setNewPost(e.target.value.slice(0, 500))} placeholder="동네 이야기를 나눠보세요..."
+          className="w-full h-14 text-[13px] resize-none focus:outline-none" />
+        <div className="flex justify-between items-center">
+          <span className="text-[9px] text-[#AEB1B9]">{newPost.length}/500</span>
+          <button onClick={handlePost} disabled={!newPost.trim() || posting}
+            className={`px-4 py-1.5 rounded-lg text-[12px] font-semibold ${newPost.trim() && !posting ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}>
+            {posting ? '...' : '올리기'}
+          </button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
+      ) : posts.length === 0 ? (
+        <p className="text-[13px] text-[#AEB1B9] text-center py-8">첫 이야기를 시작해보세요!</p>
+      ) : (
+        posts.map(post => (
+          <div key={post.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
+            <p className="text-[13px] text-[#1A1918] leading-relaxed whitespace-pre-line">{post.content}</p>
+            <div className="flex items-center gap-3 mt-2">
+              <button onClick={() => toggleLike(post.id)} className="text-[10px] text-[#868B94] active:scale-110">❤️ {post.like_count || 0}</button>
+              <button onClick={() => loadComments(post.id)} className="text-[10px] text-[#868B94]">💬 {post.comment_count || 0}</button>
+              <span className="text-[10px] text-[#AEB1B9] ml-auto">{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
+            </div>
+            {/* 댓글 */}
+            {expandedComments[post.id] && (
+              <div className="mt-2 pt-2 border-t border-[#f0f0f0] space-y-1.5">
+                {(comments[post.id] || []).map((c: any) => (
+                  <div key={c.id} className="bg-[#F5F4F1] rounded-lg p-2">
+                    <p className="text-[12px] text-[#1A1918]">{c.content}</p>
+                    <p className="text-[9px] text-[#AEB1B9] mt-0.5">{new Date(c.created_at).toLocaleDateString('ko-KR')}</p>
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <input value={commentTexts[post.id] || ''} onChange={e => setCommentTexts(prev => ({ ...prev, [post.id]: e.target.value }))}
+                    placeholder="댓글..." className="flex-1 h-8 px-2 rounded-lg bg-[#F5F4F1] text-[12px] focus:outline-none" />
+                  <button onClick={() => addComment(post.id)} className="px-3 h-8 rounded-lg bg-[#3D8A5A] text-white text-[11px] font-semibold">등록</button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
+
+// ===== 도담장터 탭 =====
+function MarketTab() {
+  const supabase = createClient()
+  const [items, setItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [userId, setUserId] = useState<string | null>(null)
+  // 등록 폼
+  const [formOpen, setFormOpen] = useState(false)
+  const [title, setTitle] = useState('')
+  const [desc, setDesc] = useState('')
+  const [price, setPrice] = useState(0)
+  const [posting, setPosting] = useState(false)
+
+  useEffect(() => {
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) setUserId(user.id)
+      const { data } = await supabase.from('market_items').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(30)
+      setItems(data || []); setLoading(false)
+    }
+    load()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handlePost = async () => {
+    if (!title.trim() || posting || !userId) return
+    setPosting(true)
+    const region = localStorage.getItem('dodam_market_region') || '동네'
+    const { data } = await supabase.from('market_items').insert({
+      user_id: userId, title: title.trim(), description: desc.trim(), price, region, status: 'active',
+    }).select().single()
+    if (data) { setItems(prev => [data, ...prev]); setTitle(''); setDesc(''); setPrice(0); setFormOpen(false) }
+    setPosting(false)
+  }
+
+  return (
+    <div className="px-4 pt-3 pb-28 space-y-2">
+      {/* 등록 버튼/폼 */}
+      {formOpen ? (
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-3 space-y-2">
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="제목" className="w-full h-10 px-3 rounded-lg border border-[#f0f0f0] text-[13px]" />
+          <textarea value={desc} onChange={e => setDesc(e.target.value)} placeholder="설명" className="w-full h-16 px-3 py-2 rounded-lg border border-[#f0f0f0] text-[13px] resize-none" />
+          <div className="flex gap-2 items-center">
+            <input type="number" value={price || ''} onChange={e => setPrice(Number(e.target.value))} placeholder="가격 (0=나눔)" className="flex-1 h-10 px-3 rounded-lg border border-[#f0f0f0] text-[13px]" />
+            <span className="text-[11px] text-[#868B94]">원</span>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setFormOpen(false)} className="flex-1 py-2 rounded-lg bg-[#F5F4F1] text-[12px] text-[#868B94]">취소</button>
+            <button onClick={handlePost} disabled={!title.trim() || posting}
+              className={`flex-1 py-2 rounded-lg text-[12px] font-semibold ${title.trim() ? 'bg-[#3D8A5A] text-white' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}>
+              {posting ? '...' : '등록'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button onClick={() => setFormOpen(true)} className="w-full bg-[#F0F9F4] rounded-xl p-3 text-center active:opacity-80">
+          <p className="text-[12px] text-[#3D8A5A] font-semibold">+ 도담장터에 올리기</p>
+        </button>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center py-8"><div className="w-5 h-5 border-2 border-[#3D8A5A]/20 border-t-[#3D8A5A] rounded-full animate-spin" /></div>
+      ) : items.length === 0 ? (
+        <p className="text-[13px] text-[#AEB1B9] text-center py-8">아직 장터 글이 없어요</p>
+      ) : (
+        items.map(item => (
+          <div key={item.id} className="bg-white rounded-xl border border-[#f0f0f0] p-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[13px] font-semibold text-[#1A1918] line-clamp-1 flex-1">{item.title}</p>
+              <p className="text-[12px] font-bold text-[#3D8A5A] shrink-0 ml-2">{item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔'}</p>
+            </div>
+            {item.description && <p className="text-[10px] text-[#868B94] mt-0.5 line-clamp-2">{item.description}</p>}
+            <div className="flex items-center justify-between mt-1.5">
+              <span className="text-[9px] text-[#AEB1B9]">{item.region} · {new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
+              <span className={`text-[9px] px-1.5 py-0.5 rounded ${item.status === 'active' ? 'bg-[#F0F9F4] text-[#3D8A5A]' : 'bg-[#F5F4F1] text-[#868B94]'}`}>
+                {item.status === 'active' ? '판매중' : item.status === 'reserved' ? '예약중' : '거래완료'}
+              </span>
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )
+}
