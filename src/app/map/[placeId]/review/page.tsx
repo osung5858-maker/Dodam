@@ -72,9 +72,7 @@ export default function WriteReviewPage() {
     })
 
     if (insertError) {
-      if (insertError.code === '23505') {
-        setError('이미 이 장소에 리뷰를 작성했어요.')
-      } else if (insertError.code === '42P01') {
+      if (insertError.code === '42P01') {
         setError('리뷰 테이블이 아직 생성되지 않았어요. (reviews 테이블 필요)')
       } else {
         setError(`저장 실패: ${insertError.message} (${insertError.code})`)
