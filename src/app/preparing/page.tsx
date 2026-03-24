@@ -564,17 +564,29 @@ export default function PreparingPage() {
                   { key: 'dinner', label: '저녁', icon: '🌙', data: aiMeal.dinner },
                   { key: 'snack', label: '간식', icon: '🍎', data: aiMeal.snack },
                 ].map((m) => m.data && (
-                  <div key={m.label} className={`flex items-center gap-2 ${m.key === currentMeal ? 'bg-[#F0F9F4] -mx-2 px-2 py-1.5 rounded-lg' : 'py-0.5'}`}>
-                    <span className="text-sm shrink-0">{m.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
+                  <div key={m.label} className={`rounded-lg ${m.key === currentMeal ? 'bg-[#F0F9F4] -mx-1 px-3 py-2' : 'py-1.5'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{m.icon}</span>
                         <span className={`text-[10px] ${m.key === currentMeal ? 'text-[#3D8A5A] font-bold' : 'text-[#AEB1B9]'}`}>{m.label}</span>
-                        <p className="text-[12px] font-semibold text-[#1A1918] truncate">{m.data.menu}</p>
-                        {m.key === currentMeal && <span className="text-[7px] bg-[#3D8A5A] text-white px-1 rounded shrink-0">지금</span>}
+                        <p className="text-[13px] font-semibold text-[#1A1918]">{m.data.menu}</p>
+                        {m.key === currentMeal && <span className="text-[7px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
                       </div>
+                      <Link href={`/map?q=${encodeURIComponent((() => {
+                        const menu = m.data.menu
+                        // 메뉴에서 외식 가능한 키워드 추출
+                        if (menu.includes('비빔밥')) return '비빔밥'
+                        if (menu.includes('찌개') || menu.includes('된장')) return '한식당'
+                        if (menu.includes('샐러드')) return '샐러드 맛집'
+                        if (menu.includes('연어') || menu.includes('생선')) return '일식당'
+                        if (menu.includes('파스타') || menu.includes('리조또')) return '이탈리안 레스토랑'
+                        if (menu.includes('국밥') || menu.includes('탕')) return '국밥집'
+                        if (menu.includes('죽')) return '죽집'
+                        return menu.replace(/[()（）·]/g, '').split(' ')[0] + ' 맛집'
+                      })())}`}
+                        className="shrink-0 px-2 py-0.5 rounded-full bg-[#F5F4F1] text-[9px] text-[#3D8A5A] active:opacity-60">📍 식당</Link>
                     </div>
-                    <Link href={`/map?q=${encodeURIComponent(m.data.menu.replace(/[()（）]/g, '').split(' ')[0] + ' 맛집')}`}
-                      className="shrink-0 text-[9px] text-[#3D8A5A] active:opacity-60">📍</Link>
+                    <p className="text-[10px] text-[#868B94] mt-0.5 ml-7">{m.data.reason}</p>
                   </div>
                 ))
               })()}
