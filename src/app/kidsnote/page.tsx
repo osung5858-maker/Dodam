@@ -3,8 +3,34 @@
 import { useState, useEffect } from 'react'
 import { PageHeader } from '@/components/layout/PageLayout'
 
+// 사진 확대 뷰어
+function ImageViewer({ images, startIndex, onClose }: { images: { original: string; thumbnail: string }[]; startIndex: number; onClose: () => void }) {
+  const [idx, setIdx] = useState(startIndex)
+  return (
+    <div className="fixed inset-0 z-[100] bg-black/95 flex flex-col" onClick={onClose}>
+      <div className="flex items-center justify-between px-4 pt-3 pb-2">
+        <span className="text-[13px] text-white/70">{idx + 1} / {images.length}</span>
+        <button onClick={onClose} className="text-white text-xl font-light">✕</button>
+      </div>
+      <div className="flex-1 flex items-center justify-center px-2" onClick={e => e.stopPropagation()}>
+        <img src={images[idx].original} alt="" className="max-w-full max-h-[80vh] object-contain rounded-lg" />
+      </div>
+      {images.length > 1 && (
+        <div className="flex items-center justify-center gap-6 py-4">
+          <button onClick={(e) => { e.stopPropagation(); setIdx(p => Math.max(0, p - 1)) }}
+            disabled={idx === 0} className="w-10 h-10 rounded-full bg-white/20 text-white disabled:opacity-30 text-lg">←</button>
+          <button onClick={(e) => { e.stopPropagation(); setIdx(p => Math.min(images.length - 1, p + 1)) }}
+            disabled={idx === images.length - 1} className="w-10 h-10 rounded-full bg-white/20 text-white disabled:opacity-30 text-lg">→</button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function KidsnotePage() {
   const [step, setStep] = useState<'login' | 'children' | 'data'>('login')
+  const [viewerImages, setViewerImages] = useState<{ original: string; thumbnail: string }[] | null>(null)
+  const [viewerStart, setViewerStart] = useState(0)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [saveCredentials, setSaveCredentials] = useState(false)
@@ -332,12 +358,14 @@ export default function KidsnotePage() {
                       <div className="flex gap-1.5 mb-2 overflow-x-auto hide-scrollbar">
                         {album.images.slice(0, 4).map((img: any, j: number) => (
                           <img key={j} src={img.thumbnail || img.original} alt=""
-                            className="w-20 h-20 rounded-lg object-cover shrink-0" />
+                            onClick={() => { setViewerImages(album.images); setViewerStart(j) }}
+                            className="w-20 h-20 rounded-lg object-cover shrink-0 cursor-pointer active:opacity-80" />
                         ))}
                         {album.images.length > 4 && (
-                          <div className="w-20 h-20 rounded-lg bg-[#F5F4F1] flex items-center justify-center shrink-0">
+                          <button onClick={() => { setViewerImages(album.images); setViewerStart(4) }}
+                            className="w-20 h-20 rounded-lg bg-[#F5F4F1] flex items-center justify-center shrink-0">
                             <span className="text-[11px] text-[#868B94]">+{album.images.length - 4}</span>
-                          </div>
+                          </button>
                         )}
                       </div>
                     )}
@@ -360,10 +388,17 @@ export default function KidsnotePage() {
                     {report.content && <p className="text-[12px] text-[#868B94] line-clamp-4 whitespace-pre-line">{report.content}</p>}
                     {report.images && report.images.length > 0 && (
                       <div className="flex gap-1.5 mt-2">
-                        {report.images.slice(0, 3).map((img: any, j: number) => (
+                        {report.images.slice(0, 4).map((img: any, j: number) => (
                           <img key={j} src={img.thumbnail || img.original} alt=""
-                            className="w-16 h-16 rounded-lg object-cover" />
+                            onClick={() => { setViewerImages(report.images); setViewerStart(j) }}
+                            className="w-16 h-16 rounded-lg object-cover cursor-pointer active:opacity-80" />
                         ))}
+                        {report.images.length > 4 && (
+                          <button onClick={() => { setViewerImages(report.images); setViewerStart(4) }}
+                            className="w-16 h-16 rounded-lg bg-[#F5F4F1] flex items-center justify-center">
+                            <span className="text-[10px] text-[#868B94]">+{report.images.length - 4}</span>
+                          </button>
+                        )}
                       </div>
                     )}
                     <div className="flex items-center justify-between mt-2">
@@ -377,6 +412,11 @@ export default function KidsnotePage() {
           </>
         )}
       </div>
+
+      {/* 사진 확대 뷰어 */}
+      {viewerImages && (
+        <ImageViewer images={viewerImages} startIndex={viewerStart} onClose={() => setViewerImages(null)} />
+      )}
     </div>
   )
 }
