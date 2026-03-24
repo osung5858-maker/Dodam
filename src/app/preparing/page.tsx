@@ -57,6 +57,44 @@ const STRESS_TIPS = [
   { icon: '🎵', title: '음악 테라피', desc: '편안한 음악 20분' },
 ]
 
+// ===== 생년월일 선택 (년/월/일) =====
+function BirthDatePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const parts = value ? value.split('-') : ['', '', '']
+  const [year, setYear] = useState(parts[0])
+  const [month, setMonth] = useState(parts[1])
+  const [day, setDay] = useState(parts[2])
+
+  const update = (y: string, m: string, d: string) => {
+    setYear(y); setMonth(m); setDay(d)
+    if (y && m && d) onChange(`${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`)
+  }
+
+  const daysInMonth = year && month ? new Date(Number(year), Number(month), 0).getDate() : 31
+
+  return (
+    <div className="flex gap-2">
+      <select value={year} onChange={e => update(e.target.value, month, day)} className="flex-[2] h-11 rounded-xl border border-[#f0f0f0] px-2 text-[13px] bg-white">
+        <option value="">년</option>
+        {Array.from({ length: 40 }, (_, i) => new Date().getFullYear() - 20 - i).map(y => (
+          <option key={y} value={String(y)}>{y}</option>
+        ))}
+      </select>
+      <select value={month} onChange={e => update(year, e.target.value, day)} className="flex-1 h-11 rounded-xl border border-[#f0f0f0] px-2 text-[13px] bg-white">
+        <option value="">월</option>
+        {Array.from({ length: 12 }, (_, i) => i + 1).map(m => (
+          <option key={m} value={String(m)}>{m}월</option>
+        ))}
+      </select>
+      <select value={day} onChange={e => update(year, month, e.target.value)} className="flex-1 h-11 rounded-xl border border-[#f0f0f0] px-2 text-[13px] bg-white">
+        <option value="">일</option>
+        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => (
+          <option key={d} value={String(d)}>{d}일</option>
+        ))}
+      </select>
+    </div>
+  )
+}
+
 // ===== AI 디스플레이 — 요약 기본 + 펼쳐서 전체 =====
 function AITypingDisplay({ briefing, onRefresh, onShare }: { briefing: any; onRefresh: () => void; onShare: () => void }) {
   const [expanded, setExpanded] = useState(false)
@@ -347,15 +385,10 @@ export default function PreparingPage() {
             </div>
           </div>
 
-          {/* 내 출생연도 */}
+          {/* 내 생년월일 */}
           <div className="mb-5">
-            <p className="text-[12px] font-semibold text-[#868B94] mb-1">내 출생연도 {myAge > 0 && <span className="text-[#3D8A5A] font-bold">{myAge}세</span>}</p>
-            <select value={myBirth} onChange={(e) => setMyBirth(e.target.value)} className="w-full h-12 rounded-xl border border-[#f0f0f0] px-3 text-[14px] bg-white">
-              <option value="">선택</option>
-              {Array.from({ length: 40 }, (_, i) => new Date().getFullYear() - 20 - i).map(y => (
-                <option key={y} value={`${y}-06-15`}>{y}년생</option>
-              ))}
-            </select>
+            <p className="text-[12px] font-semibold text-[#868B94] mb-1">내 생년월일 {myAge > 0 && <span className="text-[#3D8A5A] font-bold">{myAge}세</span>}</p>
+            <BirthDatePicker value={myBirth} onChange={setMyBirth} />
           </div>
 
           {/* 생리 주기 (예비맘만) */}
