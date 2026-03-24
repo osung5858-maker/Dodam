@@ -206,6 +206,9 @@ export default function PregnantPage() {
   // AI
   const [aiBriefing, setAiBriefing] = useState<any>(null)
   const [aiLoading, setAiLoading] = useState(false)
+  // 식단
+  const [aiMeal, setAiMeal] = useState<any>(null)
+  const [aiMealLoading, setAiMealLoading] = useState(false)
 
   // 더보기
   const [moreOpen, setMoreOpen] = useState(false)
@@ -304,6 +307,19 @@ export default function PregnantPage() {
       if (!data.error) { setAiBriefing(data); localStorage.setItem('dodam_preg_ai', JSON.stringify({ date: today, data })) }
     } catch { /* */ }
     setAiLoading(false)
+  }
+
+  const fetchMeal = async () => {
+    const cached = localStorage.getItem('dodam_preg_meal')
+    if (cached) { try { const { date, data } = JSON.parse(cached); if (date === today && data.breakfast) { setAiMeal(data); return } } catch { /* */ } }
+    setAiMealLoading(true)
+    try {
+      const res = await fetch('/api/ai-preparing', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'meal', phase: 'pregnant', cycleDay: currentWeek }) })
+      const data = await res.json()
+      if (!data.error && data.breakfast) { setAiMeal(data); localStorage.setItem('dodam_preg_meal', JSON.stringify({ date: today, data })) }
+    } catch { /* */ }
+    setAiMealLoading(false)
   }
 
   useEffect(() => { if (dueDate && !aiBriefing) fetchAI() }, [!!dueDate]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -494,6 +510,47 @@ export default function PregnantPage() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* ━━━ 식단 추천 ━━━ */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-[14px] font-bold text-[#1A1918]">🍽️ {new Date().getHours() < 10 ? '아침' : new Date().getHours() < 14 ? '점심' : new Date().getHours() < 18 ? '간식' : '저녁'} 뭐 먹지?</p>
+            {aiMeal && <button onClick={() => { localStorage.removeItem('dodam_preg_meal'); setAiMeal(null); fetchMeal() }} className="text-[10px] text-[#3D8A5A]">다른 추천</button>}
+          </div>
+          {aiMeal ? (
+            <div className="space-y-1.5">
+              {[
+                { key: 'breakfast', label: '아침', icon: '🌅', data: aiMeal.breakfast },
+                { key: 'lunch', label: '점심', icon: '☀️', data: aiMeal.lunch },
+                { key: 'dinner', label: '저녁', icon: '🌙', data: aiMeal.dinner },
+                { key: 'snack', label: '간식', icon: '🍎', data: aiMeal.snack },
+              ].map(m => {
+                if (!m.data) return null
+                const hour = new Date().getHours()
+                const isCurrent = m.key === (hour < 10 ? 'breakfast' : hour < 14 ? 'lunch' : hour < 18 ? 'snack' : 'dinner')
+                return (
+                  <div key={m.key} className={`rounded-lg ${isCurrent ? 'bg-[#F0F9F4] -mx-1 px-3 py-2' : 'py-1'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{m.icon}</span>
+                        <span className={`text-[10px] ${isCurrent ? 'text-[#3D8A5A] font-bold' : 'text-[#AEB1B9]'}`}>{m.label}</span>
+                        <p className="text-[12px] font-semibold text-[#1A1918]">{m.data.menu}</p>
+                        {isCurrent && <span className="text-[7px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
+                      </div>
+                      <Link href={`/map?q=${encodeURIComponent(m.data.menu.split(' ')[0] + ' 맛집')}`} className="text-[9px] text-[#3D8A5A]">📍</Link>
+                    </div>
+                    <p className="text-[10px] text-[#868B94] ml-7">{m.data.reason}</p>
+                  </div>
+                )
+              })}
+              {aiMeal.avoid && <p className="text-[10px] text-[#D08068] mt-1">🚫 {aiMeal.avoid}</p>}
+            </div>
+          ) : (
+            <button onClick={fetchMeal} disabled={aiMealLoading} className="w-full py-2.5 text-[12px] font-semibold text-[#3D8A5A] bg-[#F0F9F4] rounded-xl active:opacity-80">
+              {aiMealLoading ? 'AI가 식단 준비 중...' : '오늘의 식단 추천받기 🍽️'}
+            </button>
+          )}
         </div>
 
         {/* ━━━ 3. 상태 카드 — 주차별 동적 ━━━ */}

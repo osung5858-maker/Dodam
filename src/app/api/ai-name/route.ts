@@ -79,18 +79,22 @@ JSON만 출력.`
 - 희망 테마/뜻: ${theme || '건강하고 지혜로운'}
 - 음절 수: ${syllables || 2}글자
 
-JSON으로 5개 추천:
+JSON으로 5개 추천. 각 이름에 한자 후보를 2-3개씩 제공하고 각각의 뜻을 설명하세요:
 {
   "names": [
     {
       "name": "이름 (한글)",
-      "hanja": "한자 (있으면)",
-      "meaning": "뜻풀이 (1-2문장)",
-      "fiveElements": "음양오행 분석 (목/화/토/금/수 중 해당 요소)",
-      "score": 1~100 (작명 점수),
-      "scoreDetail": "점수 근거 1문장",
-      "pronunciation": "발음 평가 (좋음/보통)",
-      "uniqueness": "흔함/보통/독특함"
+      "hanjaOptions": [
+        {"hanja": "한자 조합1", "meaning": "각 글자 뜻 풀이"},
+        {"hanja": "한자 조합2", "meaning": "각 글자 뜻 풀이"}
+      ],
+      "meaning": "종합 뜻풀이 (1-2문장)",
+      "fiveElements": "음양오행 (목/화/토/금/수)",
+      "score": 1~100,
+      "scoreDetail": "점수 근거",
+      "pronunciation": "좋음/보통",
+      "uniqueness": "흔함/보통/독특함",
+      "popularity": "2025년 인기 순위 추정 (예: 상위 5%, 상위 20%, 희귀)"
     }
   ]
 }

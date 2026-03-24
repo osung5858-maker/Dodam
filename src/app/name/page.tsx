@@ -195,7 +195,11 @@ export default function NamePage() {
         {tab === 'suggest' && (
           <div className="space-y-3">
             <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
-              <p className="text-[14px] font-bold text-[#1A1918] mb-3">✨ AI 이름 추천</p>
+              <p className="text-[14px] font-bold text-[#1A1918] mb-1">✨ AI 이름 추천</p>
+              <div className="flex gap-2 mb-3">
+                <a href="https://baby-name.kr/" target="_blank" rel="noopener noreferrer" className="text-[9px] text-[#3D8A5A] px-2 py-0.5 bg-[#F0F9F4] rounded-full">📊 인기 이름 순위</a>
+                <a href="https://www.namechart.kr/" target="_blank" rel="noopener noreferrer" className="text-[9px] text-[#3D8A5A] px-2 py-0.5 bg-[#F0F9F4] rounded-full">📈 이름 차트</a>
+              </div>
               <div className="grid grid-cols-2 gap-2 mb-3">
                 <div>
                   <p className="text-[10px] text-[#868B94] mb-1">성</p>
@@ -242,7 +246,6 @@ export default function NamePage() {
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <p className="text-[18px] font-bold text-[#1A1918]">{lastName}{n.name}</p>
-                    {n.hanja && <p className="text-[11px] text-[#868B94]">{n.hanja}</p>}
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-10 h-10 rounded-full bg-[#F0F9F4] flex items-center justify-center">
@@ -253,11 +256,27 @@ export default function NamePage() {
                     </button>
                   </div>
                 </div>
+
+                {/* 한자 후보 선택 */}
+                {n.hanjaOptions && n.hanjaOptions.length > 0 ? (
+                  <div className="mb-2 space-y-1">
+                    {n.hanjaOptions.map((h: any, j: number) => (
+                      <div key={j} className="flex items-center gap-2 p-2 bg-[#F5F4F1] rounded-lg">
+                        <span className="text-[14px] font-semibold text-[#1A1918]">{h.hanja}</span>
+                        <p className="text-[10px] text-[#868B94] flex-1">{h.meaning}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : n.hanja ? (
+                  <p className="text-[11px] text-[#868B94] mb-2">{n.hanja}</p>
+                ) : null}
+
                 <p className="text-[12px] text-[#1A1918] mb-2">{n.meaning}</p>
                 <div className="flex flex-wrap gap-1.5">
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[#F0F9F4] text-[#3D8A5A]">{n.fiveElements}</span>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[#F5F4F1] text-[#868B94]">{n.pronunciation}</span>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[#F5F4F1] text-[#868B94]">{n.uniqueness}</span>
+                  {n.popularity && <span className="text-[10px] px-2 py-0.5 rounded bg-[#FFF8F3] text-[#C4A35A]">📊 {n.popularity}</span>}
                 </div>
                 {n.scoreDetail && <p className="text-[10px] text-[#AEB1B9] mt-1">{n.scoreDetail}</p>}
               </div>
