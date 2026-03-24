@@ -487,7 +487,13 @@ export default function PregnantPage() {
     setAiMealLoading(false)
   }
 
-  useEffect(() => { if (dueDate && !aiBriefing) fetchAI() }, [!!dueDate]) // eslint-disable-line react-hooks/exhaustive-deps
+  // AI 자동 호출 제거 — 캐시만 복원
+  useEffect(() => {
+    if (dueDate && !aiBriefing) {
+      const cached = localStorage.getItem(`dodam_ai_preg_${new Date().toISOString().split('T')[0]}`)
+      if (cached) try { setAiBriefing(JSON.parse(cached)) } catch { /* */ }
+    }
+  }, [!!dueDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 출산 예정일 입력
   const [tempDueDate, setTempDueDate] = useState(dueDate)

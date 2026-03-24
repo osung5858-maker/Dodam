@@ -147,7 +147,7 @@ JSON 형식으로 출력:
 
 한국 가정식 위주로 현실적으로. JSON만 출력.`
 
-      const { text: mealText, error: mealErr } = await callGemini(prompt, 400, 0.7)
+      const { text: mealText, error: mealErr } = await callGemini(prompt, 700, 0.7)
       if (!mealText) return NextResponse.json({ error: mealErr || 'AI failed' }, { status: 500 })
 
       try {

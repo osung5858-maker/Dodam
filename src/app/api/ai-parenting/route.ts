@@ -113,7 +113,7 @@ JSON으로 출력:
 }
 한국 가정 이유식 위주. JSON만 출력.`
 
-      const { text, error } = await callGemini(prompt, 400)
+      const { text, error } = await callGemini(prompt, 700)
       if (!text) return NextResponse.json({ error: error || 'AI failed' }, { status: 500 })
       try {
         const match = text.match(/\{[\s\S]*\}/)

@@ -296,9 +296,11 @@ export default function PreparingPage() {
     setAiMealLoading(false)
   }
 
+  // AI 자동 호출 제거 — 캐시만 복원 (사용자가 버튼 클릭 시에만 호출)
   useEffect(() => {
     if (cycle && !aiBriefing) {
-      fetchAIBriefing()
+      const cached = localStorage.getItem(`dodam_ai_briefing_${new Date().toISOString().split('T')[0]}`)
+      if (cached) try { setAiBriefing(JSON.parse(cached)) } catch { /* */ }
     }
   }, [!!cycle]) // eslint-disable-line react-hooks/exhaustive-deps
 
