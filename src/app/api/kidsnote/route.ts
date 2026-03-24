@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const KN_BASE = 'https://www.kidsnote.com/api'
 
+// 이미지 URL을 프록시 경로로 변환
+function proxyImg(url: string): string {
+  if (!url) return ''
+  return `/api/kidsnote/image?url=${encodeURIComponent(url)}`
+}
+
 // 키즈노트 응답을 도담 형식으로 변환
 function normalizeItem(item: any) {
   return {
@@ -11,9 +17,9 @@ function normalizeItem(item: any) {
     created: item.created || item.date_written || '',
     author: item.author_name || item.author?.name || '',
     images: (item.attached_images || []).map((img: any) => ({
-      original: img.original || '',
-      thumbnail: img.small || img.small_resize || img.original || '',
-      large: img.large || img.large_resize || img.original || '',
+      original: proxyImg(img.original || ''),
+      thumbnail: proxyImg(img.small || img.small_resize || img.original || ''),
+      large: proxyImg(img.large || img.large_resize || img.original || ''),
     })),
     weather: item.weather || null,
     childName: item.child_name || '',
