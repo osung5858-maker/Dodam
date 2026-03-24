@@ -223,21 +223,32 @@ function PlaceCard({ place: p }: { place: Place }) {
         {p.distance && <span className="text-[10px] text-[#AEB1B9] shrink-0 ml-2">{p.distance}</span>}
       </div>
 
-      {/* 액션 버튼 */}
-      <div className="flex gap-1.5 mt-2 pt-2 border-t border-[#f0f0f0]">
+      {/* 액션 */}
+      <div className="flex items-center justify-around mt-2.5 pt-2.5 border-t border-[#f0f0f0]">
         {p.phone ? (
-          <a href={`tel:${p.phone}`} className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">📞 전화</a>
+          <a href={`tel:${p.phone}`} className="flex flex-col items-center gap-0.5 active:opacity-60">
+            <div className="w-9 h-9 rounded-full bg-[#F0F9F4] flex items-center justify-center"><span className="text-[14px]">📞</span></div>
+            <span className="text-[9px] text-[#868B94]">전화</span>
+          </a>
         ) : (
-          <div className="flex-1 py-1.5 bg-[#F5F4F1] rounded-lg text-center text-[11px] text-[#AEB1B9]">📞 전화</div>
+          <div className="flex flex-col items-center gap-0.5 opacity-40">
+            <div className="w-9 h-9 rounded-full bg-[#F5F4F1] flex items-center justify-center"><span className="text-[14px]">📞</span></div>
+            <span className="text-[9px] text-[#AEB1B9]">전화</span>
+          </div>
         )}
         <a href={`https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lng}`} target="_blank" rel="noopener noreferrer"
-          className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">🧭 길찾기</a>
-        <button onClick={loadReviews}
-          className="flex-1 py-1.5 bg-[#F0F9F4] rounded-lg text-center text-[11px] text-[#3D8A5A] font-semibold active:opacity-80">
-          ⭐ 리뷰 {loaded && reviews.length > 0 ? `(${reviews.length})` : ''}
+          className="flex flex-col items-center gap-0.5 active:opacity-60">
+          <div className="w-9 h-9 rounded-full bg-[#F0F9F4] flex items-center justify-center"><span className="text-[14px]">🧭</span></div>
+          <span className="text-[9px] text-[#868B94]">길찾기</span>
+        </a>
+        <button onClick={loadReviews} className="flex flex-col items-center gap-0.5 active:opacity-60">
+          <div className="w-9 h-9 rounded-full bg-[#F0F9F4] flex items-center justify-center"><span className="text-[14px]">⭐</span></div>
+          <span className="text-[9px] text-[#868B94]">리뷰{loaded && reviews.length > 0 ? ` ${reviews.length}` : ''}</span>
         </button>
-        <Link href={`/map/${p.id}/review`}
-          className="py-1.5 px-2 bg-[#3D8A5A] rounded-lg text-center text-[11px] text-white font-semibold active:opacity-80">✏️</Link>
+        <Link href={`/map/${p.id}/review`} className="flex flex-col items-center gap-0.5 active:opacity-60">
+          <div className="w-9 h-9 rounded-full bg-[#3D8A5A] flex items-center justify-center"><span className="text-[14px]">✏️</span></div>
+          <span className="text-[9px] text-[#3D8A5A] font-semibold">쓰기</span>
+        </Link>
       </div>
 
       {/* 리뷰 목록 (펼침) */}
