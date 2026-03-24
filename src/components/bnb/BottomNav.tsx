@@ -107,6 +107,7 @@ export default function BottomNav() {
   }, [fabOpen])
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedItem, setSelectedItem] = useState<string | null>(null) // 3단계: 용량 선택
   const [fabStyle, setFabStyle] = useState<'A' | 'B'>(() => {
     if (typeof window !== 'undefined') return (localStorage.getItem('dodam_fab_style') as 'A' | 'B') || 'A'
     return 'A'
@@ -117,6 +118,7 @@ export default function BottomNav() {
     window.dispatchEvent(new CustomEvent('dodam-record', { detail: { type, ...extra } }))
     setFabOpen(false)
     setSelectedCategory(null)
+    setSelectedItem(null)
   }, [])
 
   if (pathname?.startsWith('/onboarding') || pathname?.startsWith('/invite') || pathname?.startsWith('/post/') || pathname?.startsWith('/market-item/')) {
@@ -214,6 +216,58 @@ export default function BottomNav() {
             </>
           )
         }
+        // 3단계: 용량/체온 선택 (반원형 유지)
+        if (selectedItem) {
+          const item = RECORD_CATEGORIES.flatMap(c => c.items).find(i => i.type === selectedItem)
+          if (!item) return null
+          const isMl = item.hasInput === 'ml'
+          const presets = isMl
+            ? [{ label: '60', value: 60 }, { label: '90', value: 90 }, { label: '120', value: 120 }, { label: '150', value: 150 }, { label: '180', value: 180 }]
+            : [{ label: '36.5', value: 36.5 }, { label: '37.0', value: 37.0 }, { label: '37.5', value: 37.5 }, { label: '38.0', value: 38.0 }, { label: '38.5', value: 38.5 }]
+          return (
+            <>
+              <div className="fixed inset-0 z-[60] bg-black/50" onClick={() => { setFabOpen(false); setSelectedCategory(null); setSelectedItem(null) }} />
+              <div className="fixed z-[70] bottom-[60px] left-1/2" style={{ maxWidth: 430 }}>
+                <div className="relative" style={{ width: 0, height: 0 }}>
+                  {presets.map((p, i) => {
+                    const pos = ARC[i]
+                    return (
+                      <div key={p.label} className="absolute flex flex-col items-center gap-1"
+                        style={{ left: pos.x - 24, top: pos.y - 24, animation: `fabItemPop 0.2s ${i * 0.03}s both cubic-bezier(0.34, 1.56, 0.64, 1)` }}>
+                        <button onClick={() => {
+                          const extra = isMl ? { amount_ml: p.value } : { tags: { celsius: p.value } }
+                          handleQuickRecord(item.type === 'pump' ? 'feed' : item.type, extra)
+                        }} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform bg-white">
+                          <span className="text-[13px] font-bold text-[#3D8A5A]">{p.label}</span>
+                        </button>
+                        <span className="text-[9px] font-semibold text-white drop-shadow-sm">{isMl ? 'ml' : '°C'}</span>
+                      </div>
+                    )
+                  })}
+                  {/* 직접 입력 */}
+                  <div className="absolute" style={{ left: -24, top: -185 }}>
+                    <button onClick={() => {
+                      const val = prompt(`${item.label} ${isMl ? '(ml)' : '(°C)'}`)
+                      if (val) {
+                        const extra = isMl ? { amount_ml: Number(val) } : { tags: { celsius: Number(val) } }
+                        handleQuickRecord(item.type === 'pump' ? 'feed' : item.type, extra)
+                      }
+                    }} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-90 bg-[#F5F4F1]">
+                      <span className="text-[11px] text-[#868B94]">직접</span>
+                    </button>
+                  </div>
+                  {/* 뒤로 */}
+                  <div className="absolute" style={{ left: -16, top: -24 }}>
+                    <button onClick={() => setSelectedItem(null)} className="w-8 h-8 rounded-full bg-white/90 shadow flex items-center justify-center active:scale-90">
+                      <span className="text-[12px] text-[#868B94]">←</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )
+        }
+
         // 2단계: 세부 (같은 반원형에서 변신)
         const cat = RECORD_CATEGORIES.find(c => c.key === selectedCategory)
         if (!cat) return null
@@ -234,8 +288,7 @@ export default function BottomNav() {
                       style={{ left: pos.x - 28, top: pos.y - 28, animation: `fabItemPop 0.2s ${i * 0.03}s both cubic-bezier(0.34, 1.56, 0.64, 1)` }}>
                       <button onClick={() => {
                         if (item.hasInput) {
-                          const val = prompt(`${item.label} ${item.hasInput === 'ml' ? '(ml)' : '(°C)'}`)
-                          if (val) { handleQuickRecord(item.type === 'pump' ? 'feed' : item.type, item.hasInput === 'ml' ? { amount_ml: Number(val) } : { tags: { celsius: Number(val) } }) }
+                          setSelectedItem(item.type) // 3단계로
                         } else {
                           const extra: Record<string, unknown> = {}
                           if (item.type.startsWith('poop_')) extra.tags = { status: item.type.replace('poop_', '') }
@@ -249,7 +302,7 @@ export default function BottomNav() {
                     </div>
                   )
                 })}
-                {/* 뒤로 버튼 (중앙) */}
+                {/* 뒤로 */}
                 <div className="absolute" style={{ left: -20, top: -30 }}>
                   <button onClick={() => setSelectedCategory(null)} className="w-10 h-10 rounded-full bg-white/90 shadow-lg flex items-center justify-center active:scale-90">
                     <span className="text-[14px] text-[#868B94]">←</span>
