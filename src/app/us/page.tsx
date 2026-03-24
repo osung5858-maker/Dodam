@@ -79,6 +79,12 @@ const MENUS: Record<string, { label: string; items: { href: string; icon: string
       ],
     },
     {
+      label: '연동',
+      items: [
+        { href: '/kidsnote', icon: '🏫', title: '키즈노트', desc: '어린이집 알림장 · 사진 가져오기' },
+      ],
+    },
+    {
       label: '마음',
       items: [
         { href: '/mental-check', icon: '💚', title: '마음 체크', desc: '산후우울증 자가검사 (EPDS)' },
