@@ -264,14 +264,22 @@ export default function PregnantPage() {
   useEffect(() => { if (dueDate && !aiBriefing) fetchAI() }, [!!dueDate]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // 출산 예정일 입력
+  const [tempDueDate, setTempDueDate] = useState(dueDate)
   if (editingDate) {
     return (
       <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6">
         <h1 className="text-[22px] font-bold text-[#1A1918] mb-2">출산 예정일이 언제인가요?</h1>
         <p className="text-[13px] text-[#868B94] mb-8">주차별 성장 정보를 알려드릴게요</p>
-        <input type="date" defaultValue={dueDate} onChange={(e) => { if (e.target.value) { setDueDate(e.target.value); localStorage.setItem('dodam_due_date', e.target.value); setEditingDate(false) } }}
+        <input type="date" value={tempDueDate} onChange={(e) => setTempDueDate(e.target.value)}
           className="w-full max-w-xs h-[52px] rounded-xl border border-[#f0f0f0] px-4 text-[15px] text-center" />
-        {dueDate && <button onClick={() => setEditingDate(false)} className="mt-4 text-[13px] text-[#3D8A5A] font-semibold">돌아가기</button>}
+        <button
+          onClick={() => { if (tempDueDate) { setDueDate(tempDueDate); localStorage.setItem('dodam_due_date', tempDueDate); setEditingDate(false) } }}
+          disabled={!tempDueDate}
+          className={`mt-6 w-full max-w-xs py-3 rounded-xl text-[14px] font-semibold ${tempDueDate ? 'bg-[#3D8A5A] text-white active:opacity-80' : 'bg-[#F0F0F0] text-[#AEB1B9]'}`}
+        >
+          완료
+        </button>
+        {dueDate && <button onClick={() => setEditingDate(false)} className="mt-3 text-[13px] text-[#868B94]">돌아가기</button>}
       </div>
     )
   }
