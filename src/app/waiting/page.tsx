@@ -521,16 +521,18 @@ function PregnantWaitingPage() {
         {/* 재미 콘텐츠 */}
         <div className="bg-white rounded-xl border border-[#f0f0f0] p-4">
           <p className="text-[13px] font-bold text-[#1A1918] mb-2">🎭 재미</p>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-[#F5F4F1] rounded-lg p-3 text-center">
+          <div className="grid grid-cols-3 gap-2">
+            <Link href="/fortune" className="block bg-[#F5F4F1] rounded-lg p-3 text-center active:opacity-80">
               <p className="text-xl mb-1">🔮</p>
-              <p className="text-[11px] font-semibold text-[#1A1918]">바이오리듬</p>
-              <p className="text-[9px] text-[#868B94]">엄마·아기 컨디션</p>
-            </div>
-            <Link href="/name?tab=analyze" className="block bg-[#F5F4F1] rounded-lg p-3 text-center active:opacity-80">
-              <p className="text-xl mb-1">☯️</p>
-              <p className="text-[11px] font-semibold text-[#1A1918]">이름 운세</p>
-              <p className="text-[9px] text-[#868B94]">음양오행 분석</p>
+              <p className="text-[10px] font-semibold text-[#1A1918]">바이오리듬</p>
+            </Link>
+            <Link href="/fortune?tab=zodiac" className="block bg-[#F5F4F1] rounded-lg p-3 text-center active:opacity-80">
+              <p className="text-xl mb-1">🐉</p>
+              <p className="text-[10px] font-semibold text-[#1A1918]">띠 · 별자리</p>
+            </Link>
+            <Link href="/fortune?tab=fortune" className="block bg-[#F5F4F1] rounded-lg p-3 text-center active:opacity-80">
+              <p className="text-xl mb-1">🎴</p>
+              <p className="text-[10px] font-semibold text-[#1A1918]">오늘의 운세</p>
             </Link>
           </div>
         </div>

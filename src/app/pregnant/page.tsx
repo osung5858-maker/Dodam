@@ -668,6 +668,22 @@ export default function PregnantPage() {
         {/* ━━━ 스트릭 ━━━ */}
         <StreakCard mode="pregnant" />
 
+        {/* ━━━ 주차별 한줄 체크 ━━━ */}
+        <div className="bg-white rounded-xl border border-[#f0f0f0] p-3">
+          <p className="text-[12px] font-bold text-[#1A1918] mb-1.5">📋 {currentWeek}주차 체크</p>
+          <p className="text-[11px] text-[#868B94]">
+            {currentWeek <= 8 ? '첫 초음파 · 엽산 복용 · 모자수첩 발급' :
+             currentWeek <= 12 ? 'NT 검사 · 입덧 관리 · 보건소 등록' :
+             currentWeek <= 16 ? '쿼드 검사 · 안정기 진입 · 산후조리원 예약' :
+             currentWeek <= 20 ? '정밀 초음파 · 태교여행 · 이름 짓기 시작' :
+             currentWeek <= 24 ? '임신성 당뇨 검사 · 태동 카운트' :
+             currentWeek <= 28 ? '항체 검사 · 출산 교실 등록' :
+             currentWeek <= 32 ? 'NST 검사 · 출산 가방 준비' :
+             currentWeek <= 36 ? 'GBS 검사 · 출산 병원 확정 · 서류 준비' :
+             '매주 NST · 진통 신호 확인 · 언제든 준비 완료!'}
+          </p>
+        </div>
+
         {/* ━━━ 기다림 탭 안내 ━━━ */}
         <Link href="/waiting" className="w-full bg-white rounded-xl border border-[#f0f0f0] p-3 flex items-center justify-between active:bg-[#F5F4F1]">
           <div>
