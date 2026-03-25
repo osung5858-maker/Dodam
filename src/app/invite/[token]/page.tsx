@@ -105,7 +105,7 @@ export default function InviteAcceptPage() {
           >
             {processing ? '연결하는 중...' : '수락하기'}
           </button>
-          <p className="text-[11px] text-[#9E9A95] mt-4">
+          <p className="text-[13px] text-[#9E9A95] mt-4">
             카카오 로그인이 필요할 수 있어요
           </p>
         </div>

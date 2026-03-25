@@ -82,7 +82,7 @@ export default function StreakCard({ mode }: { mode: string }) {
             <p className="text-[13px] font-bold text-[#1A1918]">
               {streak > 0 ? `${streak}일 연속 기록 중!` : '오늘 첫 기록을 남겨보세요'}
             </p>
-            <p className="text-[10px] text-[#6B6966]">총 {totalDays}일 기록</p>
+            <p className="text-[14px] text-[#6B6966]">총 {totalDays}일 기록</p>
           </div>
         </div>
 
@@ -100,10 +100,10 @@ export default function StreakCard({ mode }: { mode: string }) {
       {nextUnlock && (
         <div className="mt-2 pt-2 border-t border-[#E8E4DF]">
           <div className="flex items-center justify-between mb-1">
-            <p className="text-[10px] text-[#6B6966]">
+            <p className="text-[14px] text-[#6B6966]">
               {aiUnlocked ? '🔓' : '🔒'} {nextUnlock.label}
             </p>
-            <p className="text-[10px] text-[#3D8A5A] font-semibold">{nextUnlock.days}일 남음</p>
+            <p className="text-[14px] text-[#3D8A5A] font-semibold">{nextUnlock.days}일 남음</p>
           </div>
           <div className="w-full h-1.5 bg-[#E8E4DF] rounded-full">
             <div className="h-full bg-[#3D8A5A] rounded-full transition-all" style={{ width: `${(nextUnlock.current / nextUnlock.target) * 100}%` }} />

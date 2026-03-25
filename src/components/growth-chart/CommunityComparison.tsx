@@ -85,7 +85,7 @@ export default function CommunityComparison({ childId, ageMonths, sex }: Props) 
       {/* 커뮤니티 평균 */}
       {data && data.communityCount >= 30 ? (
         <div className="mt-3 p-3 rounded-xl bg-[#F0EDE8]">
-          <p className="text-[11px] text-[#6B6966] mb-1">도담 사용자 평균 (동일 개월 수 {data.communityCount}명)</p>
+          <p className="text-[13px] text-[#6B6966] mb-1">도담 사용자 평균 (동일 개월 수 {data.communityCount}명)</p>
           <div className="flex gap-4">
             {data.communityAvgWeight && (
               <p className="text-[13px] text-[#212124]">
@@ -101,13 +101,13 @@ export default function CommunityComparison({ childId, ageMonths, sex }: Props) 
         </div>
       ) : (
         <div className="mt-3 p-3 rounded-xl bg-[#F0EDE8] text-center">
-          <p className="text-[11px] text-[#9E9A95]">
+          <p className="text-[13px] text-[#9E9A95]">
             도담 사용자 30명 이상 시 또래 평균 비교가 활성화돼요
           </p>
         </div>
       )}
 
-      <p className="text-[10px] text-[#9E9A95] mt-3 text-center">
+      <p className="text-[14px] text-[#9E9A95] mt-3 text-center">
         ⚠️ 통계적 참고치이며, 의학적 판단의 근거가 아닙니다.
       </p>
     </div>
@@ -120,8 +120,8 @@ function ComparisonBar({ label, myValue, unit, color }: {
   return (
     <div>
       <div className="flex justify-between mb-1">
-        <span className="text-[12px] text-[#6B6966]">{label}</span>
-        <span className="text-[12px] font-bold text-[#212124]">{myValue}{unit}</span>
+        <span className="text-[14px] text-[#6B6966]">{label}</span>
+        <span className="text-[14px] font-bold text-[#212124]">{myValue}{unit}</span>
       </div>
       <div className="h-2 bg-[#F0EDE8] rounded-full overflow-hidden">
         <div

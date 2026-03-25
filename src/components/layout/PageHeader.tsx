@@ -30,7 +30,7 @@ export default function PageHeader({ title, showBack = false, rightAction, subti
         {/* 중앙: 제목 */}
         <div className="flex-1 text-center">
           <p className="text-[15px] font-bold text-[#1A1918]">{title}</p>
-          {subtitle && <p className="text-[10px] text-[#6B6966] -mt-0.5">{subtitle}</p>}
+          {subtitle && <p className="text-[14px] text-[#6B6966] -mt-0.5">{subtitle}</p>}
         </div>
 
         {/* 우측: 액션 */}

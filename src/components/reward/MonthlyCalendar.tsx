@@ -43,17 +43,17 @@ export default function MonthlyCalendar({ events }: Props) {
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-[14px] font-bold text-[#212124]">📅 {monthName} 도담 스토리</h3>
         <div className="flex items-center gap-1.5">
-          <span className={`text-[12px] font-bold ${rate === 100 ? 'text-[#3D8A5A]' : 'text-[#212124]'}`}>
+          <span className={`text-[14px] font-bold ${rate === 100 ? 'text-[#3D8A5A]' : 'text-[#212124]'}`}>
             {rate}%
           </span>
-          {rate === 100 && <span className="text-[10px]">🏅</span>}
+          {rate === 100 && <span className="text-[14px]">🏅</span>}
         </div>
       </div>
 
       {/* 요일 헤더 */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {WEEKDAYS.map((d) => (
-          <div key={d} className="text-center text-[9px] text-[#9E9A95] font-medium">{d}</div>
+          <div key={d} className="text-center text-[13px] text-[#9E9A95] font-medium">{d}</div>
         ))}
       </div>
 
@@ -74,7 +74,7 @@ export default function MonthlyCalendar({ events }: Props) {
           return (
             <div
               key={dateStr}
-              className={`aspect-square rounded-lg flex items-center justify-center text-[10px] font-medium transition-colors ${
+              className={`aspect-square rounded-lg flex items-center justify-center text-[14px] font-medium transition-colors ${
                 isToday
                   ? 'bg-[#3D8A5A] text-white font-bold'
                   : hasRecord
@@ -94,20 +94,20 @@ export default function MonthlyCalendar({ events }: Props) {
       <div className="flex items-center justify-center gap-4 mt-3">
         <div className="flex items-center gap-1">
           <div className="w-2.5 h-2.5 rounded-sm bg-[#C8F0D8]" />
-          <span className="text-[9px] text-[#6B6966]">기록 있음</span>
+          <span className="text-[13px] text-[#6B6966]">기록 있음</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2.5 h-2.5 rounded-sm bg-[#FFF0E6]" />
-          <span className="text-[9px] text-[#6B6966]">빈 날</span>
+          <span className="text-[13px] text-[#6B6966]">빈 날</span>
         </div>
         <div className="flex items-center gap-1">
           <div className="w-2.5 h-2.5 rounded-sm bg-[#F0EDE8]" />
-          <span className="text-[9px] text-[#6B6966]">미래</span>
+          <span className="text-[13px] text-[#6B6966]">미래</span>
         </div>
       </div>
 
       {rate < 100 && pastDates.length > 0 && (
-        <p className="text-center text-[11px] text-[#6B6966] mt-2">
+        <p className="text-center text-[13px] text-[#6B6966] mt-2">
           {rate >= 90
             ? `완벽한 ${monthName}까지 ${pastDates.length - recordedCount}일만 채우면 돼요!`
             : `${monthName}에 ${recordedCount}일 기록했어요 👏`

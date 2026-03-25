@@ -30,7 +30,7 @@ export default function CarePage() {
               </div>
               <div className="flex-1">
                 <p className="text-[13px] font-semibold text-[#1A1918]">{item.title}</p>
-                <p className="text-[11px] text-[#6B6966]">{item.desc}</p>
+                <p className="text-[13px] text-[#6B6966]">{item.desc}</p>
               </div>
               <span className="text-[#9E9A95] text-sm">→</span>
             </Link>
@@ -46,7 +46,7 @@ export default function CarePage() {
             </div>
             <div className="flex-1">
               <p className="text-[13px] font-semibold text-[#1A1918]">발달 체크리스트</p>
-              <p className="text-[11px] text-[#6B6966]">월령별 발달 확인 · AI 분석</p>
+              <p className="text-[13px] text-[#6B6966]">월령별 발달 확인 · AI 분석</p>
             </div>
             <span className="text-[#9E9A95] text-sm">→</span>
           </Link>
@@ -57,7 +57,7 @@ export default function CarePage() {
               </div>
               <div className="flex-1">
                 <p className="text-[13px] font-semibold text-[#1A1918]">응급 모드</p>
-                <p className="text-[11px] text-[#6B6966]">핸드폰 흔들면 가까운 소아과 검색</p>
+                <p className="text-[13px] text-[#6B6966]">핸드폰 흔들면 가까운 소아과 검색</p>
               </div>
             </div>
           </div>

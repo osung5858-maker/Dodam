@@ -169,7 +169,7 @@ function CheckupRecord({ currentWeek }: { currentWeek: number }) {
     <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
       <div className="flex items-center justify-between mb-2">
         <p className="text-[14px] font-bold text-[#1A1918]">🏥 검진 기록</p>
-        <button onClick={() => setFormOpen(!formOpen)} className="text-[11px] text-[#3D8A5A] font-semibold">
+        <button onClick={() => setFormOpen(!formOpen)} className="text-[13px] text-[#3D8A5A] font-semibold">
           {formOpen ? '취소' : '+ 기록'}
         </button>
       </div>
@@ -178,21 +178,21 @@ function CheckupRecord({ currentWeek }: { currentWeek: number }) {
         <div className="space-y-2 mb-3 pb-3 border-b border-[#E8E4DF]">
           <div className="flex gap-2">
             <div className="flex-1">
-              <p className="text-[10px] text-[#6B6966] mb-0.5">검진 주차</p>
+              <p className="text-[14px] text-[#6B6966] mb-0.5">검진 주차</p>
               <input type="number" value={week} onChange={e => setWeek(e.target.value)} className="w-full h-9 rounded-lg border border-[#E8E4DF] px-2 text-[13px] text-center" />
             </div>
             <div className="flex-1">
-              <p className="text-[10px] text-[#6B6966] mb-0.5">아기 체중 (g)</p>
+              <p className="text-[14px] text-[#6B6966] mb-0.5">아기 체중 (g)</p>
               <input type="text" value={babyWeight} onChange={e => setBabyWeight(e.target.value)} placeholder="예: 500g" className="w-full h-9 rounded-lg border border-[#E8E4DF] px-2 text-[13px]" />
             </div>
           </div>
 
           <div>
-            <p className="text-[10px] text-[#6B6966] mb-0.5">아기 상태</p>
+            <p className="text-[14px] text-[#6B6966] mb-0.5">아기 상태</p>
             <div className="flex gap-1.5">
               {['정상 👍', '주의 ⚠️', '정밀 검사 필요'].map(s => (
                 <button key={s} onClick={() => setBabyStatus(s)}
-                  className={`flex-1 py-1.5 rounded-lg text-[10px] font-medium ${babyStatus === s ? 'bg-[#3D8A5A] text-white' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
+                  className={`flex-1 py-1.5 rounded-lg text-[14px] font-medium ${babyStatus === s ? 'bg-[#3D8A5A] text-white' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
                   {s}
                 </button>
               ))}
@@ -200,59 +200,59 @@ function CheckupRecord({ currentWeek }: { currentWeek: number }) {
           </div>
 
           <div>
-            <p className="text-[10px] text-[#6B6966] mb-0.5">의사 소견 / 메모</p>
+            <p className="text-[14px] text-[#6B6966] mb-0.5">의사 소견 / 메모</p>
             <textarea value={doctorNote} onChange={e => setDoctorNote(e.target.value)} placeholder="의사 선생님이 말씀하신 내용..."
-              className="w-full h-14 text-[12px] p-2 bg-[#FFF9F5] rounded-lg resize-none focus:outline-none" />
+              className="w-full h-14 text-[14px] p-2 bg-[#FFF9F5] rounded-lg resize-none focus:outline-none" />
           </div>
 
           <div>
-            <p className="text-[10px] text-[#6B6966] mb-0.5">특이사항 메모</p>
+            <p className="text-[14px] text-[#6B6966] mb-0.5">특이사항 메모</p>
             <input type="text" value={note} onChange={e => setNote(e.target.value)} placeholder="초음파 결과, 느낀 점 등"
-              className="w-full h-9 rounded-lg border border-[#E8E4DF] px-2 text-[12px]" />
+              className="w-full h-9 rounded-lg border border-[#E8E4DF] px-2 text-[14px]" />
           </div>
 
           {/* 사진 업로드 */}
           <div>
-            <p className="text-[10px] text-[#6B6966] mb-1">📸 초음파 사진 / 영상 캡처 (최대 5장)</p>
+            <p className="text-[14px] text-[#6B6966] mb-1">📸 초음파 사진 / 영상 캡처 (최대 5장)</p>
             <div className="flex gap-2 flex-wrap">
               {photos.map((url, i) => (
                 <div key={i} className="w-16 h-16 rounded-lg overflow-hidden relative">
                   <img src={url} alt="" className="w-full h-full object-cover" />
                   <button onClick={() => setPhotos(prev => prev.filter((_, j) => j !== i))}
-                    className="absolute top-0 right-0 w-6 h-6 bg-black/50 text-white text-[10px] rounded-bl-lg">✕</button>
+                    className="absolute top-0 right-0 w-6 h-6 bg-black/50 text-white text-[14px] rounded-bl-lg">✕</button>
                 </div>
               ))}
               {photos.length < 5 && (
                 <label className="w-16 h-16 rounded-lg border-2 border-dashed border-[#AEB1B9] flex flex-col items-center justify-center cursor-pointer active:opacity-60">
                   <span className="text-lg text-[#9E9A95]">{uploading ? '...' : '📷'}</span>
-                  <span className="text-[9px] text-[#9E9A95]">{uploading ? '업로드' : '추가'}</span>
+                  <span className="text-[13px] text-[#9E9A95]">{uploading ? '업로드' : '추가'}</span>
                   <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
                 </label>
               )}
             </div>
           </div>
 
-          <button onClick={save} className="w-full py-2 bg-[#3D8A5A] text-white text-[12px] font-semibold rounded-lg active:opacity-80">검진 기록 저장</button>
+          <button onClick={save} className="w-full py-2 bg-[#3D8A5A] text-white text-[14px] font-semibold rounded-lg active:opacity-80">검진 기록 저장</button>
         </div>
       )}
 
       {/* 기록 목록 */}
       {records.length === 0 ? (
-        <p className="text-[11px] text-[#9E9A95] text-center py-2">검진 기록이 없어요</p>
+        <p className="text-[13px] text-[#9E9A95] text-center py-2">검진 기록이 없어요</p>
       ) : (
         <div className="space-y-2">
           {records.slice(0, 3).map((r: any) => (
             <div key={r.id} className="bg-[#FFF9F5] rounded-lg p-2.5">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[12px] font-semibold text-[#1A1918]">{r.week}주차 검진</span>
+                <span className="text-[14px] font-semibold text-[#1A1918]">{r.week}주차 검진</span>
                 <div className="flex items-center gap-2">
-                  {r.babyWeight && <span className="text-[10px] text-[#3D8A5A]">⚖️ {r.babyWeight}</span>}
-                  <span className="text-[9px] text-[#9E9A95]">{r.date}</span>
+                  {r.babyWeight && <span className="text-[14px] text-[#3D8A5A]">⚖️ {r.babyWeight}</span>}
+                  <span className="text-[13px] text-[#9E9A95]">{r.date}</span>
                 </div>
               </div>
-              {r.babyStatus && <p className="text-[10px] text-[#1A1918] mb-0.5">{r.babyStatus}</p>}
-              {r.doctorNote && <p className="text-[10px] text-[#6B6966]">👨‍⚕️ {r.doctorNote}</p>}
-              {r.note && <p className="text-[10px] text-[#6B6966]">📝 {r.note}</p>}
+              {r.babyStatus && <p className="text-[14px] text-[#1A1918] mb-0.5">{r.babyStatus}</p>}
+              {r.doctorNote && <p className="text-[14px] text-[#6B6966]">👨‍⚕️ {r.doctorNote}</p>}
+              {r.note && <p className="text-[14px] text-[#6B6966]">📝 {r.note}</p>}
               {r.photos && r.photos.length > 0 && (
                 <div className="flex gap-1.5 mt-1.5">
                   {r.photos.map((url: string, j: number) => (
@@ -262,7 +262,7 @@ function CheckupRecord({ currentWeek }: { currentWeek: number }) {
               )}
             </div>
           ))}
-          {records.length > 3 && <p className="text-[9px] text-[#9E9A95] text-center">+{records.length - 3}건 더</p>}
+          {records.length > 3 && <p className="text-[13px] text-[#9E9A95] text-center">+{records.length - 3}건 더</p>}
         </div>
       )}
     </div>
@@ -277,35 +277,35 @@ function PregnantAIDisplay({ briefing, onRefresh, week, daysLeft, fruit }: { bri
     <div>
       <div className="flex items-start gap-2">
         <div className="w-6 h-6 rounded-full bg-[#3D8A5A] flex items-center justify-center shrink-0 mt-0.5">
-          <span className="text-[9px] text-white font-bold">AI</span>
+          <span className="text-[13px] text-white font-bold">AI</span>
         </div>
         <div className="flex-1">
           {/* 요약 (항상) */}
-          <p className="text-[12px] text-[#1A1918] leading-relaxed">{briefing.greeting || briefing.mainAdvice?.slice(0, 80)}</p>
+          <p className="text-[14px] text-[#1A1918] leading-relaxed">{briefing.greeting || briefing.mainAdvice?.slice(0, 80)}</p>
 
           {/* 아기 메시지 (항상) */}
           {briefing.babyMessage && (
             <div className="bg-[#FFF8F3] rounded-lg p-2 mt-1.5">
-              <p className="text-[11px] text-[#1A1918]">💌 {briefing.babyMessage}</p>
+              <p className="text-[13px] text-[#1A1918]">💌 {briefing.babyMessage}</p>
             </div>
           )}
 
           {/* 펼침 */}
           {expanded && (
             <div className="mt-2 space-y-1.5 bg-white/60 rounded-lg p-2.5">
-              {briefing.mainAdvice && <p className="text-[11px] text-[#1A1918] leading-relaxed">{briefing.mainAdvice}</p>}
-              {briefing.weekHighlight && <p className="text-[10px] text-[#6B6966]">🧒 {briefing.weekHighlight}</p>}
-              {briefing.bodyTip && <p className="text-[10px] text-[#6B6966]">🏃‍♀️ {briefing.bodyTip}</p>}
-              {briefing.emotionalCare && <p className="text-[10px] text-[#6B6966]">💚 {briefing.emotionalCare}</p>}
+              {briefing.mainAdvice && <p className="text-[13px] text-[#1A1918] leading-relaxed">{briefing.mainAdvice}</p>}
+              {briefing.weekHighlight && <p className="text-[14px] text-[#6B6966]">🧒 {briefing.weekHighlight}</p>}
+              {briefing.bodyTip && <p className="text-[14px] text-[#6B6966]">🏃‍♀️ {briefing.bodyTip}</p>}
+              {briefing.emotionalCare && <p className="text-[14px] text-[#6B6966]">💚 {briefing.emotionalCare}</p>}
             </div>
           )}
 
           <div className="flex items-center gap-3 mt-2">
-            <button onClick={() => setExpanded(!expanded)} className="text-[10px] text-[#3D8A5A] font-semibold">
+            <button onClick={() => setExpanded(!expanded)} className="text-[14px] text-[#3D8A5A] font-semibold">
               {expanded ? '접기 ▲' : '자세히 ▼'}
             </button>
-            <button onClick={onRefresh} className="text-[10px] text-[#9E9A95]">다시 받기</button>
-            <button onClick={() => shareDday(week, daysLeft, fruit)} className="text-[10px] text-[#3D8A5A]">공유</button>
+            <button onClick={onRefresh} className="text-[14px] text-[#9E9A95]">다시 받기</button>
+            <button onClick={() => shareDday(week, daysLeft, fruit)} className="text-[14px] text-[#3D8A5A]">공유</button>
           </div>
         </div>
       </div>
@@ -524,10 +524,10 @@ export default function PregnantPage() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-[#E8E4DF]/60">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <div>
-            <p className="text-[12px] text-[#6B6966]">임신 {currentWeek}주차 · {trimester}</p>
+            <p className="text-[14px] text-[#6B6966]">임신 {currentWeek}주차 · {trimester}</p>
             <p className="text-[16px] font-bold text-[#1A1918]">D-{daysLeft}</p>
           </div>
-          <button onClick={() => setEditingDate(true)} className="text-[11px] text-[#6B6966]">✏️</button>
+          <button onClick={() => setEditingDate(true)} className="text-[13px] text-[#6B6966]">✏️</button>
         </div>
       </header>
 
@@ -538,7 +538,7 @@ export default function PregnantPage() {
           <Link href="/birth" className="block bg-gradient-to-r from-[#FFF0E6] to-[#FFF8F3] rounded-xl border border-[#FFDDC8] p-5 text-center active:opacity-80 animate-[fadeIn_0.5s]">
             <p className="text-3xl mb-2">👶</p>
             <p className="text-[16px] font-bold text-[#1A1918]">우리 아이, 만났나요?</p>
-            <p className="text-[12px] text-[#6B6966] mt-1">출산 예정일이 지났어요!</p>
+            <p className="text-[14px] text-[#6B6966] mt-1">출산 예정일이 지났어요!</p>
             <p className="text-[13px] font-semibold text-[#3D8A5A] mt-3">🎉 네, 만났어요! →</p>
           </Link>
         )}
@@ -550,9 +550,9 @@ export default function PregnantPage() {
               <span className="text-2xl">💛</span>
               <div className="flex-1">
                 <p className="text-[13px] font-bold text-[#1A1918]">곧 만나요! D-{daysLeft}</p>
-                <p className="text-[11px] text-[#6B6966]">출산 가방은 준비됐나요? 진통 타이머도 확인해보세요</p>
+                <p className="text-[13px] text-[#6B6966]">출산 가방은 준비됐나요? 진통 타이머도 확인해보세요</p>
               </div>
-              <Link href="/birth" className="text-[10px] text-[#3D8A5A] font-semibold shrink-0">출산했어요 →</Link>
+              <Link href="/birth" className="text-[14px] text-[#3D8A5A] font-semibold shrink-0">출산했어요 →</Link>
             </div>
           </div>
         )}
@@ -564,7 +564,7 @@ export default function PregnantPage() {
               <span className="text-2xl">🌟</span>
               <div className="flex-1">
                 <p className="text-[13px] font-bold text-[#1A1918]">우리 아이 태명을 지어볼까요?</p>
-                <p className="text-[11px] text-[#6B6966]">AI가 예쁜 태명을 추천해드려요</p>
+                <p className="text-[13px] text-[#6B6966]">AI가 예쁜 태명을 추천해드려요</p>
               </div>
               <span className="text-[#9E9A95]">→</span>
             </div>
@@ -580,13 +580,13 @@ export default function PregnantPage() {
             </div>
             <p className="text-[14px] font-bold text-[#1A1918]">{currentWeek}주차 — <span className="text-[#3D8A5A]">{currentFetal.name}</span>만해요</p>
             <div className="flex justify-center gap-4 mt-1">
-              <span className="text-[11px] text-[#6B6966]">📏 {currentFetal.length}</span>
-              <span className="text-[11px] text-[#6B6966]">⚖️ {currentFetal.weight}</span>
-              <button onClick={() => shareFetalSize(currentWeek, currentFetal.fruit, currentFetal.name, currentFetal.length, currentFetal.weight, daysLeft)} className="text-[10px] text-[#3D8A5A]">공유</button>
+              <span className="text-[13px] text-[#6B6966]">📏 {currentFetal.length}</span>
+              <span className="text-[13px] text-[#6B6966]">⚖️ {currentFetal.weight}</span>
+              <button onClick={() => shareFetalSize(currentWeek, currentFetal.fruit, currentFetal.name, currentFetal.length, currentFetal.weight, daysLeft)} className="text-[14px] text-[#3D8A5A]">공유</button>
             </div>
             {/* 아기 한마디 */}
             <div className="bg-[#FFF8F3] rounded-xl p-2.5 mt-2 inline-block">
-              <p className="text-[11px] text-[#1A1918] italic">
+              <p className="text-[13px] text-[#1A1918] italic">
                 {currentWeek <= 12 ? '"엄마, 나 여기 있어요! 아직 작지만 열심히 자라고 있어요 🌱"' :
                  currentWeek <= 20 ? '"엄마, 내가 움직이는 거 느꼈어요? 안에서 춤추고 있어요 💃"' :
                  currentWeek <= 30 ? '"엄마 목소리가 들려요. 계속 이야기해줘요 🎵"' :
@@ -600,7 +600,7 @@ export default function PregnantPage() {
           {aiLoading ? (
             <div className="py-3">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-[#3D8A5A] flex items-center justify-center"><span className="text-[9px] text-white">AI</span></div>
+                <div className="w-6 h-6 rounded-full bg-[#3D8A5A] flex items-center justify-center"><span className="text-[13px] text-white">AI</span></div>
                 <div className="flex gap-1"><span className="w-1.5 h-1.5 bg-[#3D8A5A] rounded-full animate-bounce" /><span className="w-1.5 h-1.5 bg-[#3D8A5A] rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} /><span className="w-1.5 h-1.5 bg-[#3D8A5A] rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} /></div>
               </div>
             </div>
@@ -608,22 +608,22 @@ export default function PregnantPage() {
             <PregnantAIDisplay briefing={aiBriefing} onRefresh={() => fetchAI(true)} week={currentWeek} daysLeft={daysLeft} fruit={currentFetal.fruit} />
           ) : (
             <div className="text-center py-2">
-              <button onClick={() => fetchAI()} className="px-6 py-2 bg-[#3D8A5A] text-white text-[12px] font-semibold rounded-xl active:opacity-80">✨ AI 조언 받기</button>
+              <button onClick={() => fetchAI()} className="px-6 py-2 bg-[#3D8A5A] text-white text-[14px] font-semibold rounded-xl active:opacity-80">✨ AI 조언 받기</button>
             </div>
           )}
 
           {/* 프로그레스 + 감성 */}
           <div className="mt-3 pt-3 border-t border-[#C8F0D8]/50">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-[10px] text-[#6B6966]">
+              <p className="text-[14px] text-[#6B6966]">
                 {daysLeft <= 14 ? '💛 곧 만나요!' : daysLeft <= 60 ? '🌈 조금만 더!' : '🌱 함께 자라는 중'}
               </p>
-              <p className="text-[10px] text-[#3D8A5A]">{currentWeek}주 · D-{daysLeft}</p>
+              <p className="text-[14px] text-[#3D8A5A]">{currentWeek}주 · D-{daysLeft}</p>
             </div>
             <div className="w-full h-2 bg-white/50 rounded-full">
               <div className="h-full bg-[#3D8A5A] rounded-full transition-all" style={{ width: `${(currentWeek / 40) * 100}%` }} />
             </div>
-            <p className="text-[9px] text-[#9E9A95] mt-1 text-center">
+            <p className="text-[13px] text-[#9E9A95] mt-1 text-center">
               {Math.round((currentWeek / 40) * 100)}% 완료 · 아이를 만나는 날까지 {daysLeft}일
             </p>
           </div>
@@ -635,7 +635,7 @@ export default function PregnantPage() {
 
           {/* 감정 */}
           <div className="mb-3">
-            <p className="text-[12px] font-semibold text-[#6B6966] mb-1.5">오늘 기분</p>
+            <p className="text-[14px] font-semibold text-[#6B6966] mb-1.5">오늘 기분</p>
             <div className="flex gap-1.5">
               {MOODS.map(m => (
                 <button key={m.key} onClick={() => saveMood(m.key)}
@@ -645,7 +645,7 @@ export default function PregnantPage() {
               ))}
             </div>
             {mood && (
-              <p className="text-[11px] text-[#3D8A5A] mt-2 text-center">
+              <p className="text-[13px] text-[#3D8A5A] mt-2 text-center">
                 {({ happy: '행복한 엄마, 행복한 아이! 오늘도 도담하게 💛', calm: '평온한 마음이 아이에게 최고의 태교예요 🌿', anxious: '걱정은 사랑의 다른 이름이에요. 괜찮아요 💚', sick: '입덧이 힘들죠. 이것도 아이가 잘 자라는 신호예요 🤗', tired: '피곤한 날엔 아이와 함께 쉬어요. 쉬는 것도 돌봄이에요 🫂' } as Record<string, string>)[mood]}
               </p>
             )}
@@ -654,17 +654,17 @@ export default function PregnantPage() {
           {/* 건강 기록 인라인 */}
           <div className="grid grid-cols-3 gap-2 mb-3">
             <div>
-              <p className="text-[10px] text-[#6B6966] mb-1">체중 (kg)</p>
+              <p className="text-[14px] text-[#6B6966] mb-1">체중 (kg)</p>
               <input type="number" step="0.1" value={weight || ''} onChange={e => setWeight(Number(e.target.value))}
                 placeholder="00.0" className="w-full h-9 rounded-lg border border-[#E8E4DF] px-2 text-[13px] text-center" />
             </div>
             <div>
-              <p className="text-[10px] text-[#6B6966] mb-1">혈압</p>
+              <p className="text-[14px] text-[#6B6966] mb-1">혈압</p>
               <input type="text" value={bp} onChange={e => setBp(e.target.value)}
                 placeholder="120/80" className="w-full h-9 rounded-lg border border-[#E8E4DF] px-2 text-[13px] text-center" />
             </div>
             <div>
-              <p className="text-[10px] text-[#6B6966] mb-1">태동</p>
+              <p className="text-[14px] text-[#6B6966] mb-1">태동</p>
               <div className="flex items-center justify-center h-9 gap-2">
                 <button onClick={() => setFetalMove(Math.max(0, fetalMove - 1))} className="w-10 h-10 rounded-full bg-[#FFF9F5] text-[16px]">−</button>
                 <span className="text-[14px] font-bold w-6 text-center">{fetalMove}</span>
@@ -672,7 +672,7 @@ export default function PregnantPage() {
               </div>
             </div>
           </div>
-          <button onClick={saveHealth} className="w-full py-2 bg-[#3D8A5A] text-white text-[12px] font-semibold rounded-lg active:opacity-80">기록 저장</button>
+          <button onClick={saveHealth} className="w-full py-2 bg-[#3D8A5A] text-white text-[14px] font-semibold rounded-lg active:opacity-80">기록 저장</button>
 
           {/* 태교 일기 — 항상 인풋 노출 + 프리셋 */}
           <div className="mt-3 pt-3 border-t border-[#E8E4DF]">
@@ -690,7 +690,7 @@ export default function PregnantPage() {
                 { emoji: '🛍️', text: '준비한 것' },
               ].map(p => (
                 <button key={p.text} onClick={() => setDiaryText(prev => prev ? prev : p.text + ' ')}
-                  className="shrink-0 px-2.5 py-1.5 rounded-full bg-[#FFF9F5] text-[11px] text-[#6B6966] active:bg-[#E8F5E9] active:text-[#3D8A5A]">
+                  className="shrink-0 px-2.5 py-1.5 rounded-full bg-[#FFF9F5] text-[13px] text-[#6B6966] active:bg-[#E8F5E9] active:text-[#3D8A5A]">
                   {p.emoji} {p.text}
                 </button>
               ))}
@@ -707,9 +707,9 @@ export default function PregnantPage() {
               ][Math.floor(Date.now() / 86400000) % 5]}
               className="w-full h-20 text-[13px] p-3 bg-[#F5F1EC] rounded-xl resize-none focus:outline-none focus:ring-1 focus:ring-[#3D8A5A]" />
             <div className="flex justify-between items-center mt-2">
-              <span className="text-[10px] text-[#9E9A95]">{diaryText.length}/500</span>
+              <span className="text-[14px] text-[#9E9A95]">{diaryText.length}/500</span>
               <button onClick={saveDiary} disabled={!diaryText.trim() || diarySaving}
-                className={`text-[12px] font-semibold px-4 py-1.5 rounded-lg ${diaryText.trim() && !diarySaving ? 'bg-[#3D8A5A] text-white' : 'bg-[#E8E4DF] text-[#9E9A95]'}`}>
+                className={`text-[14px] font-semibold px-4 py-1.5 rounded-lg ${diaryText.trim() && !diarySaving ? 'bg-[#3D8A5A] text-white' : 'bg-[#E8E4DF] text-[#9E9A95]'}`}>
                 {diarySaving ? 'AI 코멘트 중...' : '저장하기'}
               </button>
             </div>
@@ -717,9 +717,9 @@ export default function PregnantPage() {
             {/* 최근 일기 */}
             {diaries.length > 0 && (
               <div className="mt-3 p-2.5 bg-[#FFF9F5] rounded-lg">
-                <p className="text-[11px] text-[#1A1918] line-clamp-2">{diaries[0].text}</p>
-                {diaries[0].comment && <p className="text-[10px] text-[#3D8A5A] mt-1 italic">{diaries[0].comment}</p>}
-                <p className="text-[9px] text-[#9E9A95] mt-1">{diaries[0].date}</p>
+                <p className="text-[13px] text-[#1A1918] line-clamp-2">{diaries[0].text}</p>
+                {diaries[0].comment && <p className="text-[14px] text-[#3D8A5A] mt-1 italic">{diaries[0].comment}</p>}
+                <p className="text-[13px] text-[#9E9A95] mt-1">{diaries[0].date}</p>
               </div>
             )}
           </div>
@@ -732,7 +732,7 @@ export default function PregnantPage() {
         <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[14px] font-bold text-[#1A1918]">🍽️ {new Date().getHours() < 10 ? '아침' : new Date().getHours() < 14 ? '점심' : new Date().getHours() < 18 ? '간식' : '저녁'} 뭐 먹지?</p>
-            {aiMeal && <button onClick={() => { localStorage.removeItem('dodam_preg_meal'); setAiMeal(null); fetchMeal() }} className="text-[10px] text-[#3D8A5A]">다른 추천</button>}
+            {aiMeal && <button onClick={() => { localStorage.removeItem('dodam_preg_meal'); setAiMeal(null); fetchMeal() }} className="text-[14px] text-[#3D8A5A]">다른 추천</button>}
           </div>
           {aiMeal ? (
             <div className="space-y-1.5">
@@ -750,20 +750,20 @@ export default function PregnantPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-sm">{m.icon}</span>
-                        <span className={`text-[10px] ${isCurrent ? 'text-[#3D8A5A] font-bold' : 'text-[#9E9A95]'}`}>{m.label}</span>
-                        <p className="text-[12px] font-semibold text-[#1A1918]">{m.data.menu}</p>
-                        {isCurrent && <span className="text-[9px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
+                        <span className={`text-[14px] ${isCurrent ? 'text-[#3D8A5A] font-bold' : 'text-[#9E9A95]'}`}>{m.label}</span>
+                        <p className="text-[14px] font-semibold text-[#1A1918]">{m.data.menu}</p>
+                        {isCurrent && <span className="text-[13px] bg-[#3D8A5A] text-white px-1 rounded">지금</span>}
                       </div>
-                      <Link href={`/map?q=${encodeURIComponent(m.data.menu.split(' ')[0] + ' 맛집')}`} className="text-[9px] text-[#3D8A5A]">📍</Link>
+                      <Link href={`/map?q=${encodeURIComponent(m.data.menu.split(' ')[0] + ' 맛집')}`} className="text-[13px] text-[#3D8A5A]">📍</Link>
                     </div>
-                    <p className="text-[10px] text-[#6B6966] ml-7">{m.data.reason}</p>
+                    <p className="text-[14px] text-[#6B6966] ml-7">{m.data.reason}</p>
                   </div>
                 )
               })}
-              {aiMeal.avoid && <p className="text-[10px] text-[#D08068] mt-1">🚫 {aiMeal.avoid}</p>}
+              {aiMeal.avoid && <p className="text-[14px] text-[#D08068] mt-1">🚫 {aiMeal.avoid}</p>}
             </div>
           ) : (
-            <button onClick={fetchMeal} disabled={aiMealLoading} className="w-full py-2.5 text-[12px] font-semibold text-[#3D8A5A] bg-[#F0F9F4] rounded-xl active:opacity-80">
+            <button onClick={fetchMeal} disabled={aiMealLoading} className="w-full py-2.5 text-[14px] font-semibold text-[#3D8A5A] bg-[#F0F9F4] rounded-xl active:opacity-80">
               {aiMealLoading ? 'AI가 식단 준비 중...' : '오늘의 식단 추천받기 🍽️'}
             </button>
           )}
@@ -775,18 +775,18 @@ export default function PregnantPage() {
           if (currentWeek <= 13) return (
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">🏥 다음 검진</p>
+                <p className="text-[14px] text-[#6B6966]">🏥 다음 검진</p>
                 {upcomingCheckups.length > 0 ? (
-                  <><p className="text-[12px] font-bold text-[#1A1918] mt-0.5 line-clamp-1">{upcomingCheckups[0].title}</p><p className="text-[9px] text-[#3D8A5A]">{upcomingCheckups[0].week}주</p></>
-                ) : <p className="text-[11px] text-[#9E9A95] mt-1">완료!</p>}
+                  <><p className="text-[14px] font-bold text-[#1A1918] mt-0.5 line-clamp-1">{upcomingCheckups[0].title}</p><p className="text-[13px] text-[#3D8A5A]">{upcomingCheckups[0].week}주</p></>
+                ) : <p className="text-[13px] text-[#9E9A95] mt-1">완료!</p>}
               </div>
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">📅 주차</p>
-                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{currentWeek}<span className="text-[12px] text-[#9E9A95]">주</span></p>
+                <p className="text-[14px] text-[#6B6966]">📅 주차</p>
+                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{currentWeek}<span className="text-[14px] text-[#9E9A95]">주</span></p>
               </div>
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">🎯 D-day</p>
-                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{daysLeft}<span className="text-[12px] text-[#9E9A95]">일</span></p>
+                <p className="text-[14px] text-[#6B6966]">🎯 D-day</p>
+                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{daysLeft}<span className="text-[14px] text-[#9E9A95]">일</span></p>
               </div>
             </div>
           )
@@ -794,18 +794,18 @@ export default function PregnantPage() {
           if (currentWeek <= 27) return (
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">🏥 다음 검진</p>
+                <p className="text-[14px] text-[#6B6966]">🏥 다음 검진</p>
                 {upcomingCheckups.length > 0 ? (
-                  <><p className="text-[12px] font-bold text-[#1A1918] mt-0.5 line-clamp-1">{upcomingCheckups[0].title}</p><p className="text-[9px] text-[#3D8A5A]">{upcomingCheckups[0].week}주</p></>
-                ) : <p className="text-[11px] text-[#9E9A95] mt-1">완료!</p>}
+                  <><p className="text-[14px] font-bold text-[#1A1918] mt-0.5 line-clamp-1">{upcomingCheckups[0].title}</p><p className="text-[13px] text-[#3D8A5A]">{upcomingCheckups[0].week}주</p></>
+                ) : <p className="text-[13px] text-[#9E9A95] mt-1">완료!</p>}
               </div>
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">👶 오늘 태동</p>
-                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[12px] text-[#9E9A95]">회</span></p>
+                <p className="text-[14px] text-[#6B6966]">👶 오늘 태동</p>
+                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[14px] text-[#9E9A95]">회</span></p>
               </div>
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">🎯 D-day</p>
-                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{daysLeft}<span className="text-[12px] text-[#9E9A95]">일</span></p>
+                <p className="text-[14px] text-[#6B6966]">🎯 D-day</p>
+                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{daysLeft}<span className="text-[14px] text-[#9E9A95]">일</span></p>
               </div>
             </div>
           )
@@ -813,19 +813,19 @@ export default function PregnantPage() {
           return (
             <div className="grid grid-cols-3 gap-2">
               <div className={`bg-white rounded-xl border p-2.5 text-center ${bagDone < bagTotal ? 'border-[#C8F0D8]' : 'border-[#E8E4DF]'}`}>
-                <p className="text-[10px] text-[#6B6966]">🎒 출산 가방</p>
-                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{bagDone}<span className="text-[12px] text-[#9E9A95]">/{bagTotal}</span></p>
-                {bagDone < bagTotal && <p className="text-[9px] text-[#3D8A5A]">준비하세요!</p>}
+                <p className="text-[14px] text-[#6B6966]">🎒 출산 가방</p>
+                <p className="text-[20px] font-bold text-[#1A1918] mt-0.5">{bagDone}<span className="text-[14px] text-[#9E9A95]">/{bagTotal}</span></p>
+                {bagDone < bagTotal && <p className="text-[13px] text-[#3D8A5A]">준비하세요!</p>}
               </div>
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">👶 오늘 태동</p>
-                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[12px] text-[#9E9A95]">회</span></p>
-                {fetalMove > 0 && fetalMove < 10 && <p className="text-[9px] text-[#D08068]">10회 이상 확인</p>}
+                <p className="text-[14px] text-[#6B6966]">👶 오늘 태동</p>
+                <p className="text-[20px] font-bold text-[#3D8A5A] mt-0.5">{fetalMove}<span className="text-[14px] text-[#9E9A95]">회</span></p>
+                {fetalMove > 0 && fetalMove < 10 && <p className="text-[13px] text-[#D08068]">10회 이상 확인</p>}
               </div>
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
-                <p className="text-[10px] text-[#6B6966]">🎯 D-day</p>
-                <p className={`text-[20px] font-bold mt-0.5 ${daysLeft <= 14 ? 'text-[#D08068]' : 'text-[#1A1918]'}`}>{daysLeft}<span className="text-[12px] text-[#9E9A95]">일</span></p>
-                {daysLeft <= 14 && <p className="text-[9px] text-[#D08068]">곧 만나요!</p>}
+                <p className="text-[14px] text-[#6B6966]">🎯 D-day</p>
+                <p className={`text-[20px] font-bold mt-0.5 ${daysLeft <= 14 ? 'text-[#D08068]' : 'text-[#1A1918]'}`}>{daysLeft}<span className="text-[14px] text-[#9E9A95]">일</span></p>
+                {daysLeft <= 14 && <p className="text-[13px] text-[#D08068]">곧 만나요!</p>}
               </div>
             </div>
           )
@@ -843,17 +843,17 @@ export default function PregnantPage() {
                 {contractionActive ? '진통 끝' : '진통 시작'}
               </button>
               {contractions.length > 0 && (
-                <button onClick={() => setContractions([])} className="text-[11px] text-[#9E9A95]">초기화</button>
+                <button onClick={() => setContractions([])} className="text-[13px] text-[#9E9A95]">초기화</button>
               )}
             </div>
             {lastInterval !== null && (
               <div className="bg-[#FFF9F5] rounded-lg p-2 text-center">
-                <p className="text-[12px] text-[#6B6966]">마지막 간격</p>
+                <p className="text-[14px] text-[#6B6966]">마지막 간격</p>
                 <p className="text-[20px] font-bold text-[#1A1918]">{lastInterval}분</p>
-                {lastInterval <= 5 && <p className="text-[11px] text-[#D08068] font-semibold mt-1">간격이 5분 이하! 병원에 연락하세요 🚨</p>}
+                {lastInterval <= 5 && <p className="text-[13px] text-[#D08068] font-semibold mt-1">간격이 5분 이하! 병원에 연락하세요 🚨</p>}
               </div>
             )}
-            <p className="text-[9px] text-[#9E9A95] mt-2">기록: {contractions.length}회{contractions.length >= 3 ? ` · 평균 ${Math.round(contractions.slice(1).reduce((sum, c, i) => sum + (c.start - contractions[i].start), 0) / ((contractions.length - 1) * 60000))}분 간격` : ''}</p>
+            <p className="text-[13px] text-[#9E9A95] mt-2">기록: {contractions.length}회{contractions.length >= 3 ? ` · 평균 ${Math.round(contractions.slice(1).reduce((sum, c, i) => sum + (c.start - contractions[i].start), 0) / ((contractions.length - 1) * 60000))}분 간격` : ''}</p>
           </div>
         )}
 
@@ -863,11 +863,11 @@ export default function PregnantPage() {
           if (urgent.length === 0) return null
           return (
             <div className="bg-[#FFF8F3] rounded-xl border border-[#FFDDC8] p-3">
-              <p className="text-[12px] font-semibold text-[#D08068] mb-1">⚡ 아직 안 챙긴 혜택이 {urgent.length}개 있어요</p>
+              <p className="text-[14px] font-semibold text-[#D08068] mb-1">⚡ 아직 안 챙긴 혜택이 {urgent.length}개 있어요</p>
               {urgent.slice(0, 2).map(b => (
-                <p key={b.id} className="text-[11px] text-[#1A1918]">{b.icon} {b.title} — {b.desc.slice(0, 30)}</p>
+                <p key={b.id} className="text-[13px] text-[#1A1918]">{b.icon} {b.title} — {b.desc.slice(0, 30)}</p>
               ))}
-              {urgent.length > 2 && <p className="text-[10px] text-[#6B6966]">+{urgent.length - 2}개 더 (아래 더보기)</p>}
+              {urgent.length > 2 && <p className="text-[14px] text-[#6B6966]">+{urgent.length - 2}개 더 (아래 더보기)</p>}
             </div>
           )
         })()}
@@ -877,8 +877,8 @@ export default function PregnantPage() {
 
         {/* ━━━ 주차별 한줄 체크 ━━━ */}
         <div className="bg-white rounded-xl border border-[#E8E4DF] p-3">
-          <p className="text-[12px] font-bold text-[#1A1918] mb-1.5">📋 {currentWeek}주차 체크</p>
-          <p className="text-[11px] text-[#6B6966]">
+          <p className="text-[14px] font-bold text-[#1A1918] mb-1.5">📋 {currentWeek}주차 체크</p>
+          <p className="text-[13px] text-[#6B6966]">
             {currentWeek <= 8 ? '첫 초음파 · 엽산 복용 · 모자수첩 발급' :
              currentWeek <= 12 ? 'NT 검사 · 입덧 관리 · 보건소 등록' :
              currentWeek <= 16 ? '쿼드 검사 · 안정기 진입 · 산후조리원 예약' :
@@ -895,7 +895,7 @@ export default function PregnantPage() {
         <Link href="/waiting" className="w-full bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center justify-between active:bg-[#FFF9F5]">
           <div>
             <p className="text-[13px] font-semibold text-[#1A1918]">기다림 탭에서 더 보기</p>
-            <p className="text-[10px] text-[#6B6966]">검진 · 혜택 · 축하박스 · 출산 가방 · 이름 짓기</p>
+            <p className="text-[14px] text-[#6B6966]">검진 · 혜택 · 축하박스 · 출산 가방 · 이름 짓기</p>
           </div>
           <span className="text-[#9E9A95]">→</span>
         </Link>
@@ -910,39 +910,39 @@ export default function PregnantPage() {
                 {currentWeek <= 12 && (
                   <>
                     <Link href="/town" className="flex items-center gap-2 p-2 bg-[#FFF9F5] rounded-lg active:opacity-80">
-                      <span className="text-sm">🏥</span><p className="text-[11px] text-[#1A1918]">근처 산부인과 찾기</p><span className="text-[#9E9A95] ml-auto text-xs">→</span>
+                      <span className="text-sm">🏥</span><p className="text-[13px] text-[#1A1918]">근처 산부인과 찾기</p><span className="text-[#9E9A95] ml-auto text-xs">→</span>
                     </Link>
                     <div className="flex items-center gap-2 p-2 bg-[#FFF9F5] rounded-lg">
-                      <span className="text-sm">🤢</span><p className="text-[11px] text-[#1A1918]">입덧 완화법: 소량 자주 식사, 생강차, 레몬향</p>
+                      <span className="text-sm">🤢</span><p className="text-[13px] text-[#1A1918]">입덧 완화법: 소량 자주 식사, 생강차, 레몬향</p>
                     </div>
                   </>
                 )}
                 {currentWeek >= 13 && currentWeek <= 27 && (
                   <>
                     <Link href="/name" className="flex items-center gap-2 p-2 bg-[#FFF9F5] rounded-lg active:opacity-80">
-                      <span className="text-sm">✨</span><p className="text-[11px] text-[#1A1918]">이름 짓기 시작하기</p><span className="text-[#9E9A95] ml-auto text-xs">→</span>
+                      <span className="text-sm">✨</span><p className="text-[13px] text-[#1A1918]">이름 짓기 시작하기</p><span className="text-[#9E9A95] ml-auto text-xs">→</span>
                     </Link>
                     <div className="flex items-center gap-2 p-2 bg-[#FFF9F5] rounded-lg">
-                      <span className="text-sm">✈️</span><p className="text-[11px] text-[#1A1918]">태교여행 적기! 안정기(16~28주) 국내 여행 추천</p>
+                      <span className="text-sm">✈️</span><p className="text-[13px] text-[#1A1918]">태교여행 적기! 안정기(16~28주) 국내 여행 추천</p>
                     </div>
                     <div className="flex items-center gap-2 p-2 bg-[#FFF9F5] rounded-lg">
-                      <span className="text-sm">☕</span><p className="text-[11px] text-[#1A1918]">카페인 대체: 디카페인, 루이보스, 보리차</p>
+                      <span className="text-sm">☕</span><p className="text-[13px] text-[#1A1918]">카페인 대체: 디카페인, 루이보스, 보리차</p>
                     </div>
                   </>
                 )}
                 {currentWeek >= 28 && (
                   <>
                     <Link href="/town" className="flex items-center gap-2 p-2 bg-[#F0F9F4] rounded-lg active:opacity-80">
-                      <span className="text-sm">🤱</span><p className="text-[11px] text-[#3D8A5A] font-semibold">산후조리원 투어 예약</p><span className="text-[#3D8A5A] ml-auto text-xs">→</span>
+                      <span className="text-sm">🤱</span><p className="text-[13px] text-[#3D8A5A] font-semibold">산후조리원 투어 예약</p><span className="text-[#3D8A5A] ml-auto text-xs">→</span>
                     </Link>
                     <div className="flex items-center gap-2 p-2 bg-[#FFF9F5] rounded-lg">
-                      <span className="text-sm">📸</span><p className="text-[11px] text-[#1A1918]">만삭 사진 찍기 — 소중한 추억!</p>
+                      <span className="text-sm">📸</span><p className="text-[13px] text-[#1A1918]">만삭 사진 찍기 — 소중한 추억!</p>
                     </div>
                   </>
                 )}
                 {/* 공통 */}
                 <div className="flex items-center gap-2 p-2 bg-[#FFF9F5] rounded-lg">
-                  <span className="text-sm">🚫</span><p className="text-[11px] text-[#1A1918]">피해야 할 음식: 날생선, 생고기, 알코올, 고카페인</p>
+                  <span className="text-sm">🚫</span><p className="text-[13px] text-[#1A1918]">피해야 할 음식: 날생선, 생고기, 알코올, 고카페인</p>
                 </div>
               </div>
             </div>
@@ -956,10 +956,10 @@ export default function PregnantPage() {
               {CHECKUPS.map(c => (
                 <button key={c.id} onClick={() => toggleCheckup(c.id)} className="w-full flex items-center gap-2 py-1.5">
                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${checkupDone[c.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
-                    {checkupDone[c.id] && <span className="text-white text-[9px]">✓</span>}
+                    {checkupDone[c.id] && <span className="text-white text-[13px]">✓</span>}
                   </div>
-                  <span className={`text-[12px] flex-1 text-left ${checkupDone[c.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{c.icon} {c.title}</span>
-                  <span className={`text-[10px] ${c.week <= currentWeek && !checkupDone[c.id] ? 'text-[#D08068] font-semibold' : 'text-[#9E9A95]'}`}>{c.week}주</span>
+                  <span className={`text-[14px] flex-1 text-left ${checkupDone[c.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{c.icon} {c.title}</span>
+                  <span className={`text-[14px] ${c.week <= currentWeek && !checkupDone[c.id] ? 'text-[#D08068] font-semibold' : 'text-[#9E9A95]'}`}>{c.week}주</span>
                 </button>
               ))}
             </div>
@@ -968,7 +968,7 @@ export default function PregnantPage() {
             <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[13px] font-bold text-[#1A1918]">🎁 혜택 · 제도 챙기기</p>
-                <p className="text-[10px] text-[#3D8A5A] font-semibold">{BENEFITS_TIMELINE.filter(b => benefitDone[b.id]).length}/{BENEFITS_TIMELINE.length}</p>
+                <p className="text-[14px] text-[#3D8A5A] font-semibold">{BENEFITS_TIMELINE.filter(b => benefitDone[b.id]).length}/{BENEFITS_TIMELINE.length}</p>
               </div>
 
               {/* 지금 해야 할 것 (현재 주차 기준) */}
@@ -980,48 +980,48 @@ export default function PregnantPage() {
                 return (
                   <div className="space-y-1">
                     {urgent.length > 0 && (
-                      <p className="text-[10px] font-semibold text-[#D08068] mb-1">⚡ 지금 챙기세요</p>
+                      <p className="text-[14px] font-semibold text-[#D08068] mb-1">⚡ 지금 챙기세요</p>
                     )}
                     {urgent.map(b => (
                       <button key={b.id} onClick={() => toggleBenefit(b.id)} className="w-full flex items-start gap-2 py-1.5 active:bg-[#FFF9F5] rounded-lg">
                         <div className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${benefitDone[b.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#D08068]'}`}>
-                          {benefitDone[b.id] && <span className="text-white text-[9px]">✓</span>}
+                          {benefitDone[b.id] && <span className="text-white text-[13px]">✓</span>}
                         </div>
                         <div className="flex-1 text-left">
-                          <p className="text-[12px] font-semibold text-[#1A1918]">{b.icon} {b.title}</p>
-                          <p className="text-[10px] text-[#6B6966]">{b.desc}</p>
+                          <p className="text-[14px] font-semibold text-[#1A1918]">{b.icon} {b.title}</p>
+                          <p className="text-[14px] text-[#6B6966]">{b.desc}</p>
                         </div>
-                        {b.link && <a href={b.link} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[9px] text-[#3D8A5A] shrink-0 mt-1">신청 →</a>}
+                        {b.link && <a href={b.link} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[13px] text-[#3D8A5A] shrink-0 mt-1">신청 →</a>}
                       </button>
                     ))}
 
                     {upcoming.length > 0 && (
-                      <p className="text-[10px] font-semibold text-[#6B6966] mt-2 mb-1">📅 다가오는 일정</p>
+                      <p className="text-[14px] font-semibold text-[#6B6966] mt-2 mb-1">📅 다가오는 일정</p>
                     )}
                     {upcoming.map(b => (
                       <button key={b.id} onClick={() => toggleBenefit(b.id)} className="w-full flex items-start gap-2 py-1.5 active:bg-[#FFF9F5] rounded-lg">
                         <div className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${benefitDone[b.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
-                          {benefitDone[b.id] && <span className="text-white text-[9px]">✓</span>}
+                          {benefitDone[b.id] && <span className="text-white text-[13px]">✓</span>}
                         </div>
                         <div className="flex-1 text-left">
-                          <p className={`text-[12px] ${benefitDone[b.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{b.icon} {b.title}</p>
-                          <p className="text-[10px] text-[#6B6966]">{b.desc}</p>
+                          <p className={`text-[14px] ${benefitDone[b.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{b.icon} {b.title}</p>
+                          <p className="text-[14px] text-[#6B6966]">{b.desc}</p>
                         </div>
-                        <span className="text-[9px] text-[#9E9A95] shrink-0 mt-1">{b.when}</span>
+                        <span className="text-[13px] text-[#9E9A95] shrink-0 mt-1">{b.when}</span>
                       </button>
                     ))}
 
-                    <p className="text-[10px] font-semibold text-[#6B6966] mt-2 mb-1">🍼 출산 후 챙길 것</p>
+                    <p className="text-[14px] font-semibold text-[#6B6966] mt-2 mb-1">🍼 출산 후 챙길 것</p>
                     {afterBirth.map(b => (
                       <button key={b.id} onClick={() => toggleBenefit(b.id)} className="w-full flex items-start gap-2 py-1.5 active:bg-[#FFF9F5] rounded-lg">
                         <div className={`w-4 h-4 mt-0.5 rounded-full border-2 flex items-center justify-center shrink-0 ${benefitDone[b.id] ? 'bg-[#3D8A5A] border-[#3D8A5A]' : 'border-[#AEB1B9]'}`}>
-                          {benefitDone[b.id] && <span className="text-white text-[9px]">✓</span>}
+                          {benefitDone[b.id] && <span className="text-white text-[13px]">✓</span>}
                         </div>
                         <div className="flex-1 text-left">
-                          <p className={`text-[12px] ${benefitDone[b.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{b.icon} {b.title}</p>
-                          <p className="text-[10px] text-[#6B6966]">{b.desc}</p>
+                          <p className={`text-[14px] ${benefitDone[b.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{b.icon} {b.title}</p>
+                          <p className="text-[14px] text-[#6B6966]">{b.desc}</p>
                         </div>
-                        {b.link && <a href={b.link} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[9px] text-[#3D8A5A] shrink-0 mt-1">신청 →</a>}
+                        {b.link && <a href={b.link} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[13px] text-[#3D8A5A] shrink-0 mt-1">신청 →</a>}
                       </button>
                     ))}
                   </div>
@@ -1033,7 +1033,7 @@ export default function PregnantPage() {
             <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
               <p className="text-[13px] font-bold text-[#1A1918] mb-3">🎁 무료 축하박스 · 샘플</p>
 
-              <p className="text-[11px] font-semibold text-[#3D8A5A] mb-2">임신 축하박스</p>
+              <p className="text-[13px] font-semibold text-[#3D8A5A] mb-2">임신 축하박스</p>
               <div className="space-y-1.5 mb-4">
                 {FREE_BOXES.filter(b => b.category === 'pregnancy').map(b => (
                   <a key={b.id} href={b.link} target="_blank" rel="noopener noreferrer"
@@ -1042,15 +1042,15 @@ export default function PregnantPage() {
                       <span className="text-sm">🎁</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[12px] font-semibold text-[#1A1918]">{b.name}</p>
-                      <p className="text-[10px] text-[#6B6966]">{b.desc}</p>
+                      <p className="text-[14px] font-semibold text-[#1A1918]">{b.name}</p>
+                      <p className="text-[14px] text-[#6B6966]">{b.desc}</p>
                     </div>
-                    <span className="text-[9px] text-[#9E9A95] shrink-0">{b.tip}</span>
+                    <span className="text-[13px] text-[#9E9A95] shrink-0">{b.tip}</span>
                   </a>
                 ))}
               </div>
 
-              <p className="text-[11px] font-semibold text-[#3D8A5A] mb-2">출산 축하박스 · 분유 샘플</p>
+              <p className="text-[13px] font-semibold text-[#3D8A5A] mb-2">출산 축하박스 · 분유 샘플</p>
               <div className="space-y-1.5">
                 {FREE_BOXES.filter(b => b.category === 'birth').map(b => (
                   <a key={b.id} href={b.link} target="_blank" rel="noopener noreferrer"
@@ -1059,10 +1059,10 @@ export default function PregnantPage() {
                       <span className="text-sm">📦</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[12px] font-semibold text-[#1A1918]">{b.name}</p>
-                      <p className="text-[10px] text-[#6B6966]">{b.desc}</p>
+                      <p className="text-[14px] font-semibold text-[#1A1918]">{b.name}</p>
+                      <p className="text-[14px] text-[#6B6966]">{b.desc}</p>
                     </div>
-                    <span className="text-[9px] text-[#9E9A95] shrink-0">{b.tip}</span>
+                    <span className="text-[13px] text-[#9E9A95] shrink-0">{b.tip}</span>
                   </a>
                 ))}
               </div>
@@ -1073,10 +1073,10 @@ export default function PregnantPage() {
               <p className="text-[13px] font-bold text-[#1A1918] mb-2">🎒 출산 가방 체크리스트</p>
               {(['mom', 'baby', 'partner'] as const).map(cat => (
                 <div key={cat} className="mb-3 last:mb-0">
-                  <p className="text-[11px] font-semibold text-[#6B6966] mb-1">{cat === 'mom' ? '👩 엄마' : cat === 'baby' ? '👶 아기' : '👨 파트너'}</p>
+                  <p className="text-[13px] font-semibold text-[#6B6966] mb-1">{cat === 'mom' ? '👩 엄마' : cat === 'baby' ? '👶 아기' : '👨 파트너'}</p>
                   <div className="grid grid-cols-2 gap-1">
                     {HOSPITAL_BAG[cat].map(item => (
-                      <button key={item} onClick={() => toggleBag(item)} className={`text-[11px] py-1.5 px-2 rounded-lg text-left ${bagChecked[item] ? 'bg-[#3D8A5A] text-white' : 'bg-[#FFF9F5] text-[#1A1918]'}`}>
+                      <button key={item} onClick={() => toggleBag(item)} className={`text-[13px] py-1.5 px-2 rounded-lg text-left ${bagChecked[item] ? 'bg-[#3D8A5A] text-white' : 'bg-[#FFF9F5] text-[#1A1918]'}`}>
                         {bagChecked[item] ? '✓ ' : ''}{item}
                       </button>
                     ))}
@@ -1088,9 +1088,9 @@ export default function PregnantPage() {
             {/* 이번 주 발달 */}
             <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
               <p className="text-[13px] font-bold text-[#1A1918] mb-2">🧒 이번 주 발달</p>
-              <p className="text-[12px] text-[#1A1918] mb-2">{currentFetal.desc}</p>
+              <p className="text-[14px] text-[#1A1918] mb-2">{currentFetal.desc}</p>
               <div className="bg-[#F0F9F4] rounded-lg p-2">
-                <p className="text-[11px] text-[#3D8A5A]">💡 {currentFetal.tip}</p>
+                <p className="text-[13px] text-[#3D8A5A]">💡 {currentFetal.tip}</p>
               </div>
             </div>
           </div>

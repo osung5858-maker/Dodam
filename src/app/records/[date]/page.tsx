@@ -115,7 +115,7 @@ export default function RecordDetailPage() {
           <div className="mx-4 mb-3 flex gap-2 overflow-x-auto hide-scrollbar">
             {feedCount > 0 && (
               <div className="shrink-0 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
-                <p className="text-[10px] text-blue-500 font-medium">수유</p>
+                <p className="text-[14px] text-blue-500 font-medium">수유</p>
                 <p className="text-sm font-bold text-blue-600">
                   {feedCount}회{feedTotal > 0 && ` · ${feedTotal}ml`}
                 </p>
@@ -123,19 +123,19 @@ export default function RecordDetailPage() {
             )}
             {sleepCount > 0 && (
               <div className="shrink-0 px-3 py-2 rounded-xl bg-indigo-50 border border-indigo-100">
-                <p className="text-[10px] text-indigo-500 font-medium">수면</p>
+                <p className="text-[14px] text-indigo-500 font-medium">수면</p>
                 <p className="text-sm font-bold text-indigo-600">{sleepCount}회</p>
               </div>
             )}
             {poopCount > 0 && (
               <div className="shrink-0 px-3 py-2 rounded-xl bg-amber-50 border border-amber-100">
-                <p className="text-[10px] text-amber-600 font-medium">대변</p>
+                <p className="text-[14px] text-amber-600 font-medium">대변</p>
                 <p className="text-sm font-bold text-amber-700">{poopCount}회</p>
               </div>
             )}
             {peeCount > 0 && (
               <div className="shrink-0 px-3 py-2 rounded-xl bg-cyan-50 border border-cyan-100">
-                <p className="text-[10px] text-cyan-500 font-medium">소변</p>
+                <p className="text-[14px] text-cyan-500 font-medium">소변</p>
                 <p className="text-sm font-bold text-cyan-600">{peeCount}회</p>
               </div>
             )}

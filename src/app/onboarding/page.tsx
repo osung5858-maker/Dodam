@@ -98,7 +98,7 @@ export default function OnboardingPage() {
                   <span className="text-3xl">{option.emoji}</span>
                   <div>
                     <p className="text-[15px] font-bold text-[#212124]">{option.title}</p>
-                    <p className="text-[12px] text-[#6B6966] mt-0.5">{option.desc}</p>
+                    <p className="text-[14px] text-[#6B6966] mt-0.5">{option.desc}</p>
                   </div>
                 </div>
               </button>

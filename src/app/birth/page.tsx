@@ -57,7 +57,7 @@ export default function BirthPage() {
               준비해준 모든 것, 느끼고 있었어요.<br />
               이제 진짜 시작이에요!"
             </p>
-            <p className="text-[11px] text-[#9E9A95] mt-2">— 아이가</p>
+            <p className="text-[13px] text-[#9E9A95] mt-2">— 아이가</p>
           </div>
 
           <button onClick={() => setStep(1)}
@@ -88,23 +88,23 @@ export default function BirthPage() {
               <div className="bg-white rounded-2xl p-3 text-center shadow-sm">
                 <p className="text-xl mb-1">📝</p>
                 <p className="text-[18px] font-bold text-[#1A1918]">{diaryCount}</p>
-                <p className="text-[10px] text-[#6B6966]">태교 일기</p>
+                <p className="text-[14px] text-[#6B6966]">태교 일기</p>
               </div>
               <div className="bg-white rounded-2xl p-3 text-center shadow-sm">
                 <p className="text-xl mb-1">🏥</p>
                 <p className="text-[18px] font-bold text-[#1A1918]">{checkupCount}</p>
-                <p className="text-[10px] text-[#6B6966]">검진 완료</p>
+                <p className="text-[14px] text-[#6B6966]">검진 완료</p>
               </div>
               <div className="bg-white rounded-2xl p-3 text-center shadow-sm">
                 <p className="text-xl mb-1">✉️</p>
                 <p className="text-[18px] font-bold text-[#1A1918]">{letterCount}</p>
-                <p className="text-[10px] text-[#6B6966]">편지</p>
+                <p className="text-[14px] text-[#6B6966]">편지</p>
               </div>
             </div>
 
             <div className="bg-[#FFF8F3] rounded-2xl p-4 text-center">
-              <p className="text-[12px] text-[#6B6966] mb-1">모든 기록은 소중히 보관돼요</p>
-              <p className="text-[11px] text-[#3D8A5A] font-semibold">아이가 자라면 함께 읽어보세요 💌</p>
+              <p className="text-[14px] text-[#6B6966] mb-1">모든 기록은 소중히 보관돼요</p>
+              <p className="text-[13px] text-[#3D8A5A] font-semibold">아이가 자라면 함께 읽어보세요 💌</p>
             </div>
           </div>
 
@@ -141,7 +141,7 @@ export default function BirthPage() {
           ].map(item => (
             <div key={item.text} className="flex items-center gap-2 py-0.5">
               <span className="text-sm">{item.icon}</span>
-              <p className="text-[12px] text-[#1A1918]">{item.text}</p>
+              <p className="text-[14px] text-[#1A1918]">{item.text}</p>
             </div>
           ))}
         </div>

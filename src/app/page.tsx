@@ -286,7 +286,7 @@ export default function HomePage() {
                 {user?.user_metadata?.avatar_url ? (
                   <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-white text-[11px] font-bold">{child?.name?.charAt(0) || '도'}</span>
+                  <span className="text-white text-[13px] font-bold">{child?.name?.charAt(0) || '도'}</span>
                 )}
               </Link>
             </div>
@@ -298,7 +298,7 @@ export default function HomePage() {
       {/* 배너 */}
       {!isOnline && (
         <div className="bg-[#FFF8F3] px-4 py-2">
-          <p className="text-[11px] text-[#FF6F0F] text-center font-medium">
+          <p className="text-[13px] text-[#FF6F0F] text-center font-medium">
             📡 오프라인 · 기록은 저장돼요 {pendingCount > 0 && `(${pendingCount}건 대기)`}
           </p>
         </div>
@@ -322,13 +322,13 @@ export default function HomePage() {
           {/* ━━━ 2. 최근 기록 (스크롤) ━━━ */}
           <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[14px] font-bold text-[#1A1918]">최근 기록 {events.length > 0 && <span className="text-[11px] text-[#9E9A95] font-normal ml-1">{events.length}건</span>}</p>
+              <p className="text-[14px] font-bold text-[#1A1918]">최근 기록 {events.length > 0 && <span className="text-[13px] text-[#9E9A95] font-normal ml-1">{events.length}건</span>}</p>
               {events.length > 0 && (
-                <Link href={`/records/${new Date().toISOString().split('T')[0]}`} className="text-[11px] text-[#3D8A5A] font-medium">전체보기 →</Link>
+                <Link href={`/records/${new Date().toISOString().split('T')[0]}`} className="text-[13px] text-[#3D8A5A] font-medium">전체보기 →</Link>
               )}
             </div>
             {events.length === 0 ? (
-              <p className="text-[12px] text-[#9E9A95] text-center py-3">아직 기록이 없어요. FAB(+)으로 첫 기록을 남겨보세요!</p>
+              <p className="text-[14px] text-[#9E9A95] text-center py-3">아직 기록이 없어요. FAB(+)으로 첫 기록을 남겨보세요!</p>
             ) : (
               <div className="max-h-[240px] overflow-y-auto space-y-1.5 hide-scrollbar">
                 {events.map((e) => {
@@ -350,18 +350,18 @@ export default function HomePage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-[12px] font-semibold text-[#1A1918]">{labels[e.type] || e.type}</span>
-                          {side && <span className="text-[9px] text-[#3D8A5A] bg-[#E8F5E9] px-1 py-0.5 rounded">{side}</span>}
-                          {poopStatus && <span className="text-[9px] text-[#6B6966] bg-[#E8E4DF] px-1 py-0.5 rounded">{poopStatus}</span>}
+                          <span className="text-[14px] font-semibold text-[#1A1918]">{labels[e.type] || e.type}</span>
+                          {side && <span className="text-[13px] text-[#3D8A5A] bg-[#E8F5E9] px-1 py-0.5 rounded">{side}</span>}
+                          {poopStatus && <span className="text-[13px] text-[#6B6966] bg-[#E8E4DF] px-1 py-0.5 rounded">{poopStatus}</span>}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] text-[#9E9A95]">{time}</span>
-                          {amount && <span className="text-[10px] text-[#3D8A5A] font-medium">{amount}</span>}
-                          {duration && <span className="text-[10px] text-[#3D8A5A] font-medium">{duration}</span>}
-                          {tempVal && <span className="text-[10px] text-[#D08068] font-medium">{tempVal}</span>}
+                          <span className="text-[14px] text-[#9E9A95]">{time}</span>
+                          {amount && <span className="text-[14px] text-[#3D8A5A] font-medium">{amount}</span>}
+                          {duration && <span className="text-[14px] text-[#3D8A5A] font-medium">{duration}</span>}
+                          {tempVal && <span className="text-[14px] text-[#D08068] font-medium">{tempVal}</span>}
                         </div>
                       </div>
-                      <span className="text-[9px] text-[#9E9A95] shrink-0">{elapsedText}</span>
+                      <span className="text-[13px] text-[#9E9A95] shrink-0">{elapsedText}</span>
                     </div>
                   )
                 })}
@@ -375,14 +375,14 @@ export default function HomePage() {
             <Link href="/vaccination" className="bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5 active:bg-[#F5F1EC]">
               <span className="text-lg">💉</span>
               <div>
-                <p className="text-[12px] font-semibold text-[#1A1918]">
+                <p className="text-[14px] font-semibold text-[#1A1918]">
                   {(() => {
                     const VACCINES: Record<number, string> = { 0: 'BCG', 1: 'B형간염 2차', 2: 'DTaP 1차', 4: 'DTaP 2차', 6: 'DTaP 3차', 12: 'MMR', 15: '수두', 24: '일본뇌염' }
                     const next = Object.entries(VACCINES).find(([m]) => Number(m) >= ageMonths)
                     return next ? next[1] : '완료!'
                   })()}
                 </p>
-                <p className="text-[9px] text-[#9E9A95]">다음 접종</p>
+                <p className="text-[13px] text-[#9E9A95]">다음 접종</p>
               </div>
             </Link>
             {/* 이유식 or 성장 */}
@@ -390,16 +390,16 @@ export default function HomePage() {
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5">
                 <span className="text-lg">🥣</span>
                 <div>
-                  <p className="text-[12px] font-semibold text-[#1A1918]">{ageMonths < 6 ? '초기' : ageMonths < 8 ? '중기' : ageMonths < 10 ? '후기' : '완료기'} 이유식</p>
-                  <p className="text-[9px] text-[#9E9A95]">{ageMonths}개월 단계</p>
+                  <p className="text-[14px] font-semibold text-[#1A1918]">{ageMonths < 6 ? '초기' : ageMonths < 8 ? '중기' : ageMonths < 10 ? '후기' : '완료기'} 이유식</p>
+                  <p className="text-[13px] text-[#9E9A95]">{ageMonths}개월 단계</p>
                 </div>
               </div>
             ) : (
               <Link href="/memory" className="bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5 active:bg-[#F5F1EC]">
                 <span className="text-lg">📈</span>
                 <div>
-                  <p className="text-[12px] font-semibold text-[#1A1918]">{ageMonths}개월</p>
-                  <p className="text-[9px] text-[#9E9A95]">성장 기록</p>
+                  <p className="text-[14px] font-semibold text-[#1A1918]">{ageMonths}개월</p>
+                  <p className="text-[13px] text-[#9E9A95]">성장 기록</p>
                 </div>
               </Link>
             )}
@@ -426,8 +426,8 @@ export default function HomePage() {
               <Link href={tip.href} className="bg-gradient-to-r from-[#FFF8F0] to-[#F0F9F4] rounded-xl border border-[#E8E4DF] p-3.5 flex items-center gap-3 active:opacity-80">
                 <span className="text-2xl">{tip.emoji}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[12px] font-bold text-[#1A1918]">{tip.title}</p>
-                  <p className="text-[10px] text-[#6B6966] mt-0.5 line-clamp-1">{tip.desc}</p>
+                  <p className="text-[14px] font-bold text-[#1A1918]">{tip.title}</p>
+                  <p className="text-[14px] text-[#6B6966] mt-0.5 line-clamp-1">{tip.desc}</p>
                 </div>
                 <ChevronRightIcon className="w-4 h-4 text-[#9E9A95] shrink-0" />
               </Link>
@@ -438,27 +438,27 @@ export default function HomePage() {
           <div className="grid grid-cols-3 gap-2">
             <Link href="/lullaby" className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center active:bg-[#F5F1EC]">
               <span className="text-lg">🌙</span>
-              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">자장가</p>
+              <p className="text-[14px] font-semibold text-[#1A1918] mt-1">자장가</p>
             </Link>
             <Link href="/growth/analyze" className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center active:bg-[#F5F1EC]">
               <span className="text-lg">📄</span>
-              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">검진 분석</p>
+              <p className="text-[14px] font-semibold text-[#1A1918] mt-1">검진 분석</p>
             </Link>
             <Link href="/vaccination" className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center active:bg-[#F5F1EC]">
               <span className="text-lg">💉</span>
-              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">예방접종</p>
+              <p className="text-[14px] font-semibold text-[#1A1918] mt-1">예방접종</p>
             </Link>
             <Link href="/memory" className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center active:bg-[#F5F1EC]">
               <span className="text-lg">📖</span>
-              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">추억</p>
+              <p className="text-[14px] font-semibold text-[#1A1918] mt-1">추억</p>
             </Link>
             <Link href="/name" className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center active:bg-[#F5F1EC]">
               <span className="text-lg">✨</span>
-              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">이름 짓기</p>
+              <p className="text-[14px] font-semibold text-[#1A1918] mt-1">이름 짓기</p>
             </Link>
             <Link href="/mental-check" className="bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center active:bg-[#F5F1EC]">
               <span className="text-lg">🧘</span>
-              <p className="text-[10px] font-semibold text-[#1A1918] mt-1">마음 체크</p>
+              <p className="text-[14px] font-semibold text-[#1A1918] mt-1">마음 체크</p>
             </Link>
           </div>
 
@@ -564,7 +564,7 @@ function KidsnoteCard() {
             <span className="text-2xl">🏫</span>
             <div>
               <p className="text-[13px] font-bold text-[#1A1918]">키즈노트 연동</p>
-              <p className="text-[11px] text-[#6B6966]">어린이집 알림장을 도담에서 확인해요</p>
+              <p className="text-[13px] text-[#6B6966]">어린이집 알림장을 도담에서 확인해요</p>
             </div>
           </div>
           <ChevronRightIcon className="w-4 h-4 text-[#9E9A95]" />
@@ -582,15 +582,15 @@ function KidsnoteCard() {
           <span className="text-[13px] font-bold text-[#1A1918]">오늘의 키즈노트</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-[9px] text-[#3D8A5A] bg-[#E8F5E9] px-1.5 py-0.5 rounded-full">연동됨</span>
+          <span className="text-[13px] text-[#3D8A5A] bg-[#E8F5E9] px-1.5 py-0.5 rounded-full">연동됨</span>
           <ChevronRightIcon className="w-4 h-4 text-[#9E9A95]" />
         </div>
       </Link>
 
-      {loading && <p className="text-[11px] text-[#9E9A95] py-2 text-center">알림장 확인 중...</p>}
+      {loading && <p className="text-[13px] text-[#9E9A95] py-2 text-center">알림장 확인 중...</p>}
 
       {!loading && reports.length === 0 && (
-        <p className="text-[11px] text-[#9E9A95] py-2 text-center">새 알림장이 없어요</p>
+        <p className="text-[13px] text-[#9E9A95] py-2 text-center">새 알림장이 없어요</p>
       )}
 
       {/* 최근 사진 그리드 — 탭하면 확대 */}
@@ -605,11 +605,11 @@ function KidsnoteCard() {
                 <div key={i} className="relative aspect-square cursor-pointer active:opacity-80"
                   onClick={() => { setViewerImages(allImages); setViewerStart(i) }}>
                   <img src={img.thumbnail} alt="" className="w-full h-full object-cover" />
-                  {i === 0 && <span className="absolute top-1 left-1 text-[9px] bg-black/50 text-white px-1 rounded">NEW</span>}
+                  {i === 0 && <span className="absolute top-1 left-1 text-[13px] bg-black/50 text-white px-1 rounded">NEW</span>}
                 </div>
               ))}
             </div>
-            <p className="text-[10px] text-[#9E9A95] text-center mt-1.5">
+            <p className="text-[14px] text-[#9E9A95] text-center mt-1.5">
               {reports[0]?.created ? new Date(reports[0].created).toLocaleDateString('ko-KR') : ''} · {reports[0]?.author || ''}
             </p>
           </>
@@ -684,12 +684,12 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
           <span className="text-sm">✨</span>
           <p className="text-[14px] font-bold text-[#1A1918]">AI 데일리 케어</p>
           {ai?.status && (
-            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${statusColors[ai.status] || 'bg-[#E8E4DF] text-[#6B6966]'}`}>
+            <span className={`text-[13px] px-1.5 py-0.5 rounded-full font-medium ${statusColors[ai.status] || 'bg-[#E8E4DF] text-[#6B6966]'}`}>
               {ai.statusEmoji} {ai.status}
             </span>
           )}
         </div>
-        <button onClick={onShare} className="text-[10px] text-[#3D8A5A]">카톡 공유</button>
+        <button onClick={onShare} className="text-[14px] text-[#3D8A5A]">카톡 공유</button>
       </div>
 
       {/* 오늘 요약 */}
@@ -701,13 +701,13 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
         ].map((s) => (
           <div key={s.label} className="flex-1 bg-white/60 rounded-lg py-2 text-center">
             <p className="text-[14px] font-bold text-[#1A1918]">{s.emoji} {s.count}</p>
-            <p className="text-[9px] text-[#9E9A95]">{s.label}</p>
+            <p className="text-[13px] text-[#9E9A95]">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* AI 분석 결과 */}
-      {loading && <p className="text-[11px] text-[#9E9A95] text-center py-2">AI가 기록을 분석하고 있어요...</p>}
+      {loading && <p className="text-[13px] text-[#9E9A95] text-center py-2">AI가 기록을 분석하고 있어요...</p>}
 
       {!ai && !loading && (
         <button onClick={handleAiCare} disabled={events.length < 3}
@@ -720,34 +720,34 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
         <div className="space-y-2">
           {/* 핵심 인사이트 */}
           {ai.mainInsight && (
-            <p className="text-[12px] text-[#1A1918] leading-relaxed">{ai.mainInsight}</p>
+            <p className="text-[14px] text-[#1A1918] leading-relaxed">{ai.mainInsight}</p>
           )}
 
           {/* 다음 행동 제안 */}
           {ai.nextAction && (
             <div className="bg-[#E8F5E9] rounded-lg px-3 py-2">
-              <p className="text-[11px] text-[#2E7D32] font-medium">👉 {ai.nextAction}</p>
+              <p className="text-[13px] text-[#2E7D32] font-medium">👉 {ai.nextAction}</p>
             </div>
           )}
 
           {/* 경고 */}
           {ai.warning && (
             <div className="bg-[#FFF0E6] rounded-lg px-3 py-2">
-              <p className="text-[11px] text-[#D08068]">⚠️ {ai.warning}</p>
+              <p className="text-[13px] text-[#D08068]">⚠️ {ai.warning}</p>
             </div>
           )}
 
           {/* 상세 (펼치기) */}
           {!expanded && (ai.feedAnalysis || ai.sleepAnalysis || ai.parentTip) && (
-            <button onClick={() => setExpanded(true)} className="text-[10px] text-[#3D8A5A] font-medium">자세히 보기 ▼</button>
+            <button onClick={() => setExpanded(true)} className="text-[14px] text-[#3D8A5A] font-medium">자세히 보기 ▼</button>
           )}
 
           {expanded && (
             <div className="space-y-1.5 pt-1 border-t border-[#C8F0D8]/50">
-              {ai.feedAnalysis && <p className="text-[11px] text-[#6B6966]">🍼 {ai.feedAnalysis}</p>}
-              {ai.sleepAnalysis && <p className="text-[11px] text-[#6B6966]">💤 {ai.sleepAnalysis}</p>}
-              {ai.parentTip && <p className="text-[11px] text-[#3D8A5A]">💚 {ai.parentTip}</p>}
-              <button onClick={() => setExpanded(false)} className="text-[10px] text-[#9E9A95]">접기 ▲</button>
+              {ai.feedAnalysis && <p className="text-[13px] text-[#6B6966]">🍼 {ai.feedAnalysis}</p>}
+              {ai.sleepAnalysis && <p className="text-[13px] text-[#6B6966]">💤 {ai.sleepAnalysis}</p>}
+              {ai.parentTip && <p className="text-[13px] text-[#3D8A5A]">💚 {ai.parentTip}</p>}
+              <button onClick={() => setExpanded(false)} className="text-[14px] text-[#9E9A95]">접기 ▲</button>
             </div>
           )}
         </div>

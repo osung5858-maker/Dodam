@@ -141,7 +141,7 @@ export default function AICardFeed({ events }: Props) {
                   {card.body}
                 </p>
                 {card.disclaimer && (
-                  <p className="text-[10px] text-[#9B9B9B] mt-1.5">⚠️ {card.disclaimer}</p>
+                  <p className="text-[14px] text-[#9B9B9B] mt-1.5">⚠️ {card.disclaimer}</p>
                 )}
               </div>
               <button

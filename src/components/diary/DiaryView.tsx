@@ -182,14 +182,14 @@ export default function DiaryView({ events, childName }: Props) {
           <div key={i} className="relative shrink-0 w-24 h-24">
             <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
             <button onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center">
-              <span className="text-white text-[10px]">✕</span>
+              <span className="text-white text-[14px]">✕</span>
             </button>
           </div>
         ))}
         {photos.length < 10 && (
           <button onClick={handleAddPhoto} className="shrink-0 w-24 h-24 rounded-xl border-2 border-dashed border-[#ECECEC] flex flex-col items-center justify-center gap-1 active:bg-[#F0EDE8]">
             <span className="text-xl text-[#9E9A95]">📷</span>
-            <span className="text-[10px] text-[#9E9A95]">사진 추가</span>
+            <span className="text-[14px] text-[#9E9A95]">사진 추가</span>
           </button>
         )}
       </div>
@@ -198,7 +198,7 @@ export default function DiaryView({ events, childName }: Props) {
       {emotionTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {emotionTags.map((tag) => (
-            <span key={tag} className="px-2.5 py-1 rounded-full bg-[#F0F9F4] text-[11px] font-medium text-[#3D8A5A]">
+            <span key={tag} className="px-2.5 py-1 rounded-full bg-[#F0F9F4] text-[13px] font-medium text-[#3D8A5A]">
               {tag}
             </span>
           ))}
@@ -212,7 +212,7 @@ export default function DiaryView({ events, childName }: Props) {
           <button onClick={() => {
             if (editingMemo) saveDayData(memo, photos)
             setEditingMemo(!editingMemo)
-          }} className="text-[11px] text-[#3D8A5A] font-semibold">
+          }} className="text-[13px] text-[#3D8A5A] font-semibold">
             {editingMemo ? '저장' : '✏️ 편집'}
           </button>
         </div>
@@ -229,7 +229,7 @@ export default function DiaryView({ events, childName }: Props) {
         ) : (
           <button onClick={() => setEditingMemo(true)} className="w-full py-4 text-center active:opacity-60">
             <p className="text-[13px] text-[#9E9A95]">오늘 하루는 어땠나요?</p>
-            <p className="text-[11px] text-[#3D8A5A] mt-1">탭해서 일기를 남겨보세요 ✏️</p>
+            <p className="text-[13px] text-[#3D8A5A] mt-1">탭해서 일기를 남겨보세요 ✏️</p>
           </button>
         )}
       </div>
@@ -239,7 +239,7 @@ export default function DiaryView({ events, childName }: Props) {
         <div className="bg-white rounded-2xl border-l-4 border-l-[#3D8A5A] border border-[#E8E4DF] p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <span className="text-sm">🤖</span>
-            <span className="text-[11px] font-bold text-[#3D8A5A]">AI 오늘의 요약</span>
+            <span className="text-[13px] font-bold text-[#3D8A5A]">AI 오늘의 요약</span>
           </div>
           <p className="text-[13px] text-[#212124] leading-relaxed">{aiDiary}</p>
         </div>
@@ -254,7 +254,7 @@ export default function DiaryView({ events, childName }: Props) {
               const time = new Date(e.start_ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
               const labels: Record<string, string> = { feed: '🍼 수유', sleep: '💤 수면', poop: '💩 대변', pee: '💧 소변', temp: '🌡️ 체온', memo: '📝 메모' }
               return (
-                <div key={e.id} className="flex items-center gap-2 text-[12px]">
+                <div key={e.id} className="flex items-center gap-2 text-[14px]">
                   <span className="text-[#9E9A95] w-10 shrink-0">{time}</span>
                   <span className="text-[#212124]">{labels[e.type] || e.type}</span>
                   {e.amount_ml && <span className="text-[#6B6966]">{e.amount_ml}ml</span>}
@@ -262,7 +262,7 @@ export default function DiaryView({ events, childName }: Props) {
               )
             })}
             {dayEvents.length > 5 && (
-              <p className="text-[11px] text-[#9E9A95] text-center">+ {dayEvents.length - 5}건 더</p>
+              <p className="text-[13px] text-[#9E9A95] text-center">+ {dayEvents.length - 5}건 더</p>
             )}
           </div>
         </div>

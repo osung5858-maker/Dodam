@@ -116,7 +116,7 @@ export default function Timeline({ events, recorderNames = {}, onEventTap }: Pro
               <p className="text-[14px] font-semibold text-[#212124] truncate">
                 {config.label(event)}
               </p>
-              <p className="text-[12px] text-[#6B6966]">
+              <p className="text-[14px] text-[#6B6966]">
                 {formatTime(event.start_ts)}
                 {recorderName && ` · ${recorderName}`}
                 {event.synced === false && ' · 동기화 대기'}

@@ -100,10 +100,10 @@ export default function StreakBanner({ events }: Props) {
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-[16px] font-bold text-[#212124]">{current}일</span>
-              <span className="text-[12px] text-[#6B6966]">연속 기록 중</span>
+              <span className="text-[14px] text-[#6B6966]">연속 기록 중</span>
             </div>
             {currentBadge && (
-              <span className="text-[11px] font-medium" style={{ color: '#3D8A5A' }}>
+              <span className="text-[13px] font-medium" style={{ color: '#3D8A5A' }}>
                 {currentBadge.emoji} {currentBadge.name}
               </span>
             )}
@@ -112,8 +112,8 @@ export default function StreakBanner({ events }: Props) {
 
         {nextBadge && (
           <div className="text-right">
-            <p className="text-[10px] text-[#9E9A95]">다음 배지</p>
-            <p className="text-[12px] font-semibold text-[#3D8A5A]">
+            <p className="text-[14px] text-[#9E9A95]">다음 배지</p>
+            <p className="text-[14px] font-semibold text-[#3D8A5A]">
               {nextBadge.emoji} {nextBadge.days - current}일 남음
             </p>
           </div>
@@ -125,9 +125,9 @@ export default function StreakBanner({ events }: Props) {
         <div className="bg-gradient-to-r from-[#F0F9F4] to-[#E8F5FF] rounded-2xl p-3.5 border border-[#E0F0E8]">
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm">🔓</span>
-            <span className="text-[11px] font-bold text-[#3D8A5A]">AI 기능 해금 임박!</span>
+            <span className="text-[13px] font-bold text-[#3D8A5A]">AI 기능 해금 임박!</span>
           </div>
-          <p className="text-[12px] text-[#212124]">
+          <p className="text-[14px] text-[#212124]">
             <span className="font-semibold">{nextAIUnlock.days - total}일</span>만 더 기록하면{' '}
             <span className="font-semibold text-[#3D8A5A]">{nextAIUnlock.label}</span>이 열려요
           </p>

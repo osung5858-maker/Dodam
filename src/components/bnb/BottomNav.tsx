@@ -253,7 +253,7 @@ export default function BottomNav() {
                       }} className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform" style={{ backgroundColor: cat.color + '20' }}>
                         <span className="text-2xl">{cat.emoji}</span>
                       </button>
-                      <span className="text-[11px] font-semibold text-white whitespace-nowrap drop-shadow-sm">{cat.label}</span>
+                      <span className="text-[13px] font-semibold text-white whitespace-nowrap drop-shadow-sm">{cat.label}</span>
                     </div>
                   ))}
                 </div>
@@ -289,16 +289,16 @@ export default function BottomNav() {
                           else extra.tags = { ...(extra.tags as any || {}), subtype: p.value }
                           handleQuickRecord(recordType, extra)
                         }} className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform bg-white">
-                          <span className="text-[12px] font-bold text-[#3D8A5A]">{p.label}</span>
+                          <span className="text-[14px] font-bold text-[#3D8A5A]">{p.label}</span>
                         </button>
-                        <span className="text-[9px] font-semibold text-white drop-shadow-sm">{p.unit || ''}</span>
+                        <span className="text-[13px] font-semibold text-white drop-shadow-sm">{p.unit || ''}</span>
                       </div>
                     )
                   })}
                   {/* 뒤로 */}
                   <div className="absolute" style={{ left: -16, top: -24 }}>
                     <button onClick={() => setSelectedItem(null)} className="w-8 h-8 rounded-full bg-white/90 shadow flex items-center justify-center active:scale-90">
-                      <span className="text-[12px] text-[#6B6966]">←</span>
+                      <span className="text-[14px] text-[#6B6966]">←</span>
                     </button>
                   </div>
                 </div>
@@ -333,7 +333,7 @@ export default function BottomNav() {
                       }} className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-transform" style={{ backgroundColor: cat.color + '25' }}>
                         <span className="text-xl">{item.emoji}</span>
                       </button>
-                      <span className="text-[11px] font-semibold text-white whitespace-nowrap drop-shadow-sm">{item.label}</span>
+                      <span className="text-[13px] font-semibold text-white whitespace-nowrap drop-shadow-sm">{item.label}</span>
                     </div>
                   )
                 })}
@@ -380,7 +380,7 @@ export default function BottomNav() {
                     <PlusIcon className="w-7 h-7 text-white" />
                   )}
                 </div>
-                <span className={`text-[10px] mt-0.5 font-semibold ${fabOpen ? 'text-[#212124]' : 'text-[#3D8A5A]'}`}>
+                <span className={`text-[14px] mt-0.5 font-semibold ${fabOpen ? 'text-[#212124]' : 'text-[#3D8A5A]'}`}>
                   기록
                 </span>
               </button>
@@ -418,7 +418,7 @@ function RecordGrid({ onRecord }: { onRecord: (type: string, extra?: Record<stri
           onRecord(recordType, extra)
         }} className="flex flex-col items-center gap-1 py-2.5 rounded-xl bg-[#FFF9F5] active:bg-[#ECECEC] active:scale-95">
           <span className="text-xl">{item.emoji}</span>
-          <span className="text-[9px] font-medium text-[#1A1918]">{item.label}</span>
+          <span className="text-[13px] font-medium text-[#1A1918]">{item.label}</span>
         </button>
       ))}
     </div>
@@ -437,7 +437,7 @@ function NavTab({ tab, pathname }: { tab: Tab; pathname: string | null }) {
       className="flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1"
     >
       <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-[#212124]' : 'text-[#9E9A95]'}`} />
-      <span className={`text-[10px] transition-colors ${isActive ? 'text-[#212124] font-semibold' : 'text-[#9E9A95]'}`}>
+      <span className={`text-[14px] transition-colors ${isActive ? 'text-[#212124] font-semibold' : 'text-[#9E9A95]'}`}>
         {tab.label}
       </span>
     </Link>

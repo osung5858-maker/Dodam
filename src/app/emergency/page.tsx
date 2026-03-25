@@ -147,7 +147,7 @@ export default function EmergencyPage() {
             🚨 119 응급 전화 바로 걸기
           </a>
           <div className="bg-white/15 rounded-lg px-3 py-2">
-            <p className="text-[10px] text-white/80 leading-relaxed">⚠️ 아래 목록은 참고용입니다. 정확하지 않을 수 있으니 방문 전 전화로 확인해주세요. 응급 상황에는 119를 먼저 이용해주세요.</p>
+            <p className="text-[14px] text-white/80 leading-relaxed">⚠️ 아래 목록은 참고용입니다. 정확하지 않을 수 있으니 방문 전 전화로 확인해주세요. 응급 상황에는 119를 먼저 이용해주세요.</p>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@ export default function EmergencyPage() {
         {/* 공동양육자 알림 배너 */}
         {notified && (
           <div className="mx-4 mb-2 p-3 rounded-xl bg-blue-50 border border-blue-200">
-            <p className="text-[12px] text-blue-700 font-medium">
+            <p className="text-[14px] text-blue-700 font-medium">
               ✅ 공동양육자에게 응급 알림을 보냈어요 (앱 내 알림 + 카카오톡)
             </p>
           </div>

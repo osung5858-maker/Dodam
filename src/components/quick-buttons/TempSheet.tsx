@@ -48,7 +48,7 @@ export default function TempSheet({ open, onClose, onSubmit }: Props) {
           onChange={(e) => setValue(e.target.value)}
           className="w-full h-2 rounded-full appearance-none bg-gradient-to-r from-blue-300 via-green-300 via-60% to-red-400 outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-[#0052FF]"
         />
-        <div className="flex justify-between w-full text-[10px] text-[#9B9B9B]">
+        <div className="flex justify-between w-full text-[14px] text-[#9B9B9B]">
           <span>35°C</span><span>37.5°C</span><span>38.5°C</span><span>41°C</span>
         </div>
 

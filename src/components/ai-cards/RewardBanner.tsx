@@ -45,12 +45,12 @@ export default function RewardBanner({ events }: Props) {
             <span className="text-[14px] font-bold text-[#FF6F0F]">🔥 {streak}일 연속 기록 중</span>
           </div>
           {currentBadge && (
-            <p className="text-[11px] text-[#C68A2E] mt-0.5">{currentBadge.label}</p>
+            <p className="text-[13px] text-[#C68A2E] mt-0.5">{currentBadge.label}</p>
           )}
         </div>
         {nextBadge && (
           <div className="text-right">
-            <p className="text-[10px] text-[#9E9A95]">다음 배지까지</p>
+            <p className="text-[14px] text-[#9E9A95]">다음 배지까지</p>
             <p className="text-[13px] font-bold text-[#FF6F0F]">{nextBadge.days - streak}일</p>
           </div>
         )}

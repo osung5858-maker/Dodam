@@ -156,7 +156,7 @@ export default function UsPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-[13px] font-semibold text-[#1A1918]">{item.title}</p>
-                      <p className="text-[11px] text-[#6B6966]">{item.desc}</p>
+                      <p className="text-[13px] text-[#6B6966]">{item.desc}</p>
                     </div>
                     <span className="text-[#9E9A95] text-sm">{isExt ? '↗' : '→'}</span>
                   </Comp>

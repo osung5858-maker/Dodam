@@ -190,7 +190,7 @@ export default function LullabyPage() {
         {currentTrack && !getYouTubeEmbedUrl(currentTrack) && (
           <div className="mx-5 mt-2 rounded-xl bg-[#2a2a2a] p-6 text-center">
             <p className="text-[14px] font-medium text-white/80">{currentTrack.title}</p>
-            <p className="text-[11px] text-white/40 mt-1">재생 준비 중...</p>
+            <p className="text-[13px] text-white/40 mt-1">재생 준비 중...</p>
           </div>
         )}
 
@@ -199,7 +199,7 @@ export default function LullabyPage() {
           <div className="mx-5 mt-4 text-center">
             <p className="text-3xl mb-2">🌙</p>
             <p className="text-[16px] font-bold text-white/90">수면 도우미</p>
-            <p className="text-[12px] text-white/50 mt-1">자장가 {LULLABY_TRACKS.length}곡 · 동요 {NURSERY_TRACKS.length}곡 · 자연음 {NATURE_TRACKS.length}곡</p>
+            <p className="text-[14px] text-white/50 mt-1">자장가 {LULLABY_TRACKS.length}곡 · 동요 {NURSERY_TRACKS.length}곡 · 자연음 {NATURE_TRACKS.length}곡</p>
           </div>
         )}
 
@@ -209,7 +209,7 @@ export default function LullabyPage() {
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-full text-[12px] font-semibold transition-colors ${
+              className={`px-4 py-2 rounded-full text-[14px] font-semibold transition-colors ${
                 category === cat ? 'bg-white text-[#1A1918]' : 'bg-[#2a2a2a] text-white/60'
               }`}
             >
@@ -241,10 +241,10 @@ export default function LullabyPage() {
                   <p className={`text-[13px] font-medium ${isPlaying ? 'text-[#3D8A5A]' : 'text-white/90'}`}>
                     {track.title}
                   </p>
-                  <p className="text-[11px] text-white/40">{track.duration}</p>
+                  <p className="text-[13px] text-white/40">{track.duration}</p>
                 </div>
                 {track.avgSleepMin && (
-                  <span className="text-[10px] text-[#3D8A5A] font-semibold shrink-0">
+                  <span className="text-[14px] text-[#3D8A5A] font-semibold shrink-0">
                     ~{track.avgSleepMin}분
                   </span>
                 )}
@@ -261,7 +261,7 @@ export default function LullabyPage() {
               : `https://www.youtube.com/playlist?list=${LULLABY_PLAYLIST}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[12px] text-white/40 font-medium"
+            className="text-[14px] text-white/40 font-medium"
           >
             YouTube에서 전체 {CATEGORY_LABELS[category]} 듣기 →
           </a>
@@ -275,7 +275,7 @@ export default function LullabyPage() {
             <div className="flex items-center gap-3 px-5 py-3">
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-medium text-white truncate">{currentTrack.title}</p>
-                <p className="text-[11px] text-white/40">{CATEGORY_LABELS[currentTrack.category]}</p>
+                <p className="text-[13px] text-white/40">{CATEGORY_LABELS[currentTrack.category]}</p>
               </div>
               <button
                 onClick={() => togglePlay(currentTrack.id)}
@@ -291,7 +291,7 @@ export default function LullabyPage() {
                   <button
                     key={t}
                     onClick={() => setTimer(t)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-semibold ${
+                    className={`px-3 py-1 rounded-full text-[14px] font-semibold ${
                       timer === t ? 'bg-[#3D8A5A] text-white' : 'bg-[#3a3a3a] text-white/40'
                     }`}
                   >
@@ -300,7 +300,7 @@ export default function LullabyPage() {
                 ))}
               </div>
               {timerLeft !== null && (
-                <span className="text-[11px] text-white/40 font-mono">
+                <span className="text-[13px] text-white/40 font-mono">
                   {formatTimer(timerLeft)}
                 </span>
               )}

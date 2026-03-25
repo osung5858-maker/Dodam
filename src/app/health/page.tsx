@@ -193,7 +193,7 @@ export default function HealthPage() {
   const maxSteps = Math.max(...weekData.map(d => d.steps), 10000)
 
   const gfitBadge = gfit?.connected ? (
-    <span className="flex items-center gap-1 text-[9px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded-full">
+    <span className="flex items-center gap-1 text-[13px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded-full">
       <span className="w-1 h-1 bg-[#3D8A5A] rounded-full" />Fit
     </span>
   ) : null
@@ -207,7 +207,7 @@ export default function HealthPage() {
         {/* 디버그: 연동 오류 표시 */}
         {gfitError && (
           <div className="bg-[#FFF0E6] rounded-xl border border-[#FFDDC8] p-3">
-            <p className="text-[12px] text-[#D08068]">{gfitError}</p>
+            <p className="text-[14px] text-[#D08068]">{gfitError}</p>
           </div>
         )}
 
@@ -222,9 +222,9 @@ export default function HealthPage() {
               </div>
               <div className="flex-1">
                 <p className="text-[13px] font-semibold text-[#3D8A5A]">Google Fit 연동하기</p>
-                <p className="text-[11px] text-[#6D6C6A]">삼성헬스 · Google Fit 데이터가 자동으로 연동돼요</p>
+                <p className="text-[13px] text-[#6D6C6A]">삼성헬스 · Google Fit 데이터가 자동으로 연동돼요</p>
               </div>
-              <a href="/onboarding" className="text-[11px] text-[#3D8A5A] font-semibold">연결 →</a>
+              <a href="/onboarding" className="text-[13px] text-[#3D8A5A] font-semibold">연결 →</a>
             </div>
           </div>
         )}
@@ -246,8 +246,8 @@ export default function HealthPage() {
             <p key={i} className="text-[13px] text-[#1A1918] leading-relaxed mb-1">{a}</p>
           ))}
           <div className="flex gap-3 mt-2">
-            {avgSleep && <p className="text-[11px] text-[#6B6966]">7일 평균 수면: {avgSleep}시간</p>}
-            {avgSteps && <p className="text-[11px] text-[#6B6966]">7일 평균 걸음: {avgSteps.toLocaleString()}보</p>}
+            {avgSleep && <p className="text-[13px] text-[#6B6966]">7일 평균 수면: {avgSleep}시간</p>}
+            {avgSteps && <p className="text-[13px] text-[#6B6966]">7일 평균 걸음: {avgSteps.toLocaleString()}보</p>}
           </div>
         </div>
 
@@ -257,8 +257,8 @@ export default function HealthPage() {
             <div className="flex items-center justify-between mb-3">
               <p className="text-[14px] font-bold text-[#1A1918]">오늘 요약</p>
               <div className="flex items-center gap-1">
-                {syncTime && <p className="text-[10px] text-[#9E9A95]">{syncTime} 동기화</p>}
-                <button onClick={fetchGoogleFit} className="text-[10px] text-[#3D8A5A] font-semibold ml-1">새로고침</button>
+                {syncTime && <p className="text-[14px] text-[#9E9A95]">{syncTime} 동기화</p>}
+                <button onClick={fetchGoogleFit} className="text-[14px] text-[#3D8A5A] font-semibold ml-1">새로고침</button>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -271,7 +271,7 @@ export default function HealthPage() {
                 <div key={item.label} className="bg-[#FFF9F5] rounded-xl p-2.5 text-center">
                   <p className="text-sm mb-0.5">{item.icon}</p>
                   <p className="text-[14px] font-bold text-[#1A1918]">{item.value}</p>
-                  <p className="text-[9px] text-[#6B6966]">{item.unit}</p>
+                  <p className="text-[13px] text-[#6B6966]">{item.unit}</p>
                 </div>
               ))}
             </div>
@@ -291,7 +291,7 @@ export default function HealthPage() {
                       style={{ height: `${Math.max((d.steps / maxSteps) * 100, d.steps > 0 ? 4 : 0)}%` }}
                     />
                   </div>
-                  <p className="text-[9px] text-[#6B6966]">{d.date}</p>
+                  <p className="text-[13px] text-[#6B6966]">{d.date}</p>
                 </div>
               ))}
             </div>
@@ -304,7 +304,7 @@ export default function HealthPage() {
             <p className="text-[14px] font-bold text-[#1A1918]">💤 수면</p>
             <div className="flex items-center gap-2">
               {gfit?.connected && gfit.today?.sleep ? (
-                <span className="text-[9px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
+                <span className="text-[13px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
               ) : null}
               <p className="text-[13px] font-bold text-[#3D8A5A]">{sleep}시간</p>
             </div>
@@ -314,7 +314,7 @@ export default function HealthPage() {
             onChange={(e) => setSleep(Number(e.target.value))}
             className="w-full accent-[#3D8A5A]"
           />
-          <div className="flex justify-between text-[9px] text-[#9E9A95] mt-1">
+          <div className="flex justify-between text-[13px] text-[#9E9A95] mt-1">
             <span>0h</span><span>4h</span><span>8h</span><span>12h</span>
           </div>
         </div>
@@ -332,7 +332,7 @@ export default function HealthPage() {
                 }`}
               >
                 <p className="text-lg">{STRESS_EMOJI[i]}</p>
-                <p className={`text-[9px] mt-0.5 ${stress === i ? 'text-white font-semibold' : 'text-[#6B6966]'}`}>{label}</p>
+                <p className={`text-[13px] mt-0.5 ${stress === i ? 'text-white font-semibold' : 'text-[#6B6966]'}`}>{label}</p>
               </button>
             ))}
           </div>
@@ -343,7 +343,7 @@ export default function HealthPage() {
           <div className="flex items-center justify-between mb-2">
             <p className="text-[14px] font-bold text-[#1A1918]">🚶 걸음수</p>
             {gfit?.connected && gfit.today?.steps ? (
-              <span className="text-[9px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
+              <span className="text-[13px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
             ) : null}
           </div>
           <input
@@ -358,7 +358,7 @@ export default function HealthPage() {
               <div className="h-full bg-[#3D8A5A] rounded-full" style={{ width: `${Math.min((steps / 10000) * 100, 100)}%` }} />
             </div>
           )}
-          <p className="text-[10px] text-[#9E9A95] mt-1">목표: 10,000보</p>
+          <p className="text-[14px] text-[#9E9A95] mt-1">목표: 10,000보</p>
         </div>
 
         {/* 심박수 (Google Fit 연동 시) */}
@@ -367,11 +367,11 @@ export default function HealthPage() {
             <div className="flex items-center justify-between">
               <p className="text-[14px] font-bold text-[#1A1918]">💓 심박수</p>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
+                <span className="text-[13px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
                 <p className="text-[13px] font-bold text-[#3D8A5A]">{heartRate} bpm</p>
               </div>
             </div>
-            <p className="text-[11px] text-[#6B6966] mt-1">
+            <p className="text-[13px] text-[#6B6966] mt-1">
               {heartRate < 60 ? '안정 상태예요' : heartRate < 100 ? '정상 범위예요' : '조금 높아요. 휴식이 필요해요'}
             </p>
           </div>
@@ -382,7 +382,7 @@ export default function HealthPage() {
           <div className="flex items-center justify-between mb-2">
             <p className="text-[14px] font-bold text-[#1A1918]">⚖️ 체중</p>
             {gfit?.connected && gfit.today?.weight ? (
-              <span className="text-[9px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
+              <span className="text-[13px] text-[#3D8A5A] bg-[#F0F9F4] px-1.5 py-0.5 rounded">자동</span>
             ) : null}
           </div>
           <div className="flex items-center gap-2">
@@ -410,12 +410,12 @@ export default function HealthPage() {
           {gfit?.connected ? (
             <>
               <p className="text-[13px] font-semibold text-[#3D8A5A] mb-1">Google Fit 연동 완료</p>
-              <p className="text-[11px] text-[#6D6C6A]">삼성헬스 → Health Connect → Google Fit 데이터가 자동으로 반영돼요</p>
+              <p className="text-[13px] text-[#6D6C6A]">삼성헬스 → Health Connect → Google Fit 데이터가 자동으로 반영돼요</p>
             </>
           ) : (
             <>
               <p className="text-[13px] font-semibold text-[#3D8A5A] mb-1">건강 데이터 자동 연동</p>
-              <p className="text-[11px] text-[#6D6C6A]">Google 로그인 시 삼성헬스 · Google Fit 데이터가 자동으로 연동돼요</p>
+              <p className="text-[13px] text-[#6D6C6A]">Google 로그인 시 삼성헬스 · Google Fit 데이터가 자동으로 연동돼요</p>
             </>
           )}
         </div>

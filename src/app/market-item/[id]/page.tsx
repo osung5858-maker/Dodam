@@ -44,11 +44,11 @@ export default function PublicMarketItemPage() {
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-[#3D8A5A] flex items-center justify-center">
-              <span className="text-[10px] font-bold text-white">도</span>
+              <span className="text-[14px] font-bold text-white">도</span>
             </div>
             <span className="text-[15px] font-bold text-[#1A1918]">도담장터</span>
           </div>
-          <Link href="/onboarding" className="text-[11px] text-[#3D8A5A] font-semibold px-3 py-1.5 bg-[#F0F9F4] rounded-lg">도담 시작하기</Link>
+          <Link href="/onboarding" className="text-[13px] text-[#3D8A5A] font-semibold px-3 py-1.5 bg-[#F0F9F4] rounded-lg">도담 시작하기</Link>
         </div>
       </header>
 
@@ -65,7 +65,7 @@ export default function PublicMarketItemPage() {
 
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-[16px] font-bold text-[#1A1918]">{item.title}</h2>
-            <span className={`text-[11px] px-2 py-0.5 rounded-full ${item.status === 'active' ? 'bg-[#F0F9F4] text-[#3D8A5A]' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
+            <span className={`text-[13px] px-2 py-0.5 rounded-full ${item.status === 'active' ? 'bg-[#F0F9F4] text-[#3D8A5A]' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
               {item.status === 'active' ? '판매중' : item.status === 'reserved' ? '예약중' : '거래완료'}
             </span>
           </div>
@@ -75,15 +75,15 @@ export default function PublicMarketItemPage() {
           {item.description && <p className="text-[13px] text-[#1A1918] leading-relaxed whitespace-pre-line">{item.description}</p>}
 
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[#E8E4DF]">
-            <span className="text-[10px] text-[#6B6966]">{item.region}</span>
-            <span className="text-[10px] text-[#9E9A95]">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
+            <span className="text-[14px] text-[#6B6966]">{item.region}</span>
+            <span className="text-[14px] text-[#9E9A95]">{new Date(item.created_at).toLocaleDateString('ko-KR')}</span>
           </div>
         </div>
 
         {/* CTA */}
         <div className="bg-[#F0F9F4] rounded-xl p-4 text-center">
           <p className="text-[13px] font-semibold text-[#3D8A5A] mb-1">도담장터에서 거래해보세요</p>
-          <p className="text-[11px] text-[#6B6966] mb-3">동네 엄마들과 육아용품 나눔 · 거래</p>
+          <p className="text-[13px] text-[#6B6966] mb-3">동네 엄마들과 육아용품 나눔 · 거래</p>
           <Link href="/onboarding" className="inline-block px-6 py-2.5 bg-[#3D8A5A] text-white text-[13px] font-semibold rounded-xl">도담 시작하기</Link>
         </div>
       </div>

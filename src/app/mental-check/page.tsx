@@ -66,29 +66,29 @@ export default function MentalCheckPage() {
         {score >= 13 && (
           <div className="w-full max-w-xs bg-[#FDE8E8] rounded-xl p-4 mb-4">
             <p className="text-[13px] font-semibold text-[#D05050] mb-2">도움받을 수 있는 곳</p>
-            <a href="tel:1577-0199" className="block text-[12px] text-[#1A1918] py-1">📞 정신건강위기상담 1577-0199</a>
-            <a href="tel:109" className="block text-[12px] text-[#1A1918] py-1">📞 자살예방상담 109</a>
-            <a href="tel:1393" className="block text-[12px] text-[#1A1918] py-1">📞 정신건강복지센터 1393</a>
+            <a href="tel:1577-0199" className="block text-[14px] text-[#1A1918] py-1">📞 정신건강위기상담 1577-0199</a>
+            <a href="tel:109" className="block text-[14px] text-[#1A1918] py-1">📞 자살예방상담 109</a>
+            <a href="tel:1393" className="block text-[14px] text-[#1A1918] py-1">📞 정신건강복지센터 1393</a>
           </div>
         )}
 
         {score <= 12 && (
           <div className="w-full max-w-xs bg-[#F0F9F4] rounded-xl p-4 mb-4">
-            <p className="text-[12px] text-[#3D8A5A] text-center">괜찮아요. 당신은 충분히 잘 하고 있어요 💚</p>
+            <p className="text-[14px] text-[#3D8A5A] text-center">괜찮아요. 당신은 충분히 잘 하고 있어요 💚</p>
           </div>
         )}
 
         {/* 이력 */}
         {history.length > 1 && (
           <div className="w-full max-w-xs mb-4">
-            <p className="text-[11px] text-[#6B6966] mb-2">이전 기록</p>
+            <p className="text-[13px] text-[#6B6966] mb-2">이전 기록</p>
             <div className="flex gap-1">
               {history.slice(0, 7).map((h: any, i: number) => (
                 <div key={i} className="flex-1 text-center">
                   <div className="w-full h-12 bg-[#E8E4DF] rounded relative">
                     <div className="absolute bottom-0 w-full rounded" style={{ height: `${(h.score / 30) * 100}%`, backgroundColor: getResult(h.score).color }} />
                   </div>
-                  <p className="text-[9px] text-[#9E9A95] mt-0.5">{h.date.slice(5)}</p>
+                  <p className="text-[13px] text-[#9E9A95] mt-0.5">{h.date.slice(5)}</p>
                 </div>
               ))}
             </div>
@@ -103,7 +103,7 @@ export default function MentalCheckPage() {
 
   return (
     <div className="min-h-[100dvh] bg-[#FFF9F5] flex flex-col">
-      <PageHeader title="마음 체크" showBack rightAction={<span className="text-[11px] text-[#6B6966]">{answers.filter(a => a !== null).length}/10</span>} />
+      <PageHeader title="마음 체크" showBack rightAction={<span className="text-[13px] text-[#6B6966]">{answers.filter(a => a !== null).length}/10</span>} />
 
       <div className="max-w-lg mx-auto w-full px-5 pt-4 pb-28">
         {/* 프로그레스 */}
@@ -113,14 +113,14 @@ export default function MentalCheckPage() {
           ))}
         </div>
 
-        <p className="text-[12px] text-[#6B6966] mb-2 text-center">지난 7일간의 기분을 떠올려주세요</p>
+        <p className="text-[14px] text-[#6B6966] mb-2 text-center">지난 7일간의 기분을 떠올려주세요</p>
 
         {/* 현재 문항만 표시 */}
         {(() => {
           const q = QUESTIONS[currentQ]
           return (
             <div className="bg-white rounded-2xl border border-[#E8E4DF] p-5">
-              <p className="text-[11px] text-[#3D8A5A] font-semibold mb-2">{currentQ + 1} / 10</p>
+              <p className="text-[13px] text-[#3D8A5A] font-semibold mb-2">{currentQ + 1} / 10</p>
               <p className="text-[16px] font-bold text-[#1A1918] mb-5 leading-relaxed">{q.q}</p>
               <div className="space-y-2">
                 {q.options.map((opt, oi) => (

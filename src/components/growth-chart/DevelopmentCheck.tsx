@@ -248,8 +248,8 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
         </div>
         <div>
           <h3 className="text-[15px] font-bold text-[#212124]">{ageMonths}개월 발달 체크</h3>
-          <p className="text-[12px] text-[#6B6966] mt-1">{done}/{total} 항목 달성</p>
-          <p className="text-[11px] text-[#9E9A95] mt-0.5">아이마다 속도가 달라요</p>
+          <p className="text-[14px] text-[#6B6966] mt-1">{done}/{total} 항목 달성</p>
+          <p className="text-[13px] text-[#9E9A95] mt-0.5">아이마다 속도가 달라요</p>
         </div>
       </div>
 
@@ -306,7 +306,7 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
           <h3 className="text-[13px] font-bold text-[#3D8A5A]">AI 발달 인사이트</h3>
         </div>
         <p className="text-[13px] text-[#212124] leading-relaxed">{insight}</p>
-        <p className="text-[10px] text-[#9E9A95] mt-3">아이마다 발달 시기가 달라요. 참고용이며, 걱정되시면 소아과 상담을 추천드려요.</p>
+        <p className="text-[14px] text-[#9E9A95] mt-3">아이마다 발달 시기가 달라요. 참고용이며, 걱정되시면 소아과 상담을 추천드려요.</p>
       </div>
 
       {/* Recommended Activities */}
@@ -319,7 +319,7 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
           {activities.map((act, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[#FEF0E8] flex items-center justify-center shrink-0">
-                <span className="text-[10px] font-bold text-[#FF6F0F]">{i + 1}</span>
+                <span className="text-[14px] font-bold text-[#FF6F0F]">{i + 1}</span>
               </div>
               <span className="text-[13px] text-[#212124]">{act}</span>
             </div>
@@ -337,7 +337,7 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
             <span className="text-sm">🏥</span>
             <h3 className="text-[13px] font-bold text-[#212124]">검진 시 질문 추천</h3>
           </div>
-          <span className="text-[12px] text-[#9E9A95]">{showQuestions ? '접기' : '펼치기'}</span>
+          <span className="text-[14px] text-[#9E9A95]">{showQuestions ? '접기' : '펼치기'}</span>
         </button>
         {showQuestions && (
           <div className="mt-3 space-y-2">

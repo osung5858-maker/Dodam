@@ -105,7 +105,7 @@ export default function PlaceDetailPage() {
               <span className="text-[13px] text-[#212124]">⭐ {avgRating} ({reviews.length})</span>
             )}
             {place.distance && (
-              <span className="text-[12px] font-medium text-[#FF6F0F]">{place.distance}</span>
+              <span className="text-[14px] font-medium text-[#FF6F0F]">{place.distance}</span>
             )}
           </div>
 
@@ -113,7 +113,7 @@ export default function PlaceDetailPage() {
           {place.phone && (
             <p className="text-[13px] text-[#FF6F0F] font-medium mt-1">{place.phone}</p>
           )}
-          <p className="text-[11px] text-[#9E9A95] mt-1">{place.category}</p>
+          <p className="text-[13px] text-[#9E9A95] mt-1">{place.category}</p>
         </div>
 
         {/* 액션 버튼 */}
@@ -140,7 +140,7 @@ export default function PlaceDetailPage() {
           {congestionSubmitted ? (
             <div className="flex items-center gap-2 py-1">
               <span className="text-lg">{congestion === 'low' ? '🟢' : congestion === 'medium' ? '🟡' : '🔴'}</span>
-              <p className="text-[12px] text-[#6B6966]">
+              <p className="text-[14px] text-[#6B6966]">
                 {congestion === 'low' ? '여유' : congestion === 'medium' ? '보통' : '혼잡'}로 공유했어요!
               </p>
             </div>
@@ -154,7 +154,7 @@ export default function PlaceDetailPage() {
                 <button
                   key={opt.level}
                   onClick={() => handleCongestionCheck(opt.level)}
-                  className={`flex-1 py-2.5 rounded-xl text-[12px] font-medium border ${opt.color} active:scale-95 transition-transform`}
+                  className={`flex-1 py-2.5 rounded-xl text-[14px] font-medium border ${opt.color} active:scale-95 transition-transform`}
                 >
                   {opt.emoji} {opt.label}
                 </button>
@@ -169,7 +169,7 @@ export default function PlaceDetailPage() {
             <p className="text-[13px] font-bold text-[#212124]">리뷰 {reviews.length}개</p>
             <Link
               href={`/map/${placeId}/review`}
-              className="text-[12px] font-semibold text-[#FF6F0F] active:opacity-70"
+              className="text-[14px] font-semibold text-[#FF6F0F] active:opacity-70"
             >
               리뷰 쓰기
             </Link>
@@ -184,7 +184,7 @@ export default function PlaceDetailPage() {
               <p className="text-[13px] text-[#6B6966]">아직 리뷰가 없어요</p>
               <Link
                 href={`/map/${placeId}/review`}
-                className="inline-block mt-3 px-5 py-2 rounded-xl bg-[#FF6F0F] text-white text-[12px] font-semibold active:scale-95"
+                className="inline-block mt-3 px-5 py-2 rounded-xl bg-[#FF6F0F] text-white text-[14px] font-semibold active:scale-95"
               >
                 첫 리뷰 남기기
               </Link>
@@ -196,23 +196,23 @@ export default function PlaceDetailPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] font-semibold text-[#212124]">도담 사용자</span>
                     {review.child_age_months && (
-                      <span className="text-[11px] text-[#6B6966]">{review.child_age_months}개월 아이</span>
+                      <span className="text-[13px] text-[#6B6966]">{review.child_age_months}개월 아이</span>
                     )}
                   </div>
-                  <span className="text-[11px] text-[#9E9A95]">
+                  <span className="text-[13px] text-[#9E9A95]">
                     {new Date(review.created_at).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
                 <div className="flex gap-0.5 mb-1.5">
                   {Array.from({ length: 5 }, (_, i) => (
-                    <span key={i} className={`text-[11px] ${i < review.rating ? 'text-amber-400' : 'text-[#ECECEC]'}`}>★</span>
+                    <span key={i} className={`text-[13px] ${i < review.rating ? 'text-amber-400' : 'text-[#ECECEC]'}`}>★</span>
                   ))}
                 </div>
                 <p className="text-[13px] text-[#212124] leading-relaxed">{review.content}</p>
                 {review.tags && review.tags.length > 0 && (
                   <div className="flex gap-1 mt-2 flex-wrap">
                     {review.tags.map((tag) => (
-                      <span key={tag} className="text-[10px] px-2 py-0.5 rounded-full bg-[#F0EDE8] text-[#6B6966]">
+                      <span key={tag} className="text-[14px] px-2 py-0.5 rounded-full bg-[#F0EDE8] text-[#6B6966]">
                         {tag}
                       </span>
                     ))}

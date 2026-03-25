@@ -45,11 +45,11 @@ export default function CommunityTeaser() {
           <span className="text-base">💬</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[12px] font-semibold text-[#1A1918]">
+          <p className="text-[14px] font-semibold text-[#1A1918]">
             {recentCount > 0 ? `오늘 ${recentCount}개의 수다가 올라왔어요` : '동네 수다방'}
           </p>
           {latestPost && (
-            <p className="text-[10px] text-[#6B6966] truncate">"{latestPost}"</p>
+            <p className="text-[14px] text-[#6B6966] truncate">"{latestPost}"</p>
           )}
         </div>
         <span className="text-[#9E9A95] text-sm shrink-0">→</span>

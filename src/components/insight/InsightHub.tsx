@@ -91,7 +91,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
             <span className="text-[14px]">✨</span>
             <span className="text-[14px] font-bold text-[#212124]">오늘의 AI 인사이트</span>
           </div>
-          <span className="text-[11px] text-[#9E9A95]">{updateTime} 업데이트</span>
+          <span className="text-[13px] text-[#9E9A95]">{updateTime} 업데이트</span>
         </div>
         <p className="text-[14px] text-[#5A5854] leading-relaxed whitespace-pre-line mb-3">
           {summaryText}
@@ -101,7 +101,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
             {statusChips.map((chip) => (
               <span
                 key={chip.label}
-                className={`${chip.bg} ${chip.color} text-[11px] font-semibold px-3 py-1.5 rounded-full`}
+                className={`${chip.bg} ${chip.color} text-[13px] font-semibold px-3 py-1.5 rounded-full`}
               >
                 {chip.label}
               </span>
@@ -119,12 +119,12 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
                 <div className="w-8 h-8 rounded-full bg-[#C8F0D8] flex items-center justify-center">
                   <span className="text-[14px]">🍼</span>
                 </div>
-                <span className="text-[12px] font-semibold text-[#212124]">다음 수유</span>
+                <span className="text-[14px] font-semibold text-[#212124]">다음 수유</span>
               </div>
               <p className="text-[22px] font-bold text-[#212124] mb-1">
                 {formatTime(feedPred.predicted_ts)}
               </p>
-              <p className="text-[11px] text-[#9E9A95] mb-2.5">
+              <p className="text-[13px] text-[#9E9A95] mb-2.5">
                 {formatTimeRemaining(feedPred.predicted_ts)} · ±{feedPred.ci_minutes}분
               </p>
               <div className="w-full h-1 bg-[#E8E6E1] rounded-full overflow-hidden">
@@ -141,12 +141,12 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
                 <div className="w-8 h-8 rounded-full bg-[#E8E0F8] flex items-center justify-center">
                   <span className="text-[14px]">💤</span>
                 </div>
-                <span className="text-[12px] font-semibold text-[#212124]">다음 낮잠</span>
+                <span className="text-[14px] font-semibold text-[#212124]">다음 낮잠</span>
               </div>
               <p className="text-[22px] font-bold text-[#212124] mb-1">
                 {formatTime(sleepPred.predicted_ts)}
               </p>
-              <p className="text-[11px] text-[#9E9A95] mb-2.5">
+              <p className="text-[13px] text-[#9E9A95] mb-2.5">
                 {formatTimeRemaining(sleepPred.predicted_ts)} · ±{sleepPred.ci_minutes}분
               </p>
               <div className="w-full h-1 bg-[#E8E6E1] rounded-full overflow-hidden">

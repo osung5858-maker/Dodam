@@ -105,7 +105,7 @@ export default function FortunePage() {
             { key: 'fortune' as const, label: '🎴 오늘의 운세' },
           ].map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              className={`flex-1 py-2 rounded-xl text-[11px] font-semibold ${tab === t.key ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#6B6966] border border-[#E8E4DF]'}`}>
+              className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${tab === t.key ? 'bg-[#3D8A5A] text-white' : 'bg-white text-[#6B6966] border border-[#E8E4DF]'}`}>
               {t.label}
             </button>
           ))}
@@ -122,8 +122,8 @@ export default function FortunePage() {
             ].map(b => (
               <div key={b.label} className="mb-3 last:mb-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[12px] text-[#1A1918]">{b.emoji} {b.label}</span>
-                  <span className="text-[12px] font-bold" style={{ color: b.color }}>{Math.round(b.value)}%</span>
+                  <span className="text-[14px] text-[#1A1918]">{b.emoji} {b.label}</span>
+                  <span className="text-[14px] font-bold" style={{ color: b.color }}>{Math.round(b.value)}%</span>
                 </div>
                 <div className="w-full h-2 bg-[#E8E4DF] rounded-full relative">
                   <div className="absolute top-0 left-1/2 w-px h-2 bg-[#AEB1B9]" />
@@ -136,7 +136,7 @@ export default function FortunePage() {
                 </div>
               </div>
             ))}
-            <p className="text-[10px] text-[#6B6966] mt-2 text-center">
+            <p className="text-[14px] text-[#6B6966] mt-2 text-center">
               {bio.physical > 50 && bio.emotional > 50 ? '🌟 오늘 컨디션 최고!' :
                bio.emotional < -30 ? '🫂 감정 기복이 있을 수 있어요. 쉬어가세요' :
                '💚 도담하게 보내세요'}
@@ -164,7 +164,7 @@ export default function FortunePage() {
                   <p className="text-3xl mb-1">{getZodiacAnimal(due.getFullYear()).split(' ')[0]}</p>
                   <p className="text-[14px] font-semibold text-[#1A1918]">{getZodiacAnimal(due.getFullYear())}</p>
                   <p className="text-[13px] text-[#6B6966] mt-1">{getConstellation(due.getMonth() + 1, due.getDate())}</p>
-                  <p className="text-[10px] text-[#9E9A95] mt-2">출산 예정일 기준</p>
+                  <p className="text-[14px] text-[#9E9A95] mt-2">출산 예정일 기준</p>
                 </div>
               )
             })()}
@@ -174,17 +174,17 @@ export default function FortunePage() {
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-4 space-y-3">
                 {fortuneResult.animalFortune && (
                   <div>
-                    <p className="text-[12px] font-bold text-[#1A1918] mb-1">{getZodiacAnimal(birthParts[0])} 오늘의 운세</p>
-                    <p className="text-[12px] text-[#6B6966] leading-relaxed">{fortuneResult.animalFortune}</p>
+                    <p className="text-[14px] font-bold text-[#1A1918] mb-1">{getZodiacAnimal(birthParts[0])} 오늘의 운세</p>
+                    <p className="text-[14px] text-[#6B6966] leading-relaxed">{fortuneResult.animalFortune}</p>
                   </div>
                 )}
                 {fortuneResult.starFortune && (
                   <div className="pt-2 border-t border-[#E8E4DF]">
-                    <p className="text-[12px] font-bold text-[#1A1918] mb-1">{getConstellation(birthParts[1], birthParts[2])} 오늘의 운세</p>
-                    <p className="text-[12px] text-[#6B6966] leading-relaxed">{fortuneResult.starFortune}</p>
+                    <p className="text-[14px] font-bold text-[#1A1918] mb-1">{getConstellation(birthParts[1], birthParts[2])} 오늘의 운세</p>
+                    <p className="text-[14px] text-[#6B6966] leading-relaxed">{fortuneResult.starFortune}</p>
                   </div>
                 )}
-                <p className="text-[9px] text-[#9E9A95] text-center">재미로만 봐주세요 😊</p>
+                <p className="text-[13px] text-[#9E9A95] text-center">재미로만 봐주세요 😊</p>
               </div>
             ) : (
               <button onClick={fetchFortune} disabled={loading}
@@ -211,7 +211,7 @@ export default function FortunePage() {
                   <div className="bg-[#FFF8F3] rounded-xl border border-[#FFDDC8]/30 p-4 text-center">
                     <p className="text-[20px] mb-1">💌</p>
                     <p className="text-[13px] text-[#1A1918] italic leading-relaxed">"{fortuneResult.babyMessage}"</p>
-                    <p className="text-[10px] text-[#6B6966] mt-1">아이가 전하는 말</p>
+                    <p className="text-[14px] text-[#6B6966] mt-1">아이가 전하는 말</p>
                   </div>
                 )}
 
@@ -220,14 +220,14 @@ export default function FortunePage() {
                   <div className="bg-white rounded-xl border border-[#E8E4DF] p-4 space-y-2">
                     {fortuneResult.animalFortune && (
                       <div>
-                        <p className="text-[12px] font-semibold text-[#1A1918] mb-0.5">{getZodiacAnimal(new Date(birthDate).getFullYear())} 띠 운세</p>
-                        <p className="text-[11px] text-[#6B6966] leading-relaxed">{fortuneResult.animalFortune}</p>
+                        <p className="text-[14px] font-semibold text-[#1A1918] mb-0.5">{getZodiacAnimal(new Date(birthDate).getFullYear())} 띠 운세</p>
+                        <p className="text-[13px] text-[#6B6966] leading-relaxed">{fortuneResult.animalFortune}</p>
                       </div>
                     )}
                     {fortuneResult.starFortune && (
                       <div className="pt-2 border-t border-[#E8E4DF]">
-                        <p className="text-[12px] font-semibold text-[#1A1918] mb-0.5">{getConstellation(new Date(birthDate).getMonth() + 1, new Date(birthDate).getDate())} 운세</p>
-                        <p className="text-[11px] text-[#6B6966] leading-relaxed">{fortuneResult.starFortune}</p>
+                        <p className="text-[14px] font-semibold text-[#1A1918] mb-0.5">{getConstellation(new Date(birthDate).getMonth() + 1, new Date(birthDate).getDate())} 운세</p>
+                        <p className="text-[13px] text-[#6B6966] leading-relaxed">{fortuneResult.starFortune}</p>
                       </div>
                     )}
                   </div>
@@ -238,47 +238,47 @@ export default function FortunePage() {
                   {fortuneResult.loveLuck && (
                     <div className="flex items-start gap-2">
                       <span className="text-sm shrink-0">💕</span>
-                      <div><p className="text-[11px] font-semibold text-[#1A1918]">사랑/가족운</p><p className="text-[11px] text-[#6B6966]">{fortuneResult.loveLuck}</p></div>
+                      <div><p className="text-[13px] font-semibold text-[#1A1918]">사랑/가족운</p><p className="text-[13px] text-[#6B6966]">{fortuneResult.loveLuck}</p></div>
                     </div>
                   )}
                   {fortuneResult.healthLuck && (
                     <div className="flex items-start gap-2">
                       <span className="text-sm shrink-0">💚</span>
-                      <div><p className="text-[11px] font-semibold text-[#1A1918]">건강운</p><p className="text-[11px] text-[#6B6966]">{fortuneResult.healthLuck}</p></div>
+                      <div><p className="text-[13px] font-semibold text-[#1A1918]">건강운</p><p className="text-[13px] text-[#6B6966]">{fortuneResult.healthLuck}</p></div>
                     </div>
                   )}
                   {fortuneResult.moneyLuck && (
                     <div className="flex items-start gap-2">
                       <span className="text-sm shrink-0">💰</span>
-                      <div><p className="text-[11px] font-semibold text-[#1A1918]">재물운</p><p className="text-[11px] text-[#6B6966]">{fortuneResult.moneyLuck}</p></div>
+                      <div><p className="text-[13px] font-semibold text-[#1A1918]">재물운</p><p className="text-[13px] text-[#6B6966]">{fortuneResult.moneyLuck}</p></div>
                     </div>
                   )}
                 </div>
 
                 {/* 행운 아이템 */}
                 <div className="grid grid-cols-2 gap-2">
-                  {fortuneResult.luckyColor && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[9px] text-[#6B6966]">행운의 색</p><p className="text-[13px] font-bold text-[#1A1918]">🎨 {fortuneResult.luckyColor}</p></div>}
-                  {fortuneResult.luckyFood && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[9px] text-[#6B6966]">행운의 음식</p><p className="text-[13px] font-bold text-[#1A1918]">🍽️ {fortuneResult.luckyFood}</p></div>}
-                  {fortuneResult.luckyNumber && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[9px] text-[#6B6966]">행운의 숫자</p><p className="text-[13px] font-bold text-[#1A1918]">🔢 {fortuneResult.luckyNumber}</p></div>}
-                  {fortuneResult.luckyTime && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[9px] text-[#6B6966]">행운의 시간</p><p className="text-[13px] font-bold text-[#1A1918]">⏰ {fortuneResult.luckyTime}</p></div>}
+                  {fortuneResult.luckyColor && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 색</p><p className="text-[13px] font-bold text-[#1A1918]">🎨 {fortuneResult.luckyColor}</p></div>}
+                  {fortuneResult.luckyFood && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 음식</p><p className="text-[13px] font-bold text-[#1A1918]">🍽️ {fortuneResult.luckyFood}</p></div>}
+                  {fortuneResult.luckyNumber && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 숫자</p><p className="text-[13px] font-bold text-[#1A1918]">🔢 {fortuneResult.luckyNumber}</p></div>}
+                  {fortuneResult.luckyTime && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 시간</p><p className="text-[13px] font-bold text-[#1A1918]">⏰ {fortuneResult.luckyTime}</p></div>}
                 </div>
 
                 {/* 주간 조언 + 피할 것 */}
                 <div className="bg-white rounded-xl border border-[#E8E4DF] p-4 space-y-2">
-                  {fortuneResult.weekAdvice && <p className="text-[11px] text-[#3D8A5A]">💡 이번 주: {fortuneResult.weekAdvice}</p>}
-                  {fortuneResult.avoidToday && <p className="text-[11px] text-[#D08068]">⚠️ 오늘 피할 것: {fortuneResult.avoidToday}</p>}
+                  {fortuneResult.weekAdvice && <p className="text-[13px] text-[#3D8A5A]">💡 이번 주: {fortuneResult.weekAdvice}</p>}
+                  {fortuneResult.avoidToday && <p className="text-[13px] text-[#D08068]">⚠️ 오늘 피할 것: {fortuneResult.avoidToday}</p>}
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <p className="text-[9px] text-[#9E9A95]">재미로만 봐주세요 😊</p>
-                  <button onClick={() => { localStorage.removeItem(`dodam_fortune_${new Date().toISOString().split('T')[0]}_${birthDate}`); setFortuneResult(null); fetchFortune() }} className="text-[10px] text-[#3D8A5A]">다시 보기 🔄</button>
+                  <p className="text-[13px] text-[#9E9A95]">재미로만 봐주세요 😊</p>
+                  <button onClick={() => { localStorage.removeItem(`dodam_fortune_${new Date().toISOString().split('T')[0]}_${birthDate}`); setFortuneResult(null); fetchFortune() }} className="text-[14px] text-[#3D8A5A]">다시 보기 🔄</button>
                 </div>
               </>
             ) : (
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-5 text-center">
                 <p className="text-3xl mb-2">🎴</p>
                 <p className="text-[14px] font-bold text-[#1A1918] mb-1">오늘의 운세</p>
-                <p className="text-[12px] text-[#6B6966] mb-4">띠·별자리·사주 기반 AI 운세를 봐드려요</p>
+                <p className="text-[14px] text-[#6B6966] mb-4">띠·별자리·사주 기반 AI 운세를 봐드려요</p>
                 <button onClick={fetchFortune} disabled={loading || !birthDate}
                   className="px-6 py-2.5 bg-[#3D8A5A] text-white text-[13px] font-semibold rounded-xl active:opacity-80 disabled:opacity-50">
                   {loading ? '운세 보는 중...' : '오늘의 운세 보기 🎴'}
@@ -290,8 +290,8 @@ export default function FortunePage() {
 
         {!birthDate && (
           <div className="bg-[#FFF0E6] rounded-xl p-4 text-center">
-            <p className="text-[12px] text-[#D08068]">생년월일이 설정되지 않았어요</p>
-            <p className="text-[10px] text-[#6B6966] mt-1">설정에서 생년월일을 입력하면 이용할 수 있어요</p>
+            <p className="text-[14px] text-[#D08068]">생년월일이 설정되지 않았어요</p>
+            <p className="text-[14px] text-[#6B6966] mt-1">설정에서 생년월일을 입력하면 이용할 수 있어요</p>
           </div>
         )}
       </div>

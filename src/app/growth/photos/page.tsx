@@ -84,7 +84,7 @@ export default function PhotoTimelapsePage() {
           <h1 className="text-[15px] font-bold text-[#212124]">사진 타임랩스</h1>
           <button
             onClick={() => fileRef.current?.click()}
-            className="text-[12px] font-semibold text-[#FF6F0F]"
+            className="text-[14px] font-semibold text-[#FF6F0F]"
           >
             + 추가
           </button>
@@ -112,7 +112,7 @@ export default function PhotoTimelapsePage() {
                 />
               )}
               {playing && (
-                <div className="absolute bottom-3 left-3 px-2 py-1 rounded-lg bg-black/50 text-white text-[11px]">
+                <div className="absolute bottom-3 left-3 px-2 py-1 rounded-lg bg-black/50 text-white text-[13px]">
                   {currentIndex + 1} / {photos.length}
                 </div>
               )}
@@ -134,7 +134,7 @@ export default function PhotoTimelapsePage() {
               <span className="text-3xl">📸</span>
             </div>
             <p className="text-[14px] font-semibold text-[#212124]">아직 사진이 없어요</p>
-            <p className="text-[12px] text-[#6B6966] mt-1">매월 같은 포즈로 사진을 찍어보세요</p>
+            <p className="text-[14px] text-[#6B6966] mt-1">매월 같은 포즈로 사진을 찍어보세요</p>
             <button
               onClick={() => fileRef.current?.click()}
               className="mt-4 px-6 py-2.5 rounded-xl bg-[#FF6F0F] text-white text-[13px] font-semibold active:scale-95 transition-transform"
@@ -150,11 +150,11 @@ export default function PhotoTimelapsePage() {
                 <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden bg-[#F0EDE8]">
                   <img src={photo.url} alt="" className="w-full h-full object-cover" />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 px-2 py-1">
-                    <p className="text-[10px] text-white">{photo.date}</p>
+                    <p className="text-[14px] text-white">{photo.date}</p>
                   </div>
                   <button
                     onClick={() => handleDelete(photo.id)}
-                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white text-[10px] flex items-center justify-center"
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white text-[14px] flex items-center justify-center"
                   >
                     ✕
                   </button>
@@ -164,7 +164,7 @@ export default function PhotoTimelapsePage() {
           </>
         )}
 
-        <p className="text-[11px] text-[#9E9A95] text-center mt-6">
+        <p className="text-[13px] text-[#9E9A95] text-center mt-6">
           💡 매월 같은 장소, 같은 포즈로 사진을 찍으면<br />타임랩스가 더 멋져요!
         </p>
       </div>

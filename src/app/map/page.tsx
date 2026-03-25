@@ -155,16 +155,16 @@ function MapPageInner() {
                       {selectedCategory.emoji} {place.name}
                     </h3>
                     {place.distance && (
-                      <span className="text-[12px] font-semibold text-[#FF6F0F] shrink-0 ml-2">
+                      <span className="text-[14px] font-semibold text-[#FF6F0F] shrink-0 ml-2">
                         {place.distance}
                       </span>
                     )}
                   </div>
-                  <p className="text-[12px] text-[#6B6966] mb-0.5">{place.address}</p>
+                  <p className="text-[14px] text-[#6B6966] mb-0.5">{place.address}</p>
                   {place.phone && (
-                    <p className="text-[12px] text-[#6B6B6B]">{place.phone}</p>
+                    <p className="text-[14px] text-[#6B6B6B]">{place.phone}</p>
                   )}
-                  <p className="text-[10px] text-[#9E9A95] mt-1">{place.category}</p>
+                  <p className="text-[14px] text-[#9E9A95] mt-1">{place.category}</p>
                 </button>
 
                 {/* 액션 버튼 */}
@@ -172,20 +172,20 @@ function MapPageInner() {
                   {place.phone && (
                     <button
                       onClick={() => handleCall(place.phone)}
-                      className="flex-1 h-10 rounded-xl text-[12px] font-semibold border border-[#FF6F0F] text-[#FF6F0F] active:scale-95 transition-transform flex items-center justify-center gap-1"
+                      className="flex-1 h-10 rounded-xl text-[14px] font-semibold border border-[#FF6F0F] text-[#FF6F0F] active:scale-95 transition-transform flex items-center justify-center gap-1"
                     >
                       📞 전화
                     </button>
                   )}
                   <button
                     onClick={() => handleNavigate(place)}
-                    className="flex-1 h-10 rounded-xl text-[12px] font-semibold bg-[#FF6F0F] text-white active:scale-95 transition-transform flex items-center justify-center gap-1"
+                    className="flex-1 h-10 rounded-xl text-[14px] font-semibold bg-[#FF6F0F] text-white active:scale-95 transition-transform flex items-center justify-center gap-1"
                   >
                     🗺️ 길찾기
                   </button>
                   <button
                     onClick={() => handlePlaceTap(place)}
-                    className="h-10 px-3 rounded-xl text-[12px] font-semibold border border-[#ECECEC] text-[#6B6966] active:scale-95 transition-transform flex items-center justify-center"
+                    className="h-10 px-3 rounded-xl text-[14px] font-semibold border border-[#ECECEC] text-[#6B6966] active:scale-95 transition-transform flex items-center justify-center"
                   >
                     리뷰
                   </button>

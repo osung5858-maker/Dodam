@@ -107,7 +107,7 @@ export default function FeedTimerPage() {
 
           {/* 다음 수유 추천 */}
           {!active && lastSide && (
-            <p className="text-[12px] text-[#6B6966] mt-2 mb-4">
+            <p className="text-[14px] text-[#6B6966] mt-2 mb-4">
               지난번 <span className="font-semibold">{lastSide === 'left' ? '왼쪽' : '오른쪽'}</span>이었으니 →{' '}
               <span className="text-[#3D8A5A] font-semibold">{lastSide === 'left' ? '오른쪽' : '왼쪽'}</span> 추천
             </p>
@@ -147,15 +147,15 @@ export default function FeedTimerPage() {
           <div className="grid grid-cols-3 gap-2 mb-3">
             <div className="text-center">
               <p className="text-[20px] font-bold text-[#1A1918]">{todaySessions.length}</p>
-              <p className="text-[10px] text-[#6B6966]">총 횟수</p>
+              <p className="text-[14px] text-[#6B6966]">총 횟수</p>
             </div>
             <div className="text-center">
               <p className="text-[20px] font-bold text-[#4A90D9]">{formatTime(todayLeft)}</p>
-              <p className="text-[10px] text-[#6B6966]">왼쪽</p>
+              <p className="text-[14px] text-[#6B6966]">왼쪽</p>
             </div>
             <div className="text-center">
               <p className="text-[20px] font-bold text-[#D089A5]">{formatTime(todayRight)}</p>
-              <p className="text-[10px] text-[#6B6966]">오른쪽</p>
+              <p className="text-[14px] text-[#6B6966]">오른쪽</p>
             </div>
           </div>
           {/* 균형 바 */}
@@ -175,10 +175,10 @@ export default function FeedTimerPage() {
               <div key={i} className="flex items-center justify-between py-1.5 border-b border-[#E8E4DF] last:border-0">
                 <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${s.side === 'left' ? 'bg-[#4A90D9]' : 'bg-[#D089A5]'}`} />
-                  <span className="text-[12px] text-[#1A1918]">{s.side === 'left' ? '왼쪽' : '오른쪽'}</span>
+                  <span className="text-[14px] text-[#1A1918]">{s.side === 'left' ? '왼쪽' : '오른쪽'}</span>
                 </div>
-                <span className="text-[12px] text-[#6B6966]">{formatTime(s.duration)}</span>
-                <span className="text-[10px] text-[#9E9A95]">{new Date(s.startTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="text-[14px] text-[#6B6966]">{formatTime(s.duration)}</span>
+                <span className="text-[14px] text-[#9E9A95]">{new Date(s.startTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
             ))}
           </div>
