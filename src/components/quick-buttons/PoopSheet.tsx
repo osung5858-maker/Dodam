@@ -1,11 +1,12 @@
 'use client'
 
 import BottomSheet from '@/components/ui/BottomSheet'
+import { CircleIcon, DropletIcon } from '@/components/ui/Icons'
 
 const OPTIONS = [
-  { value: 'normal', label: '정상', emoji: '👍' },
-  { value: 'soft', label: '묽음', emoji: '💧' },
-  { value: 'hard', label: '단단', emoji: '🪨' },
+  { value: 'normal', label: '정상', icon: <CircleIcon className="w-5 h-5 text-[var(--color-primary)]" /> },
+  { value: 'soft', label: '묽음', icon: <DropletIcon className="w-5 h-5 text-blue-400" /> },
+  { value: 'hard', label: '단단', icon: <CircleIcon className="w-5 h-5 text-[#8B7355]" /> },
 ]
 
 interface Props {
@@ -24,7 +25,7 @@ export default function PoopSheet({ open, onClose, onSelect }: Props) {
             onClick={() => onSelect(opt.value)}
             className="w-full h-14 rounded-xl bg-[#f5f5f5] flex items-center justify-center gap-2 text-sm font-semibold text-[#0A0B0D] active:bg-[#0052FF] active:text-white transition-colors"
           >
-            <span className="text-lg">{opt.emoji}</span> {opt.label}
+            {opt.icon} {opt.label}
           </button>
         ))}
         <button

@@ -3,6 +3,7 @@
 import { useMemo } from 'react'
 import type { CareEvent } from '@/types'
 import { predictNextEvent, detectAnomalies, hasEnoughData } from '@/lib/ai/prediction-engine'
+import { SparkleIcon, BottleIcon, MoonIcon, SproutIcon } from '@/components/ui/Icons'
 import EmergencyCard from '@/components/ai-cards/EmergencyCard'
 import RewardBanner from '@/components/ai-cards/RewardBanner'
 import RoutineTimelapse from '@/components/ai-cards/RoutineTimelapse'
@@ -50,7 +51,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
 
     const base = `${childName}가 오전에 ${parts.join(', ')}로\n꾸준한 리듬을 유지하고 있어요.`
     if (feedPred) {
-      return `${base}\n${formatTime(feedPred.predicted_ts)}쯤 다음 수유가 예상돼요 🍼`
+      return `${base}\n${formatTime(feedPred.predicted_ts)}쯤 다음 수유가 예상돼요`
     }
     return base
   }, [childName, todayFeedCount, todaySleepCount, feedPred])
@@ -66,7 +67,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
     } else if (hasMajor) {
       chips.push({ label: '관찰 필요', color: 'text-orange-700', bg: 'bg-orange-50' })
     } else if (events.length >= 3) {
-      chips.push({ label: '리듬 안정 🟢', color: 'text-[#2D6B45]', bg: 'bg-[var(--color-accent-bg)]' })
+      chips.push({ label: '리듬 안정', color: 'text-[#2D6B45]', bg: 'bg-[var(--color-accent-bg)]' })
     }
 
     if (todaySleepCount >= 1) {
@@ -90,7 +91,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
       <div className="mx-4 mb-3 bg-white rounded-2xl p-5 shadow-[0_2px_12px_rgba(26,25,24,0.03)]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-[14px]">✨</span>
+            <SparkleIcon className="w-4 h-4 text-[#C4913E]" />
             <span className="text-[14px] font-bold text-[#212124]">오늘의 AI 인사이트</span>
           </div>
           <span className="text-[13px] text-[#9E9A95]">{updateTime} 업데이트</span>
@@ -119,7 +120,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
             <div className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(26,25,24,0.03)]">
               <div className="flex items-center gap-2 mb-2.5">
                 <div className="w-8 h-8 rounded-full bg-[var(--color-accent-bg)] flex items-center justify-center">
-                  <span className="text-[14px]">🍼</span>
+                  <BottleIcon className="w-4 h-4 text-[var(--color-primary)]" />
                 </div>
                 <span className="text-[14px] font-semibold text-[#212124]">다음 수유</span>
               </div>
@@ -144,7 +145,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
             <div className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(26,25,24,0.03)]">
               <div className="flex items-center gap-2 mb-2.5">
                 <div className="w-8 h-8 rounded-full bg-[#E8E0F8] flex items-center justify-center">
-                  <span className="text-[14px]">💤</span>
+                  <MoonIcon className="w-4 h-4 text-[#7B6DB0]" />
                 </div>
                 <span className="text-[14px] font-semibold text-[#212124]">다음 낮잠</span>
               </div>
@@ -169,7 +170,7 @@ export default function InsightHub({ events, birthdate, childName }: Props) {
       ) : (!feedDataCheck.enough || !sleepDataCheck.enough) && events.length > 0 ? (
         <div className="mx-4 mb-3 bg-white rounded-2xl p-4 shadow-[0_2px_12px_rgba(26,25,24,0.03)]">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[14px]">🌱</span>
+            <SproutIcon className="w-4 h-4 text-[#4A9B6E]" />
             <span className="text-[14px] font-semibold text-[#212124]">루틴 예보 학습 중</span>
           </div>
           <p className="text-[13px] text-[#5A5854] leading-relaxed">

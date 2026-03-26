@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import type { CareEvent } from '@/types'
+import { PenIcon, SparkleIcon, NoteIcon, BottleIcon, MoonIcon, DropletIcon, ThermometerIcon } from '@/components/ui/Icons'
 
 interface Props {
   events: CareEvent[]
@@ -60,7 +61,7 @@ function generateAIDiary(events: CareEvent[], childName: string): string {
     const diff = (new Date(e.end_ts!).getTime() - new Date(e.start_ts).getTime()) / 3600000
     return h >= 20 && diff >= 6
   })) {
-    milestones.push('통잠 성공! 🎉')
+    milestones.push('통잠 성공!')
   }
 
   let result = parts.join(' ')
@@ -149,13 +150,13 @@ export default function DiaryView({ events, childName }: Props) {
   // 오늘의 감정 태그 (기록 기반 자동 생성)
   const emotionTags = useMemo(() => {
     const tags: string[] = []
-    if (dayEvents.filter((e) => e.type === 'feed').length >= 4) tags.push('🍼 잘 먹은 날')
+    if (dayEvents.filter((e) => e.type === 'feed').length >= 4) tags.push('잘 먹은 날')
     const sleepMin = dayEvents.filter((e) => e.type === 'sleep' && e.end_ts).reduce((a, e) => {
       return a + (new Date(e.end_ts!).getTime() - new Date(e.start_ts).getTime()) / 60000
     }, 0)
-    if (sleepMin >= 600) tags.push('😴 푹 잔 날')
-    if (dayEvents.length >= 8) tags.push('📝 기록 많은 날')
-    if (dayEvents.some((e) => e.type === 'temp' && Number(e.tags?.celsius) >= 37.5)) tags.push('🌡️ 컨디션 주의')
+    if (sleepMin >= 600) tags.push('푹 잔 날')
+    if (dayEvents.length >= 8) tags.push('기록 많은 날')
+    if (dayEvents.some((e) => e.type === 'temp' && Number(e.tags?.celsius) >= 37.5)) tags.push('컨디션 주의')
     return tags
   }, [dayEvents])
 
@@ -182,13 +183,13 @@ export default function DiaryView({ events, childName }: Props) {
           <div key={i} className="relative shrink-0 w-24 h-24">
             <img src={src} alt="" className="w-full h-full object-cover rounded-xl" />
             <button onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center">
-              <span className="text-white text-[14px]">✕</span>
+              <span className="text-white text-[14px]"><svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></span>
             </button>
           </div>
         ))}
         {photos.length < 10 && (
           <button onClick={handleAddPhoto} className="shrink-0 w-24 h-24 rounded-xl border-2 border-dashed border-[#ECECEC] flex flex-col items-center justify-center gap-1 active:bg-[#F0EDE8]">
-            <span className="text-xl text-[#9E9A95]">📷</span>
+            <NoteIcon className="w-5 h-5 text-[#9E9A95]" />
             <span className="text-[14px] text-[#9E9A95]">사진 추가</span>
           </button>
         )}
@@ -208,12 +209,12 @@ export default function DiaryView({ events, childName }: Props) {
       {/* 일기 쓰기 */}
       <div className="bg-white rounded-2xl border border-[#E8E4DF] p-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-[13px] font-semibold text-[#1A1918]">✍️ 오늘의 일기</h3>
+          <h3 className="text-[13px] font-semibold text-[#1A1918] flex items-center gap-1"><PenIcon className="w-3.5 h-3.5" /> 오늘의 일기</h3>
           <button onClick={() => {
             if (editingMemo) saveDayData(memo, photos)
             setEditingMemo(!editingMemo)
           }} className="text-[13px] text-[var(--color-primary)] font-semibold">
-            {editingMemo ? '저장' : '✏️ 편집'}
+            {editingMemo ? '저장' : '편집'}
           </button>
         </div>
         {editingMemo ? (
@@ -229,7 +230,7 @@ export default function DiaryView({ events, childName }: Props) {
         ) : (
           <button onClick={() => setEditingMemo(true)} className="w-full py-4 text-center active:opacity-60">
             <p className="text-[13px] text-[#9E9A95]">오늘 하루는 어땠나요?</p>
-            <p className="text-[13px] text-[var(--color-primary)] mt-1">탭해서 일기를 남겨보세요 ✏️</p>
+            <p className="text-[13px] text-[var(--color-primary)] mt-1">탭해서 일기를 남겨보세요</p>
           </button>
         )}
       </div>
@@ -238,7 +239,7 @@ export default function DiaryView({ events, childName }: Props) {
       {aiDiary && (
         <div className="bg-white rounded-2xl border-l-4 border-l-[var(--color-primary)] border border-[#E8E4DF] p-4">
           <div className="flex items-center gap-1.5 mb-2">
-            <span className="text-sm">🤖</span>
+            <SparkleIcon className="w-3.5 h-3.5 text-[var(--color-primary)]" />
             <span className="text-[13px] font-bold text-[var(--color-primary)]">AI 오늘의 요약</span>
           </div>
           <p className="text-[13px] text-[#212124] leading-relaxed">{aiDiary}</p>
@@ -252,7 +253,7 @@ export default function DiaryView({ events, childName }: Props) {
           <div className="space-y-2">
             {dayEvents.slice(0, 5).map((e) => {
               const time = new Date(e.start_ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
-              const labels: Record<string, string> = { feed: '🍼 수유', sleep: '💤 수면', poop: '💩 대변', pee: '💧 소변', temp: '🌡️ 체온', memo: '📝 메모' }
+              const labels: Record<string, string> = { feed: '수유', sleep: '수면', poop: '대변', pee: '소변', temp: '체온', memo: '메모', bath: '목욕', pump: '유축', babyfood: '이유식', snack: '간식', toddler_meal: '유아식', medication: '투약' }
               return (
                 <div key={e.id} className="flex items-center gap-2 text-[14px]">
                   <span className="text-[#9E9A95] w-10 shrink-0">{time}</span>
@@ -268,7 +269,7 @@ export default function DiaryView({ events, childName }: Props) {
         </div>
       ) : (
         <div className="text-center py-8">
-          <p className="text-[28px] mb-2">📝</p>
+          <NoteIcon className="w-7 h-7 text-[#9E9A95] mb-2 mx-auto" />
           <p className="text-[13px] text-[#9E9A95]">이 날은 기록이 없어요</p>
         </div>
       )}

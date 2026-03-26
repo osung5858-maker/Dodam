@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import KakaoMap from '@/components/map/KakaoMap'
+import LocalParentingGuide from '@/components/map/LocalParentingGuide'
 import { MapIcon } from '@/components/ui/Icons'
 
 interface MapPlace {
@@ -17,12 +18,12 @@ interface MapPlace {
 }
 
 const CATEGORIES = [
-  { keyword: '소아과', label: '소아과', emoji: '🏥' },
-  { keyword: '키즈카페', label: '키즈카페', emoji: '☕' },
-  { keyword: '수유실', label: '수유실', emoji: '🍼' },
-  { keyword: '놀이터', label: '놀이터', emoji: '🎪' },
-  { keyword: '약국', label: '약국', emoji: '💊' },
-  { keyword: '문화센터 유아', label: '문화센터', emoji: '📚' },
+  { keyword: '소아과', label: '소아과' },
+  { keyword: '키즈카페', label: '키즈카페' },
+  { keyword: '수유실', label: '수유실' },
+  { keyword: '놀이터', label: '놀이터' },
+  { keyword: '약국', label: '약국' },
+  { keyword: '문화센터 유아', label: '문화센터' },
 ]
 
 export default function MapPage() {
@@ -47,7 +48,7 @@ function MapPageInner() {
         setSelectedCategory(found)
       } else {
         // 커스텀 검색어 (식당 등)
-        setSelectedCategory({ keyword: queryParam, label: queryParam, emoji: '📍' })
+        setSelectedCategory({ keyword: queryParam, label: queryParam })
       }
     }
   }, [queryParam])
@@ -82,11 +83,9 @@ function MapPageInner() {
   return (
     <div className="min-h-[100dvh] bg-[#f5f5f5] flex flex-col">
       {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-[#E8E4DF]">
-        <div className="flex items-center justify-center h-14 px-5 max-w-lg mx-auto w-full">
-          <h1 className="text-[15px] font-bold text-[#0A0B0D]">동네 육아 지도</h1>
-        </div>
-      </header>
+      <div className="pt-4 pb-2 px-5 max-w-lg mx-auto w-full text-center">
+        <h1 className="text-[15px] font-bold text-[#0A0B0D]">동네 육아 지도</h1>
+      </div>
 
       {/* 카카오맵 */}
       <div className="relative h-56 bg-[#e8e8e8]">
@@ -106,7 +105,7 @@ function MapPageInner() {
       </div>
 
       {/* 카테고리 필터 */}
-      <div className="sticky top-14 z-30 bg-white/80 backdrop-blur-xl border-b border-[#E8E4DF]">
+      <div className="bg-white border-b border-[#E8E4DF]">
         <div className="max-w-lg mx-auto w-full px-5 py-2.5 flex gap-2 overflow-x-auto hide-scrollbar">
           {CATEGORIES.map((cat) => (
             <button
@@ -114,21 +113,26 @@ function MapPageInner() {
               onClick={() => handleCategoryChange(cat)}
               className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 ${
                 selectedCategory.keyword === cat.keyword
-                  ? 'bg-[#FF6F0F] text-white shadow-[0_2px_8px_rgba(0,82,255,0.2)]'
+                  ? 'bg-[var(--color-primary)] text-white shadow-[0_2px_8px_rgba(0,82,255,0.2)]'
                   : 'bg-white text-[#6B6B6B] border border-[#E8E4DF]'
               }`}
             >
-              {cat.emoji} {cat.label}
+              {cat.label}
             </button>
           ))}
         </div>
+      </div>
+
+      {/* 동네 육아 AI 가이드 */}
+      <div className="max-w-lg mx-auto w-full px-4 pt-3">
+        <LocalParentingGuide />
       </div>
 
       {/* 장소 리스트 */}
       <div className="flex-1 max-w-lg mx-auto w-full pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <div className="w-8 h-8 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
+            <div className="w-8 h-8 border-3 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
           </div>
         ) : places.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
@@ -152,10 +156,10 @@ function MapPageInner() {
                 >
                   <div className="flex items-start justify-between mb-1">
                     <h3 className="text-[15px] font-bold text-[#212124]">
-                      {selectedCategory.emoji} {place.name}
+                      {place.name}
                     </h3>
                     {place.distance && (
-                      <span className="text-[14px] font-semibold text-[#FF6F0F] shrink-0 ml-2">
+                      <span className="text-[14px] font-semibold text-[var(--color-primary)] shrink-0 ml-2">
                         {place.distance}
                       </span>
                     )}
@@ -172,16 +176,16 @@ function MapPageInner() {
                   {place.phone && (
                     <button
                       onClick={() => handleCall(place.phone)}
-                      className="flex-1 h-10 rounded-xl text-[14px] font-semibold border border-[#FF6F0F] text-[#FF6F0F] active:scale-95 transition-transform flex items-center justify-center gap-1"
+                      className="flex-1 h-10 rounded-xl text-[14px] font-semibold border border-[var(--color-primary)] text-[var(--color-primary)] active:scale-95 transition-transform flex items-center justify-center gap-1"
                     >
-                      📞 전화
+                      전화
                     </button>
                   )}
                   <button
                     onClick={() => handleNavigate(place)}
-                    className="flex-1 h-10 rounded-xl text-[14px] font-semibold bg-[#FF6F0F] text-white active:scale-95 transition-transform flex items-center justify-center gap-1"
+                    className="flex-1 h-10 rounded-xl text-[14px] font-semibold bg-[var(--color-primary)] text-white active:scale-95 transition-transform flex items-center justify-center gap-1"
                   >
-                    🗺️ 길찾기
+                    길찾기
                   </button>
                   <button
                     onClick={() => handlePlaceTap(place)}

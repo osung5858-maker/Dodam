@@ -4,24 +4,42 @@ import { getCachedResponse, setCachedResponse } from '@/lib/ai/cache'
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
 
-async function callGemini(prompt: string, maxTokens = 500): Promise<{ text: string | null; error: string | null }> {
-  const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.6, maxOutputTokens: maxTokens, thinkingConfig: { thinkingBudget: 0 } },
-    }),
-  })
-  if (!res.ok) {
-    const err = await res.text().catch(() => '')
-    return { text: null, error: `Gemini ${res.status}: ${err.slice(0, 150)}` }
+async function callGemini(prompt: string, maxTokens = 500, retries = 2): Promise<{ text: string | null; error: string | null }> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const res = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.6, maxOutputTokens: maxTokens, thinkingConfig: { thinkingBudget: 0 } },
+        }),
+      })
+      if (res.status === 429 && attempt < retries) {
+        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)))
+        continue
+      }
+      if (!res.ok) {
+        if (attempt < retries) {
+          await new Promise(r => setTimeout(r, 1500 * (attempt + 1)))
+          continue
+        }
+        return { text: null, error: 'AI 서버가 바빠요. 잠시 후 다시 시도해주세요.' }
+      }
+      const data = await res.json()
+      const parts = data.candidates?.[0]?.content?.parts || []
+      const raw = parts.map((p: any) => p.text || '').join('').trim()
+      const text = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim() || null
+      return { text, error: null }
+    } catch (e: any) {
+      if (attempt < retries) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)))
+        continue
+      }
+      return { text: null, error: e?.message?.slice(0, 150) || 'Network error' }
+    }
   }
-  const data = await res.json()
-  const parts = data.candidates?.[0]?.content?.parts || []
-  const raw = parts.map((p: any) => p.text || '').join('').trim()
-  const text = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim() || null
-  return { text, error: null }
+  return { text: null, error: 'Max retries exceeded' }
 }
 
 export async function POST(request: Request) {
@@ -186,6 +204,48 @@ JSON 형식:
         const match = text.match(/\{[\s\S]*\}/)
         if (!match) return NextResponse.json({ error: 'parse error' }, { status: 500 })
         return NextResponse.json(JSON.parse(match[0]))
+      } catch {
+        return NextResponse.json({ error: 'parse error' }, { status: 500 })
+      }
+    }
+
+    // === 주차별 병원 가이드 ===
+    if (type === 'hospital-guide') {
+      const { week } = body
+      const trimester = week <= 13 ? '초기' : week <= 27 ? '중기' : '후기'
+      const guideCacheKey = `preg-hospital-${week}`
+      const guideCached = getCachedResponse(guideCacheKey)
+      if (guideCached) return NextResponse.json(guideCached)
+
+      const prompt = `임신 ${week}주차(${trimester}) 산모를 위한 병원 방문 가이드를 작성해주세요.
+한국의 산부인과 기준으로, 실용적이고 구체적으로.
+
+JSON 형식:
+{
+  "weekSummary": "이번 주차 핵심 한 줄 (20자 이내)",
+  "scheduledTests": [
+    {"name": "검사명", "description": "설명 1줄", "required": true/false}
+  ],
+  "warningSignals": [
+    {"signal": "위험 신호", "action": "대응 방법 1줄"}
+  ],
+  "questionsForDoctor": ["의사에게 물어볼 질문 1", "질문 2", "질문 3"],
+  "bodyChanges": "이 주차에 나타나는 몸의 변화 (2문장)",
+  "mentalTip": "심리/감정 관리 팁 (1문장)",
+  "partnerTip": "파트너에게 부탁할 것 (1문장)",
+  "nextVisit": "다음 검진 일정 안내 (1문장)"
+}
+의료 진단은 하지 마세요. "걱정되면 산부인과에 문의하세요"를 기본으로.
+JSON만 출력.`
+
+      const { text: guideText, error: guideErr } = await callGemini(prompt, 800)
+      if (!guideText) return NextResponse.json({ error: guideErr || 'AI failed' }, { status: 500 })
+      try {
+        const match = guideText.match(/\{[\s\S]*\}/)
+        if (!match) return NextResponse.json({ error: 'parse error' }, { status: 500 })
+        const result = JSON.parse(match[0])
+        setCachedResponse(guideCacheKey, result)
+        return NextResponse.json(result)
       } catch {
         return NextResponse.json({ error: 'parse error' }, { status: 500 })
       }

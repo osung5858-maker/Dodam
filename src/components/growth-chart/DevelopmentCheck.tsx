@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import { SparkleIcon, HospitalIcon, RunnerIcon, HandIcon, SpeechIcon, HeartIcon, BrainIcon, StethoscopeIcon, HeartFilledIcon, TargetIcon } from '@/components/ui/Icons'
+import { shareDevelopment } from '@/lib/kakao/share-parenting'
 
 interface Props {
   ageMonths: number
@@ -12,12 +14,12 @@ interface Milestone {
   category: 'gross_motor' | 'fine_motor' | 'language' | 'social' | 'cognitive'
 }
 
-const CATEGORY_LABELS: Record<string, { label: string; emoji: string }> = {
-  gross_motor: { label: '대근육', emoji: '🏃' },
-  fine_motor: { label: '소근육', emoji: '✋' },
-  language: { label: '언어', emoji: '🗣️' },
-  social: { label: '사회성', emoji: '💕' },
-  cognitive: { label: '인지', emoji: '🧠' },
+const CATEGORY_ICONS: Record<string, { label: string; Icon: React.FC<{ className?: string }> }> = {
+  gross_motor: { label: '대근육', Icon: RunnerIcon },
+  fine_motor: { label: '소근육', Icon: HandIcon },
+  language: { label: '언어', Icon: SpeechIcon },
+  social: { label: '사회성', Icon: HeartIcon },
+  cognitive: { label: '인지', Icon: BrainIcon },
 }
 
 const MILESTONES_BY_MONTH: Record<number, Milestone[]> = {
@@ -162,6 +164,90 @@ const PLAY_ACTIVITIES: Record<number, string[]> = {
   36: ['세발자전거 타기', '가위 사용 연습', '규칙 있는 간단한 게임'],
 }
 
+// 월령별 발달 지연 신호 (Red Flags) — 소아과 상담 권장
+const RED_FLAGS: Record<number, { flag: string; category: string }[]> = {
+  3: [
+    { flag: '소리에 전혀 반응하지 않아요', category: 'language' },
+    { flag: '눈 맞춤이 전혀 없어요', category: 'social' },
+  ],
+  6: [
+    { flag: '머리를 전혀 가누지 못해요', category: 'gross_motor' },
+    { flag: '옹알이가 전혀 없어요', category: 'language' },
+    { flag: '주변에 관심을 보이지 않아요', category: 'cognitive' },
+  ],
+  9: [
+    { flag: '앉기를 전혀 못해요', category: 'gross_motor' },
+    { flag: '이름을 불러도 반응이 없어요', category: 'language' },
+    { flag: '장난감에 관심이 없어요', category: 'cognitive' },
+  ],
+  12: [
+    { flag: '잡고 서기를 전혀 못해요', category: 'gross_motor' },
+    { flag: '"엄마", "아빠" 등 의미 있는 소리가 없어요', category: 'language' },
+    { flag: '간단한 몸짓(바이바이)을 따라하지 않아요', category: 'social' },
+  ],
+  18: [
+    { flag: '혼자 걷지 못해요', category: 'gross_motor' },
+    { flag: '의미 있는 단어가 3개 미만이에요', category: 'language' },
+    { flag: '손가락으로 가리키지 않아요', category: 'social' },
+  ],
+  24: [
+    { flag: '두 단어 조합을 못해요 (예: "엄마 물")', category: 'language' },
+    { flag: '간단한 지시를 이해 못해요', category: 'cognitive' },
+    { flag: '또래에게 전혀 관심이 없어요', category: 'social' },
+  ],
+  36: [
+    { flag: '계단을 올라가지 못해요', category: 'gross_motor' },
+    { flag: '이름/나이를 말하지 못해요', category: 'language' },
+    { flag: '간단한 역할놀이를 하지 않아요', category: 'cognitive' },
+  ],
+}
+
+// 불안 해소 통계 — 부모 안심용 (의학 문헌 기반 일반 통계)
+const REASSURANCE_STATS: Record<number, string[]> = {
+  1: ['신생아의 수면 패턴은 매우 불규칙한 게 정상이에요', '생후 1개월 아기의 60%는 밤낮 구분이 아직 없어요'],
+  2: ['2개월 아기의 30%는 아직 사회적 미소가 늦게 나타나요', '배앓이는 보통 6주~3개월에 가장 심해요'],
+  3: ['3개월에 목을 못 가누는 아이도 15% 정도 돼요', '옹알이 시작 시기는 2~5개월로 편차가 커요'],
+  4: ['뒤집기는 3~7개월 사이 언제든 시작할 수 있어요', '4개월에 밤잠 연결이 안 되는 건 매우 흔해요'],
+  5: ['5개월에 뒤집기를 안 해도 정상 범위예요', '낯가림이 일찍 시작하는 건 인지 발달의 신호예요'],
+  6: ['이유식 거부는 6개월 아기의 40%가 경험해요', '앉기는 5~8개월 사이 매우 넓은 범위에서 달성돼요'],
+  7: ['7개월에 배밀이를 안 해도 12% 아이는 정상이에요', '치아 발달은 4~12개월로 개인차가 매우 커요'],
+  8: ['기는 방식은 아이마다 달라요 — 엉덩이로 기어도 정상!', '분리불안은 건강한 애착의 신호예요'],
+  9: ['9개월에 잡고 서기를 못해도 10% 아이는 정상이에요', '가리키기는 9~14개월 사이에 시작돼요'],
+  10: ['10개월에 첫 단어가 없어도 걱정하지 마세요', '걷기 시작 시기는 9~18개월로 편차가 커요'],
+  11: ['아이의 발달은 직선이 아니라 계단식으로 올라가요', '한 영역이 빠르면 다른 영역이 잠시 멈출 수 있어요'],
+  12: ['돌에 걷지 않는 아이도 25%나 돼요', '첫 단어 시기는 8~18개월로 매우 넓어요'],
+  15: ['15개월에 단어 2~3개면 충분해요', '형제자매가 있으면 언어 발달이 더 빠를 수 있어요'],
+  18: ['18개월 아이의 20%는 아직 단어 10개 미만이에요', '말이 늦는 아이의 70%는 만 3세까지 따라잡아요'],
+  24: ['두 단어 조합은 18~30개월 사이에 나타나요', '이 시기 떼쓰기는 감정 표현 발달의 자연스러운 과정이에요'],
+  30: ['30개월에 색깔을 못 구별해도 정상이에요', '대소변 훈련 시기는 아이마다 크게 달라요'],
+  36: ['36개월에 숫자 세기가 안 돼도 괜찮아요', '만 3세 아이의 말하기 속도는 매우 다양해요'],
+}
+
+function getRedFlags(ageMonths: number): { flag: string; category: string }[] {
+  const months = Object.keys(RED_FLAGS).map(Number).sort((a, b) => a - b)
+  const match = months.reverse().find((m) => ageMonths >= m)
+  return RED_FLAGS[match || 3] || []
+}
+
+function getReassurance(ageMonths: number): string[] {
+  const months = Object.keys(REASSURANCE_STATS).map(Number).sort((a, b) => a - b)
+  const match = months.reverse().find((m) => ageMonths >= m)
+  return REASSURANCE_STATS[match || 1] || REASSURANCE_STATS[1]
+}
+
+function getCatchUpTips(milestones: Milestone[], checked: Set<string>): string[] {
+  const unchecked = milestones.filter(m => !checked.has(m.id))
+  const tips: Record<string, string> = {
+    gross_motor: '매일 5~10분 터미타임(엎드리기)이나 신체 놀이를 해주세요',
+    fine_motor: '다양한 크기와 질감의 물건을 손으로 탐색할 기회를 주세요',
+    language: '아이 눈을 보며 천천히 말해주세요. 아이 소리를 따라하면 더 좋아요',
+    social: '까꿍, 박수 같은 상호작용 놀이를 자주 해주세요',
+    cognitive: '원인-결과를 경험할 수 있는 놀이(버튼 누르기, 상자 열기)를 제공해주세요',
+  }
+  const categories = [...new Set(unchecked.map(m => m.category))]
+  return categories.slice(0, 3).map(c => tips[c]).filter(Boolean)
+}
+
 function getStorageKey(ageMonths: number): string {
   return `dodam_dev_check_${ageMonths}`
 }
@@ -213,7 +299,7 @@ function generateCheckupQuestions(milestones: Milestone[], checked: Set<string>,
   questions.push(`${ageMonths}개월 아이의 전반적인 발달 상태가 궁금해요.`)
 
   unchecked.forEach((m) => {
-    const cat = CATEGORY_LABELS[m.category]
+    const cat = CATEGORY_ICONS[m.category]
     questions.push(`${cat.label} 영역: "${m.label}" 부분을 어떻게 도와줄 수 있을까요?`)
   })
 
@@ -254,6 +340,10 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
   const insight = useMemo(() => generateAIInsight(milestones, checked, ageMonths), [milestones, checked, ageMonths])
   const checkupQuestions = useMemo(() => generateCheckupQuestions(milestones, checked, ageMonths), [milestones, checked, ageMonths])
+  const redFlags = useMemo(() => getRedFlags(ageMonths), [ageMonths])
+  const reassurance = useMemo(() => getReassurance(ageMonths), [ageMonths])
+  const catchUpTips = useMemo(() => getCatchUpTips(milestones, checked), [milestones, checked])
+  const [showRedFlags, setShowRedFlags] = useState(false)
 
   // Progress ring
   const radius = 40
@@ -293,16 +383,17 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
           <h3 className="text-[15px] font-bold text-[#212124]">{ageMonths}개월 발달 체크</h3>
           <p className="text-[13px] text-[#4A4744] mt-1">{done}/{total} 항목 달성</p>
           <p className="text-[12px] text-[#7A7672] mt-0.5">아이마다 속도가 달라요</p>
+          <button onClick={() => shareDevelopment('우리 아이', ageMonths, done, total)} className="text-[12px] text-[var(--color-primary)] font-semibold mt-1">공유</button>
         </div>
       </div>
 
       {/* Milestones by category */}
       {Object.entries(grouped).map(([cat, items]) => {
-        const info = CATEGORY_LABELS[cat]
+        const info = CATEGORY_ICONS[cat]
         return (
           <div key={cat} className="bg-white rounded-2xl border border-[#D5D0CA] shadow-sm p-4">
             <div className="flex items-center gap-1.5 mb-3">
-              <span className="text-sm">{info.emoji}</span>
+              <info.Icon className="w-4 h-4 text-[#6B6966]" />
               <h4 className="text-[13px] font-bold text-[#212124]">{info.label}</h4>
             </div>
             <div className="space-y-2">
@@ -345,7 +436,7 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
       {/* AI Insight */}
       <div className="bg-white rounded-2xl border-l-4 border-l-[var(--color-primary)] border border-[#D5D0CA] shadow-sm p-4">
         <div className="flex items-center gap-1.5 mb-2">
-          <span className="text-sm">🤖</span>
+          <SparkleIcon className="w-3.5 h-3.5 text-[var(--color-primary)]" />
           <h3 className="text-[13px] font-bold text-[var(--color-primary)]">AI 발달 인사이트</h3>
         </div>
         <p className="text-[13px] text-[#212124] leading-relaxed">{insight}</p>
@@ -355,20 +446,93 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
       {/* Recommended Activities */}
       <div className="bg-white rounded-2xl border border-[#D5D0CA] shadow-sm p-4">
         <div className="flex items-center gap-1.5 mb-3">
-          <span className="text-sm">🎮</span>
+          <SparkleIcon className="w-3.5 h-3.5 text-[var(--color-primary)]" />
           <h3 className="text-[13px] font-bold text-[#212124]">추천 놀이</h3>
         </div>
         <div className="space-y-2">
           {activities.map((act, i) => (
             <div key={i} className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-[#FEF0E8] flex items-center justify-center shrink-0">
-                <span className="text-[14px] font-bold text-[#FF6F0F]">{i + 1}</span>
+                <span className="text-[14px] font-bold text-[var(--color-primary)]">{i + 1}</span>
               </div>
               <span className="text-[13px] text-[#212124]">{act}</span>
             </div>
           ))}
         </div>
       </div>
+
+      {/* 불안 해소 통계 — 안심 카드 */}
+      <div className="bg-[#F0F9F4] rounded-2xl border border-[#D5E8DC] p-4">
+        <div className="flex items-center gap-1.5 mb-3">
+          <HeartFilledIcon className="w-4 h-4 text-[#2D7A4A]" />
+          <h3 className="text-[13px] font-bold text-[#2D7A4A]">알고 계셨나요?</h3>
+        </div>
+        <div className="space-y-2.5">
+          {reassurance.map((stat, i) => (
+            <p key={i} className="text-[13px] text-[#3D6B4E] leading-relaxed flex items-start gap-2">
+              <span className="shrink-0 mt-0.5 w-1.5 h-1.5 rounded-full bg-[#2D7A4A]/40" />
+              {stat}
+            </p>
+          ))}
+        </div>
+      </div>
+
+      {/* 따라잡기 놀이 팁 (미달성 항목이 있을 때만) */}
+      {catchUpTips.length > 0 && pct < 100 && (
+        <div className="bg-white rounded-2xl border border-[#D5D0CA] shadow-sm p-4">
+          <div className="flex items-center gap-1.5 mb-3">
+            <TargetIcon className="w-4 h-4 text-[#212124]" />
+            <h3 className="text-[13px] font-bold text-[#212124]">발달 자극 팁</h3>
+          </div>
+          <div className="space-y-2">
+            {catchUpTips.map((tip, i) => (
+              <div key={i} className="flex items-start gap-2 py-1">
+                <div className="w-5 h-5 rounded-full bg-[#FEF0E8] flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[11px] font-bold text-[var(--color-primary)]">{i + 1}</span>
+                </div>
+                <p className="text-[13px] text-[#4A4744] leading-relaxed">{tip}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[12px] text-[#9E9A95] mt-3">매일 조금씩, 놀이를 통해 자연스럽게 경험하면 돼요.</p>
+        </div>
+      )}
+
+      {/* 발달 지연 신호 (Red Flags) — 접이식 */}
+      {redFlags.length > 0 && (
+        <div className="bg-white rounded-2xl border border-[#D5D0CA] shadow-sm p-4">
+          <button
+            onClick={() => setShowRedFlags((v) => !v)}
+            className="flex items-center justify-between w-full"
+          >
+            <div className="flex items-center gap-1.5">
+              <StethoscopeIcon className="w-4 h-4 text-[#6B6966]" />
+              <h3 className="text-[13px] font-bold text-[#212124]">소아과 상담 권장 신호</h3>
+            </div>
+            <span className="text-[13px] text-[#7A7672]">{showRedFlags ? '접기' : '펼치기'}</span>
+          </button>
+          {showRedFlags && (
+            <div className="mt-3">
+              <p className="text-[12px] text-[#7A7672] mb-2.5">아래 항목이 지속되면 소아과 상담을 추천드려요.</p>
+              <div className="space-y-2">
+                {redFlags.map((rf, i) => {
+                  const catInfo = CATEGORY_ICONS[rf.category]
+                  return (
+                    <div key={i} className="flex items-start gap-2 py-1 px-3 rounded-xl bg-[#FFF8F5] border border-[#F5E6E0]">
+                      {catInfo?.Icon && <catInfo.Icon className="w-3.5 h-3.5 shrink-0 mt-0.5 text-[#8B4513]" />}
+                      <div>
+                        <p className="text-[13px] text-[#8B4513] leading-relaxed">{rf.flag}</p>
+                        <p className="text-[11px] text-[#B8860B] mt-0.5">{catInfo?.label} 영역</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              <p className="text-[12px] text-[#D08068] mt-3 font-medium">이 신호는 참고용이며, 반드시 전문의 상담을 받으세요.</p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Checkup Questions */}
       <div className="bg-white rounded-2xl border border-[#D5D0CA] shadow-sm p-4">
@@ -377,7 +541,7 @@ export default function DevelopmentCheck({ ageMonths }: Props) {
           className="flex items-center justify-between w-full"
         >
           <div className="flex items-center gap-1.5">
-            <span className="text-sm">🏥</span>
+            <HospitalIcon className="w-3.5 h-3.5" />
             <h3 className="text-[13px] font-bold text-[#212124]">검진 시 질문 추천</h3>
           </div>
           <span className="text-[13px] text-[#7A7672]">{showQuestions ? '접기' : '펼치기'}</span>

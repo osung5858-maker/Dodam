@@ -69,6 +69,7 @@ interface Props {
 export default function CommunityComparison({ childId, ageMonths, sex }: Props) {
   const [data, setData] = useState<ComparisonData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [percentileInfoOpen, setPercentileInfoOpen] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -121,7 +122,49 @@ export default function CommunityComparison({ childId, ageMonths, sex }: Props) 
 
   return (
     <div className="mx-4 mt-3 p-4 rounded-2xl bg-white border border-[#ECECEC]">
-      <p className="text-[13px] font-bold text-[#212124] mb-3">또래 비교</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[13px] font-bold text-[#212124]">또래 비교</p>
+        <button
+          onClick={() => setPercentileInfoOpen(!percentileInfoOpen)}
+          className="text-[12px] text-[var(--color-primary)] font-semibold flex items-center gap-0.5"
+        >
+          백분위수란? {percentileInfoOpen ? '▲' : '▼'}
+        </button>
+      </div>
+
+      {percentileInfoOpen && (
+        <div className="mb-3 p-3 rounded-xl bg-[#F0F9F4] border border-[#D5E8DD] space-y-1.5">
+          <p className="text-[13px] font-semibold text-[#1A1918]">백분위수 읽는 법</p>
+          <p className="text-[12px] text-[#6B6966] leading-relaxed">
+            백분위수는 같은 월령의 아이 100명 중 우리 아이의 위치를 나타냅니다.
+          </p>
+          <div className="space-y-1">
+            <div className="flex items-start gap-2">
+              <span className="text-[12px] font-bold text-[var(--color-primary)] shrink-0 w-10">50%</span>
+              <p className="text-[12px] text-[#6B6966]">또래 평균과 같아요</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-[12px] font-bold text-[var(--color-primary)] shrink-0 w-10">75%</span>
+              <p className="text-[12px] text-[#6B6966]">또래 100명 중 75번째 — 평균보다 큰 편</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-[12px] font-bold text-[var(--color-primary)] shrink-0 w-10">25%</span>
+              <p className="text-[12px] text-[#6B6966]">또래 100명 중 25번째 — 평균보다 작은 편</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-[12px] font-bold text-[#D08068] shrink-0 w-10">&lt;3%</span>
+              <p className="text-[12px] text-[#D08068]">소아과 상담을 권장합니다</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-[12px] font-bold text-[#D08068] shrink-0 w-10">&gt;97%</span>
+              <p className="text-[12px] text-[#D08068]">소아과 상담을 권장합니다</p>
+            </div>
+          </div>
+          <p className="text-[11px] text-[#9E9A95] mt-1">
+            WHO 국제 성장 기준표(2006) 기반. 개인차가 있으므로 추이 변화가 더 중요합니다.
+          </p>
+        </div>
+      )}
 
       {/* WHO 표준 */}
       <div className="space-y-3">
@@ -130,7 +173,7 @@ export default function CommunityComparison({ childId, ageMonths, sex }: Props) 
             label="몸무게"
             myValue={data.myWeight}
             unit="kg"
-            color="bg-[#FF6F0F]"
+            color="bg-[var(--color-primary)]"
             percentile={data.whoPercentileWeight}
           />
         )}
@@ -171,7 +214,7 @@ export default function CommunityComparison({ childId, ageMonths, sex }: Props) 
       )}
 
       <p className="text-[14px] text-[#9E9A95] mt-3 text-center">
-        ⚠️ 통계적 참고치이며, 의학적 판단의 근거가 아닙니다.
+        통계적 참고치이며, 의학적 판단의 근거가 아닙니다.
       </p>
     </div>
   )

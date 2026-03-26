@@ -35,7 +35,7 @@ export default function Toast({ message, action, duration = 5000, onDismiss }: P
       {action && (
         <button
           onClick={action.onClick}
-          className="text-[13px] font-bold text-[#FF6F0F] shrink-0 active:opacity-70"
+          className="text-[13px] font-bold text-[var(--color-primary)] shrink-0 active:opacity-70"
         >
           {action.label}
         </button>

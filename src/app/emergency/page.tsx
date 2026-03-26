@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { AlertIcon, MapIcon } from '@/components/ui/Icons'
+import { AlertIcon, MapIcon, HospitalIcon } from '@/components/ui/Icons'
 
 interface NearbyClinic {
   id: string
@@ -88,7 +88,7 @@ export default function EmergencyPage() {
         start_ts: new Date().toISOString(),
         tags: {
           emergency: true,
-          message: `🚨 ${userName}님이 ${childName}의 응급 모드를 실행했어요. 가까운 소아과를 찾고 있어요.`,
+          message: `[응급] ${userName}님이 ${childName}의 응급 모드를 실행했어요. 가까운 소아과를 찾고 있어요.`,
         },
         source: 'manual',
       })
@@ -172,10 +172,24 @@ export default function EmergencyPage() {
             </div>
           </div>
           <a href="tel:119" className="block w-full py-2.5 bg-white rounded-xl text-center text-[#E53935] font-bold text-[14px] active:opacity-80 mb-2">
-            🚨 119 응급 전화 바로 걸기
+            119 응급 전화 바로 걸기
           </a>
+          <div className="grid grid-cols-2 gap-1.5 mb-2">
+            <a href="tel:1339" className="block py-2 bg-white/20 rounded-lg text-center text-white text-[13px] font-semibold active:opacity-70">
+              응급의료정보 1339
+            </a>
+            <a href="tel:15779060" className="block py-2 bg-white/20 rounded-lg text-center text-white text-[13px] font-semibold active:opacity-70">
+              중독신고 1577-9060
+            </a>
+            <a href="tel:15771391" className="block py-2 bg-white/20 rounded-lg text-center text-white text-[13px] font-semibold active:opacity-70">
+              아동학대 1577-1391
+            </a>
+            <a href="tel:#7575" className="block py-2 bg-white/20 rounded-lg text-center text-white text-[13px] font-semibold active:opacity-70">
+              야간소아상담 #7575
+            </a>
+          </div>
           <div className="bg-white/15 rounded-lg px-3 py-2">
-            <p className="text-[14px] text-white/80 leading-relaxed">⚠️ 아래 목록은 참고용입니다. 정확하지 않을 수 있으니 방문 전 전화로 확인해주세요. 응급 상황에는 119를 먼저 이용해주세요.</p>
+            <p className="text-[14px] text-white/80 leading-relaxed">아래 목록은 참고용입니다. 정확하지 않을 수 있으니 방문 전 전화로 확인해주세요. 응급 상황에는 119를 먼저 이용해주세요.</p>
           </div>
         </div>
       </div>
@@ -185,7 +199,7 @@ export default function EmergencyPage() {
         {notified && (
           <div className="mx-4 mb-2 p-3 rounded-xl bg-blue-50 border border-blue-200">
             <p className="text-[14px] text-blue-700 font-medium">
-              ✅ 공동양육자에게 응급 알림을 보냈어요 (앱 내 알림 + 카카오톡)
+              공동양육자에게 응급 알림을 보냈어요 (앱 내 알림 + 카카오톡)
             </p>
           </div>
         )}
@@ -193,7 +207,7 @@ export default function EmergencyPage() {
         {/* 면책 배너 */}
         <div className="mx-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
           <p className="text-xs text-amber-700">
-            ⚠️ 영업시간 정보가 정확하지 않을 수 있어요. 전화로 확인해주세요.
+            영업시간 정보가 정확하지 않을 수 있어요. 전화로 확인해주세요.
           </p>
         </div>
 
@@ -201,7 +215,7 @@ export default function EmergencyPage() {
         {locationError && (
           <div className="mx-4 mt-3 p-3 rounded-xl bg-blue-50 border border-blue-200">
             <p className="text-xs text-blue-700">
-              📍 위치 권한을 허용하면 더 정확한 결과를 볼 수 있어요.
+              위치 권한을 허용하면 더 정확한 결과를 볼 수 있어요.
             </p>
           </div>
         )}
@@ -225,7 +239,7 @@ export default function EmergencyPage() {
                 onClick={() => setRadius(5)}
                 className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   radius === 5
-                    ? 'bg-[#FF6F0F] text-white'
+                    ? 'bg-[var(--color-primary)] text-white'
                     : 'bg-white border border-[#E8E4DF] text-[#0A0B0D]'
                 }`}
               >
@@ -235,7 +249,7 @@ export default function EmergencyPage() {
                 onClick={() => setRadius(10)}
                 className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   radius === 10
-                    ? 'bg-[#FF6F0F] text-white'
+                    ? 'bg-[var(--color-primary)] text-white'
                     : 'bg-white border border-[#E8E4DF] text-[#0A0B0D]'
                 }`}
               >
@@ -255,13 +269,13 @@ export default function EmergencyPage() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <h3 className="text-[15px] font-bold text-[#0A0B0D]">
-                      🏥 {clinic.name}
+                      <HospitalIcon className="w-4 h-4 inline mr-1" />{clinic.name}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-xs font-medium text-green-600">
                         영업중 · {clinic.closing_time}까지
                       </span>
-                      <span className="text-xs text-[#9B9B9B]">⭐ {clinic.rating}</span>
+                      <span className="text-xs text-[#9B9B9B]">{clinic.rating}</span>
                     </div>
                   </div>
                   <span className="text-lg font-bold text-[#E53935] shrink-0">
@@ -278,13 +292,13 @@ export default function EmergencyPage() {
                     onClick={() => handleCall(clinic.phone)}
                     className="flex-1 h-11 rounded-xl text-sm font-semibold border-2 border-[#E53935] text-[#E53935] active:scale-95 transition-transform flex items-center justify-center gap-1.5"
                   >
-                    📞 전화하기
+                    전화하기
                   </button>
                   <button
                     onClick={() => handleNavigate(clinic.name, clinic.address)}
                     className="flex-1 h-11 rounded-xl text-sm font-semibold bg-[#E53935] text-white active:scale-95 transition-transform flex items-center justify-center gap-1.5"
                   >
-                    🗺️ 길찾기
+                    길찾기
                   </button>
                 </div>
               </div>

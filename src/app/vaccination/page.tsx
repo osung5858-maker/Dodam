@@ -2,40 +2,42 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { PageHeader } from '@/components/layout/PageLayout'
+import { SyringeIcon } from '@/components/ui/Icons'
+import { shareVaccination } from '@/lib/kakao/share-parenting'
 
 const SCHEDULE = [
-  { month: 0, id: 'bcg', name: 'BCG (결핵)', desc: '생후 4주 이내', required: true },
-  { month: 0, id: 'hepb_1', name: 'B형간염 1차', desc: '출생 시', required: true },
-  { month: 1, id: 'hepb_2', name: 'B형간염 2차', desc: '생후 1개월', required: true },
-  { month: 2, id: 'dtap_1', name: 'DTaP 1차', desc: '디프테리아·파상풍·백일해', required: true },
-  { month: 2, id: 'ipv_1', name: 'IPV 1차', desc: '폴리오', required: true },
-  { month: 2, id: 'hib_1', name: 'Hib 1차', desc: 'b형 헤모필루스 인플루엔자', required: true },
-  { month: 2, id: 'pcv_1', name: 'PCV 1차', desc: '폐렴구균', required: true },
-  { month: 2, id: 'rv_1', name: '로타바이러스 1차', desc: '경구 투여', required: false },
-  { month: 4, id: 'dtap_2', name: 'DTaP 2차', desc: '생후 4개월', required: true },
-  { month: 4, id: 'ipv_2', name: 'IPV 2차', desc: '생후 4개월', required: true },
-  { month: 4, id: 'hib_2', name: 'Hib 2차', desc: '생후 4개월', required: true },
-  { month: 4, id: 'pcv_2', name: 'PCV 2차', desc: '생후 4개월', required: true },
-  { month: 4, id: 'rv_2', name: '로타바이러스 2차', desc: '경구 투여', required: false },
-  { month: 6, id: 'dtap_3', name: 'DTaP 3차', desc: '생후 6개월', required: true },
-  { month: 6, id: 'ipv_3', name: 'IPV 3차', desc: '생후 6개월', required: true },
-  { month: 6, id: 'hepb_3', name: 'B형간염 3차', desc: '생후 6개월', required: true },
-  { month: 6, id: 'hib_3', name: 'Hib 3차', desc: '생후 6개월 (제품에 따라)', required: true },
-  { month: 6, id: 'pcv_3', name: 'PCV 3차', desc: '생후 6개월 (제품에 따라)', required: true },
-  { month: 6, id: 'flu', name: '인플루엔자', desc: '매년 접종 (6개월~)', required: true },
-  { month: 12, id: 'mmr_1', name: 'MMR 1차', desc: '홍역·유행성이하선염·풍진', required: true },
-  { month: 12, id: 'var_1', name: '수두 1차', desc: '생후 12~15개월', required: true },
-  { month: 12, id: 'hepa_1', name: 'A형간염 1차', desc: '생후 12~23개월', required: true },
-  { month: 12, id: 'hib_4', name: 'Hib 추가', desc: '생후 12~15개월', required: true },
-  { month: 12, id: 'pcv_4', name: 'PCV 추가', desc: '생후 12~15개월', required: true },
-  { month: 15, id: 'dtap_4', name: 'DTaP 4차', desc: '생후 15~18개월', required: true },
-  { month: 18, id: 'hepa_2', name: 'A형간염 2차', desc: '1차 접종 후 6개월 이상', required: true },
-  { month: 24, id: 'je_1', name: '일본뇌염 1차', desc: '사백신 기준', required: true },
-  { month: 24, id: 'je_2', name: '일본뇌염 2차', desc: '1차 후 7~30일', required: true },
-  { month: 36, id: 'je_3', name: '일본뇌염 3차', desc: '2차 접종 후 12개월', required: true },
-  { month: 48, id: 'dtap_5', name: 'DTaP 5차', desc: '만 4~6세', required: true },
-  { month: 48, id: 'ipv_4', name: 'IPV 4차', desc: '만 4~6세', required: true },
-  { month: 48, id: 'mmr_2', name: 'MMR 2차', desc: '만 4~6세', required: true },
+  { month: 0, id: 'bcg', name: 'BCG (결핵)', desc: '생후 4주 이내', required: true, detail: '부작용: 접종 부위 궤양·딱지 (정상 반응, 2~3개월 소요) | 지연: 생후 4주 이내 권장, 이후에도 접종 가능' },
+  { month: 0, id: 'hepb_1', name: 'B형간염 1차', desc: '출생 시', required: true, detail: '부작용: 접종 부위 통증, 미열 | 지연: 출생 후 가능한 빨리 (24시간 이내 권장)' },
+  { month: 1, id: 'hepb_2', name: 'B형간염 2차', desc: '생후 1개월', required: true, detail: '부작용: 접종 부위 통증, 미열 | 지연: 1차 접종 후 최소 4주 간격' },
+  { month: 2, id: 'dtap_1', name: 'DTaP 1차', desc: '디프테리아·파상풍·백일해', required: true, detail: '부작용: 발열, 접종 부위 붓기·발적, 보챔 | 지연: 최소 생후 6주부터 접종 가능' },
+  { month: 2, id: 'ipv_1', name: 'IPV 1차', desc: '폴리오', required: true, detail: '부작용: 접종 부위 통증·발적 (경미) | 지연: 최소 생후 6주부터 접종 가능' },
+  { month: 2, id: 'hib_1', name: 'Hib 1차', desc: 'b형 헤모필루스 인플루엔자', required: true, detail: '부작용: 접종 부위 발적·부종, 미열 | 지연: 최소 생후 6주부터 접종 가능' },
+  { month: 2, id: 'pcv_1', name: 'PCV 1차', desc: '폐렴구균', required: true, detail: '부작용: 발열, 접종 부위 통증, 보챔, 식욕 감소 | 지연: 최소 생후 6주부터 접종 가능' },
+  { month: 2, id: 'rv_1', name: '로타바이러스 1차', desc: '경구 투여', required: false, detail: '부작용: 보챔, 구토, 설사 (경미) | 지연: 생후 15주 이전 1차 접종 권장, 이후 시작 불가' },
+  { month: 4, id: 'dtap_2', name: 'DTaP 2차', desc: '생후 4개월', required: true, detail: '부작용: 발열, 접종 부위 붓기 (1차보다 반응 클 수 있음) | 지연: 1차 후 최소 4주 간격' },
+  { month: 4, id: 'ipv_2', name: 'IPV 2차', desc: '생후 4개월', required: true, detail: '부작용: 접종 부위 통증·발적 | 지연: 1차 후 최소 4주 간격' },
+  { month: 4, id: 'hib_2', name: 'Hib 2차', desc: '생후 4개월', required: true, detail: '부작용: 접종 부위 발적 | 지연: 1차 후 최소 4주 간격' },
+  { month: 4, id: 'pcv_2', name: 'PCV 2차', desc: '생후 4개월', required: true, detail: '부작용: 발열, 접종 부위 통증 | 지연: 1차 후 최소 4주 간격' },
+  { month: 4, id: 'rv_2', name: '로타바이러스 2차', desc: '경구 투여', required: false, detail: '부작용: 보챔, 경미한 설사 | 지연: 1차 후 최소 4주 간격, 생후 8개월 이전 완료' },
+  { month: 6, id: 'dtap_3', name: 'DTaP 3차', desc: '생후 6개월', required: true, detail: '부작용: 발열, 접종 부위 붓기·경결 | 지연: 2차 후 최소 4주 간격' },
+  { month: 6, id: 'ipv_3', name: 'IPV 3차', desc: '생후 6개월', required: true, detail: '부작용: 접종 부위 통증 (경미) | 지연: 2차 후 최소 4주 간격, 6~18개월 사이 권장' },
+  { month: 6, id: 'hepb_3', name: 'B형간염 3차', desc: '생후 6개월', required: true, detail: '부작용: 접종 부위 통증, 미열 | 지연: 1차 후 최소 16주, 2차 후 최소 8주 간격' },
+  { month: 6, id: 'hib_3', name: 'Hib 3차', desc: '생후 6개월 (제품에 따라)', required: true, detail: '부작용: 접종 부위 발적 (경미) | 지연: 제품에 따라 3차 불필요할 수 있음' },
+  { month: 6, id: 'pcv_3', name: 'PCV 3차', desc: '생후 6개월 (제품에 따라)', required: true, detail: '부작용: 발열, 보챔 | 지연: 제품에 따라 3차 불필요할 수 있음' },
+  { month: 6, id: 'flu', name: '인플루엔자', desc: '매년 접종 (6개월~)', required: true, detail: '부작용: 접종 부위 통증, 미열, 근육통 | 지연: 매년 유행 전(9~10월) 접종 권장' },
+  { month: 12, id: 'mmr_1', name: 'MMR 1차', desc: '홍역·유행성이하선염·풍진', required: true, detail: '부작용: 접종 후 7~10일 발열·발진 가능 | 지연: 생후 12개월 이후 가능한 빨리' },
+  { month: 12, id: 'var_1', name: '수두 1차', desc: '생후 12~15개월', required: true, detail: '부작용: 접종 부위 발적, 미열, 드물게 수두 유사 발진 | 지연: 12개월 이후 가능한 빨리' },
+  { month: 12, id: 'hepa_1', name: 'A형간염 1차', desc: '생후 12~23개월', required: true, detail: '부작용: 접종 부위 통증, 두통, 피로감 | 지연: 12개월 이후 언제든 시작 가능' },
+  { month: 12, id: 'hib_4', name: 'Hib 추가', desc: '생후 12~15개월', required: true, detail: '부작용: 접종 부위 발적 (경미) | 지연: 3차 후 최소 2개월 간격' },
+  { month: 12, id: 'pcv_4', name: 'PCV 추가', desc: '생후 12~15개월', required: true, detail: '부작용: 발열, 접종 부위 통증 | 지연: 3차 후 최소 2개월 간격' },
+  { month: 15, id: 'dtap_4', name: 'DTaP 4차', desc: '생후 15~18개월', required: true, detail: '부작용: 발열, 접종 부위 붓기·통증 (이전 차수보다 클 수 있음) | 지연: 3차 후 최소 6개월 간격' },
+  { month: 18, id: 'hepa_2', name: 'A형간염 2차', desc: '1차 접종 후 6개월 이상', required: true, detail: '부작용: 접종 부위 통증 (경미) | 지연: 1차 후 6~18개월 간격 권장' },
+  { month: 24, id: 'je_1', name: '일본뇌염 1차', desc: '사백신 기준', required: true, detail: '부작용: 접종 부위 통증, 발열, 두통 | 지연: 만 12개월 이후 시작 가능' },
+  { month: 24, id: 'je_2', name: '일본뇌염 2차', desc: '1차 후 7~30일', required: true, detail: '부작용: 접종 부위 통증 | 지연: 1차 후 7~30일 간격 권장' },
+  { month: 36, id: 'je_3', name: '일본뇌염 3차', desc: '2차 접종 후 12개월', required: true, detail: '부작용: 접종 부위 통증 (경미) | 지연: 2차 후 12개월 간격 권장' },
+  { month: 48, id: 'dtap_5', name: 'DTaP 5차', desc: '만 4~6세', required: true, detail: '부작용: 접종 부위 붓기·통증, 발열 | 지연: 만 4세 이후 취학 전까지' },
+  { month: 48, id: 'ipv_4', name: 'IPV 4차', desc: '만 4~6세', required: true, detail: '부작용: 접종 부위 통증 (경미) | 지연: 만 4세 이후 취학 전까지' },
+  { month: 48, id: 'mmr_2', name: 'MMR 2차', desc: '만 4~6세', required: true, detail: '부작용: 접종 후 발열·발진 가능 (1차보다 경미) | 지연: 만 4세 이후 취학 전까지' },
 ]
 
 export default function VaccinationPage() {
@@ -44,6 +46,7 @@ export default function VaccinationPage() {
     return {}
   })
   const [ageMonths, setAgeMonths] = useState(0)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
     // 아이 생년월일에서 월령 계산 (포커스 시 갱신)
@@ -81,14 +84,14 @@ export default function VaccinationPage() {
   }, [])
 
   return (
-    <div className="min-h-[100dvh] bg-[#FFF9F5] flex flex-col">
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)] flex flex-col">
       <PageHeader title="예방접종" showBack rightAction={<span className="text-[13px] text-[var(--color-primary)] font-semibold">{doneCount}/{SCHEDULE.length}</span>} />
 
       <div className="max-w-lg mx-auto w-full px-5 pt-4 pb-28 space-y-3">
         {/* 프로그레스 */}
         <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[14px] font-bold text-[#1A1918]">💉 접종 현황</p>
+            <p className="text-[14px] font-bold text-[#1A1918] flex items-center gap-1"><SyringeIcon className="w-4 h-4" /> 접종 현황</p>
             <p className="text-[14px] text-[var(--color-primary)] font-semibold">{Math.round((doneCount / SCHEDULE.length) * 100)}%</p>
           </div>
           <div className="w-full h-2 bg-[#E8E4DF] rounded-full">
@@ -98,6 +101,7 @@ export default function VaccinationPage() {
             <p className="text-[14px] text-[#6B6966]">필수 {SCHEDULE.filter(v => v.required && done[v.id]).length}/{totalRequired}</p>
             <p className="text-[14px] text-[#6B6966]">선택 {SCHEDULE.filter(v => !v.required && done[v.id]).length}/{SCHEDULE.filter(v => !v.required).length}</p>
           </div>
+          <button onClick={() => shareVaccination(doneCount, SCHEDULE.length)} className="w-full mt-2 text-[12px] text-[var(--color-primary)] font-semibold">카톡 공유</button>
         </div>
 
         {/* 접종 목록 */}
@@ -118,26 +122,34 @@ export default function VaccinationPage() {
                 <p className="text-[14px] text-[#9E9A95]">{vaccines.filter(v => done[v.id]).length}/{vaccines.length}</p>
               </div>
               {vaccines.map(v => (
-                <button key={v.id} onClick={() => toggleDone(v.id)} className="w-full flex items-center gap-2.5 py-2 active:bg-[#FFF9F5] rounded-lg">
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${done[v.id] ? 'bg-[var(--color-primary)] border-[var(--color-primary)]' : isPast && v.required ? 'border-[#D08068]' : 'border-[#AEB1B9]'}`}>
-                    {done[v.id] && <span className="text-white text-[14px]">✓</span>}
+                <div key={v.id}>
+                  <div className="flex items-center gap-2.5 py-2">
+                    <button onClick={() => toggleDone(v.id)} className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${done[v.id] ? 'bg-[var(--color-primary)] border-[var(--color-primary)]' : isPast && v.required ? 'border-[#D08068]' : 'border-[#AEB1B9]'}`}>
+                      {done[v.id] && <span className="text-white text-[14px]">✓</span>}
+                    </button>
+                    <button onClick={() => setExpandedId(expandedId === v.id ? null : v.id)} className="flex-1 text-left active:bg-[var(--color-page-bg)] rounded-lg">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-[14px] font-medium ${done[v.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{v.name}</span>
+                        {!v.required && <span className="text-[13px] px-1 rounded bg-[var(--color-page-bg)] text-[#6B6966]">선택</span>}
+                        <span className="text-[11px] text-[#9E9A95]">{expandedId === v.id ? '▲' : '▼'}</span>
+                      </div>
+                      <p className="text-[14px] text-[#6B6966]">{v.desc}</p>
+                    </button>
+                    {done[v.id] && <span className="text-[13px] text-[var(--color-primary)] shrink-0">{done[v.id]}</span>}
                   </div>
-                  <div className="flex-1 text-left">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`text-[14px] font-medium ${done[v.id] ? 'text-[#9E9A95] line-through' : 'text-[#1A1918]'}`}>{v.name}</span>
-                      {!v.required && <span className="text-[13px] px-1 rounded bg-[#FFF9F5] text-[#6B6966]">선택</span>}
+                  {expandedId === v.id && v.detail && (
+                    <div className="ml-8 mb-2 p-2.5 rounded-lg bg-[var(--color-page-bg)] border border-[#E8E4DF]">
+                      <p className="text-[12px] text-[#6B6966] leading-relaxed">{v.detail}</p>
                     </div>
-                    <p className="text-[14px] text-[#6B6966]">{v.desc}</p>
-                  </div>
-                  {done[v.id] && <span className="text-[13px] text-[var(--color-primary)]">{done[v.id]}</span>}
-                </button>
+                  )}
+                </div>
               ))}
             </div>
           )
         })}
 
         <div className="bg-[#F0F9F4] rounded-xl p-3 text-center">
-          <p className="text-[13px] text-[var(--color-primary)]">예방접종 도우미 ☎ 1544-4774</p>
+          <p className="text-[13px] text-[var(--color-primary)]">예방접종 도우미 1544-4774</p>
           <a href="https://nip.kdca.go.kr" target="_blank" rel="noopener noreferrer" className="text-[14px] text-[#6B6966]">질병관리청 예방접종 도우미 →</a>
         </div>
       </div>

@@ -4,29 +4,69 @@ import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { CommunityPageInner } from '@/app/community/page'
+import { MapIcon, PhoneIcon, CompassIcon, ChatIcon, PenIcon } from '@/components/ui/Icons'
+import AdSlot from '@/components/ads/AdSlot'
 
 type SubTab = 'town' | 'story' | 'market'
 
-const MAP_CATEGORIES: Record<string, { icon: string; label: string; query: string }[]> = {
+// 슬라이더 스냅 포인트 (미터)
+const RANGE_STEPS = [500, 1000, 2000, 3000, 5000]
+
+const STORAGE_KEY_RANGE = 'dodam_neighborhood_range'
+const STORAGE_KEY_RANGE_SET = 'dodam_neighborhood_range_set'
+
+function getSavedRange(): number {
+  if (typeof window === 'undefined') return 1000
+  const saved = localStorage.getItem(STORAGE_KEY_RANGE)
+  return saved ? Number(saved) : 1000
+}
+
+function formatRange(meters: number): string {
+  return meters >= 1000 ? `${meters / 1000}km` : `${meters}m`
+}
+
+// 미터 → 0~1 비율 (로그 스케일)
+function rangeToRatio(meters: number): number {
+  const min = Math.log(RANGE_STEPS[0])
+  const max = Math.log(RANGE_STEPS[RANGE_STEPS.length - 1])
+  return (Math.log(meters) - min) / (max - min)
+}
+
+// 0~1 비율 → 스냅된 미터
+function ratioToRange(ratio: number): number {
+  const min = Math.log(RANGE_STEPS[0])
+  const max = Math.log(RANGE_STEPS[RANGE_STEPS.length - 1])
+  const value = Math.exp(min + ratio * (max - min))
+  // 가장 가까운 스냅 포인트 찾기
+  let closest = RANGE_STEPS[0]
+  let minDist = Infinity
+  for (const step of RANGE_STEPS) {
+    const dist = Math.abs(value - step)
+    if (dist < minDist) { minDist = dist; closest = step }
+  }
+  return closest
+}
+
+const MAP_CATEGORIES: Record<string, { label: string; query: string }[]> = {
   preparing: [
-    { icon: '🏥', label: '산부인과', query: '산부인과' },
-    { icon: '🧪', label: '난임클리닉', query: '난임클리닉' },
-    { icon: '💊', label: '약국', query: '약국' },
-    { icon: '🧘', label: '요가', query: '임산부요가' },
+    { label: '산부인과', query: '산부인과' },
+    { label: '난임클리닉', query: '난임클리닉' },
+    { label: '약국', query: '약국' },
+    { label: '요가', query: '임산부요가' },
   ],
   pregnant: [
-    { icon: '🏥', label: '산부인과', query: '산부인과' },
-    { icon: '🤱', label: '산후조리원', query: '산후조리원' },
-    { icon: '👶', label: '베이비용품', query: '유아용품점' },
-    { icon: '💊', label: '약국', query: '약국' },
+    { label: '산부인과', query: '산부인과' },
+    { label: '산후조리원', query: '산후조리원' },
+    { label: '베이비용품', query: '유아용품점' },
+    { label: '약국', query: '약국' },
   ],
   parenting: [
-    { icon: '🏥', label: '소아과', query: '소아과' },
-    { icon: '🚨', label: '응급소아과', query: '응급소아과' },
-    { icon: '🎪', label: '키즈카페', query: '키즈카페' },
-    { icon: '📚', label: '문화센터', query: '문화센터' },
-    { icon: '🌳', label: '놀이터', query: '어린이놀이터' },
-    { icon: '💊', label: '약국', query: '약국' },
+    { label: '소아과', query: '소아과' },
+    { label: '응급소아과', query: '응급소아과' },
+    { label: '키즈카페', query: '키즈카페' },
+    { label: '문화센터', query: '문화센터' },
+    { label: '놀이터', query: '어린이놀이터' },
+    { label: '약국', query: '약국' },
   ],
 }
 
@@ -41,38 +81,57 @@ interface Review {
 export default function TownPage() {
   const [subTab, setSubTab] = useState<SubTab>('town')
   const [mode, setMode] = useState('parenting')
+  const [range, setRange] = useState(1000)
+  const [editingRange, setEditingRange] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('dodam_mode')
     if (saved) setMode(saved)
+    setRange(getSavedRange())
+    // 최초 진입 시 범위 편집 모드 자동 활성화
+    if (!localStorage.getItem(STORAGE_KEY_RANGE_SET)) {
+      setEditingRange(true)
+    }
   }, [])
+
+  const handleRangeConfirm = (meters: number) => {
+    setRange(meters)
+    localStorage.setItem(STORAGE_KEY_RANGE, String(meters))
+    localStorage.setItem(STORAGE_KEY_RANGE_SET, '1')
+    setEditingRange(false)
+  }
 
   const categories = MAP_CATEGORIES[mode] || MAP_CATEGORIES.parenting
 
   return (
-    <div className="min-h-[100dvh] bg-[#FFF9F5]">
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-[#E8E4DF]/60">
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)]">
+      <div className="max-w-lg mx-auto w-full pt-3">
         <div className="max-w-lg mx-auto w-full">
-          <div className="flex items-center h-14 px-5">
-            <h1 className="text-[17px] font-bold text-[#1A1918]">동네</h1>
-          </div>
-          <div className="flex px-5 gap-1 pb-2">
+          <div className="flex px-5 gap-2 bg-[#F0EDE8] mx-5 p-1 rounded-xl mb-3">
             {[
               { key: 'town' as SubTab, label: '동네' },
               { key: 'story' as SubTab, label: '이야기' },
               { key: 'market' as SubTab, label: '도담장터' },
             ].map(t => (
               <button key={t.key} onClick={() => setSubTab(t.key)}
-                className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${subTab === t.key ? 'bg-[var(--color-primary)] text-white' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
+                className={`flex-1 py-1.5 text-[13px] font-semibold text-center rounded-lg transition-colors ${subTab === t.key ? 'bg-white text-[#1A1918] shadow-sm' : 'text-[#9E9A95]'}`}>
                 {t.label}
               </button>
             ))}
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="max-w-lg mx-auto w-full">
-        {subTab === 'town' && <MapTab categories={categories} />}
+        {subTab === 'town' && (
+          <MapTab
+            categories={categories}
+            range={range}
+            editingRange={editingRange}
+            onEditRange={() => setEditingRange(true)}
+            onRangeConfirm={handleRangeConfirm}
+          />
+        )}
         {subTab === 'story' && <Suspense><CommunityPageInner initialTab="feed" hideHeader /></Suspense>}
         {subTab === 'market' && <Suspense><CommunityPageInner initialTab="market" hideHeader /></Suspense>}
       </div>
@@ -80,17 +139,125 @@ export default function TownPage() {
   )
 }
 
+// ===== 범위 슬라이더 (지도 위 오버레이) =====
+function RangeSlider({ value, onChange, onConfirm }: { value: number; onChange: (m: number) => void; onConfirm: () => void }) {
+  const trackRef = useRef<HTMLDivElement>(null)
+  const ratio = rangeToRatio(value)
+
+  const handleInteraction = (clientX: number) => {
+    if (!trackRef.current) return
+    const rect = trackRef.current.getBoundingClientRect()
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
+    onChange(ratioToRange(x))
+  }
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault()
+    const el = e.currentTarget as HTMLElement
+    el.setPointerCapture(e.pointerId)
+    handleInteraction(e.clientX)
+  }
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!(e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) return
+    handleInteraction(e.clientX)
+  }
+
+  return (
+    <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-white via-white/95 to-transparent pt-8 pb-4 px-5">
+      {/* 현재 범위 레이블 */}
+      <div className="text-center mb-3">
+        <span className="inline-flex items-center gap-1.5 bg-white rounded-full px-4 py-1.5 shadow-md">
+          <MapIcon className="w-4 h-4 text-[var(--color-primary)]" />
+          <span className="text-[15px] font-bold text-[#1A1918]">{formatRange(value)}</span>
+          <span className="text-[12px] text-[#9E9A95]">
+            {value <= 500 ? '도보 거리' : value <= 1000 ? '가까운 동네' : value <= 2000 ? '우리 동네' : value <= 3000 ? '이웃 동네' : '넓은 범위'}
+          </span>
+        </span>
+      </div>
+
+      {/* 슬라이더 트랙 */}
+      <div
+        ref={trackRef}
+        className="relative h-10 flex items-center cursor-pointer touch-none"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+      >
+        {/* 배경 트랙 */}
+        <div className="absolute left-0 right-0 h-1.5 bg-[#E8E4DF] rounded-full" />
+        {/* 활성 트랙 */}
+        <div
+          className="absolute left-0 h-1.5 bg-[var(--color-primary)] rounded-full transition-[width] duration-75"
+          style={{ width: `${ratio * 100}%` }}
+        />
+        {/* 스냅 포인트 */}
+        {RANGE_STEPS.map(step => {
+          const pos = rangeToRatio(step) * 100
+          const isActive = step <= value
+          return (
+            <div key={step} className="absolute -translate-x-1/2" style={{ left: `${pos}%` }}>
+              <div className={`w-2.5 h-2.5 rounded-full border-2 ${
+                isActive ? 'bg-[var(--color-primary)] border-[var(--color-primary)]' : 'bg-white border-[#D0CCC7]'
+              }`} />
+            </div>
+          )
+        })}
+        {/* 드래그 핸들 */}
+        <div
+          className="absolute -translate-x-1/2 w-7 h-7 rounded-full bg-white border-[3px] border-[var(--color-primary)] shadow-lg transition-[left] duration-75"
+          style={{ left: `${ratio * 100}%` }}
+        />
+      </div>
+
+      {/* 스냅 레이블 */}
+      <div className="relative h-5 mt-0.5">
+        {RANGE_STEPS.map(step => {
+          const pos = rangeToRatio(step) * 100
+          return (
+            <span
+              key={step}
+              className={`absolute -translate-x-1/2 text-[11px] font-medium ${
+                step === value ? 'text-[var(--color-primary)] font-bold' : 'text-[#9E9A95]'
+              }`}
+              style={{ left: `${pos}%` }}
+            >
+              {formatRange(step)}
+            </span>
+          )
+        })}
+      </div>
+
+      {/* 확인 버튼 */}
+      <button
+        onClick={onConfirm}
+        className="w-full mt-2 py-3 rounded-xl bg-[var(--color-primary)] text-white text-[14px] font-semibold active:opacity-80 transition-opacity"
+      >
+        이 범위로 검색하기
+      </button>
+    </div>
+  )
+}
+
 // ===== 동네(지도) 탭 =====
-function MapTab({ categories }: { categories: { icon: string; label: string; query: string }[] }) {
+function MapTab({ categories, range, editingRange, onEditRange, onRangeConfirm }: {
+  categories: { label: string; query: string }[]
+  range: number
+  editingRange: boolean
+  onEditRange: () => void
+  onRangeConfirm: (meters: number) => void
+}) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [activeIdx, setActiveIdx] = useState(0)
   const [places, setPlaces] = useState<Place[]>([])
   const [loading, setLoading] = useState(true)
   const [reviewStats, setReviewStats] = useState<Record<string, { avg: string; count: number }>>({})
+  const [previewRange, setPreviewRange] = useState(range)
   const mapObjRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
-  const cacheRef = useRef<Record<string, Place[]>>({}) // 검색 결과 캐시
+  const circleRef = useRef<any>(null)
+  const cacheRef = useRef<Record<string, Place[]>>({})
   const posRef = useRef<{ lat: number; lng: number } | null>(null)
+  const rangeRef = useRef(range)
 
   // 마커 초기화
   const clearMarkers = () => {
@@ -98,15 +265,56 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
     markersRef.current = []
   }
 
+  // 원형 오버레이 업데이트
+  const updateCircle = useCallback((radius: number) => {
+    if (!mapObjRef.current || !posRef.current) return
+    const center = new window.kakao.maps.LatLng(posRef.current.lat, posRef.current.lng)
+    if (circleRef.current) {
+      circleRef.current.setRadius(radius)
+    } else {
+      circleRef.current = new (window.kakao.maps as any).Circle({
+        center,
+        radius,
+        strokeWeight: 2,
+        strokeColor: '#4A9B6E',
+        strokeOpacity: 0.6,
+        fillColor: '#4A9B6E',
+        fillOpacity: 0.08,
+      })
+    }
+  }, [])
+
+  // 편집 모드 토글
+  useEffect(() => {
+    if (!mapObjRef.current) return
+    if (editingRange) {
+      setPreviewRange(range)
+      updateCircle(range)
+      circleRef.current?.setMap(mapObjRef.current)
+      // 편집 시 지도 줌 맞춤
+      const level = range <= 500 ? 4 : range <= 1000 ? 5 : range <= 3000 ? 6 : 7
+      mapObjRef.current.setLevel(level)
+    } else {
+      circleRef.current?.setMap(null)
+    }
+  }, [editingRange]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 프리뷰 범위 변경 → 원 + 줌 실시간 업데이트
+  useEffect(() => {
+    if (!editingRange || !mapObjRef.current) return
+    updateCircle(previewRange)
+    const level = previewRange <= 500 ? 4 : previewRange <= 1000 ? 5 : previewRange <= 3000 ? 6 : 7
+    mapObjRef.current.setLevel(level)
+  }, [previewRange, editingRange, updateCircle])
+
   const searchPlaces = useCallback((query: string) => {
-    // 캐시 히트
-    if (cacheRef.current[query]) {
-      setPlaces(cacheRef.current[query])
+    const cacheKey = `${query}_${rangeRef.current}`
+    if (cacheRef.current[cacheKey]) {
+      setPlaces(cacheRef.current[cacheKey])
       setLoading(false)
-      // 마커만 다시 그리기
       clearMarkers()
       if (mapObjRef.current) {
-        cacheRef.current[query].forEach(p => {
+        cacheRef.current[cacheKey].forEach(p => {
           const marker = new window.kakao.maps.Marker({ map: mapObjRef.current, position: new window.kakao.maps.LatLng(p.lat, p.lng) })
           markersRef.current.push(marker)
         })
@@ -117,11 +325,16 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
     setLoading(true); setPlaces([])
     if (!window.kakao?.maps) { setLoading(false); return }
 
+    const mapLevel = rangeRef.current <= 500 ? 4 : rangeRef.current <= 1000 ? 5 : rangeRef.current <= 3000 ? 6 : 7
+
     const doSearch = (lat: number, lng: number) => {
       const latlng = new window.kakao.maps.LatLng(lat, lng)
       if (!mapObjRef.current && mapRef.current) {
-        mapObjRef.current = new window.kakao.maps.Map(mapRef.current, { center: latlng, level: 5 })
-      } else if (mapObjRef.current) { mapObjRef.current.setCenter(latlng) }
+        mapObjRef.current = new window.kakao.maps.Map(mapRef.current, { center: latlng, level: mapLevel })
+      } else if (mapObjRef.current) {
+        mapObjRef.current.setCenter(latlng)
+        mapObjRef.current.setLevel(mapLevel)
+      }
 
       clearMarkers()
       const ps = new window.kakao.maps.services.Places()
@@ -133,7 +346,7 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
             lat: Number(p.y), lng: Number(p.x),
           }))
           setPlaces(results)
-          cacheRef.current[query] = results // 캐시 저장
+          cacheRef.current[cacheKey] = results
           if (mapObjRef.current) {
             results.forEach(p => {
               const marker = new window.kakao.maps.Marker({ map: mapObjRef.current, position: new window.kakao.maps.LatLng(p.lat, p.lng) })
@@ -142,10 +355,9 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
           }
         }
         setLoading(false)
-      }, { location: latlng, radius: 5000, sort: (window.kakao.maps.services as any).SortBy?.DISTANCE })
+      }, { location: latlng, radius: rangeRef.current, sort: (window.kakao.maps.services as any).SortBy?.DISTANCE })
     }
 
-    // 위치 캐시 활용
     if (posRef.current) {
       doSearch(posRef.current.lat, posRef.current.lng)
     } else {
@@ -153,7 +365,6 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
         posRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude }
         doSearch(pos.coords.latitude, pos.coords.longitude)
       }, () => {
-        // 위치 권한 거부 시 서울 강남역 기준으로 검색
         const defaultLat = 37.4979, defaultLng = 127.0276
         posRef.current = { lat: defaultLat, lng: defaultLng }
         doSearch(defaultLat, defaultLng)
@@ -161,7 +372,7 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
     }
   }, [])
 
-  // 배치 리뷰 조회 (N+1 방지)
+  // 배치 리뷰 조회
   useEffect(() => {
     if (places.length === 0) return
     const supabase = createClient()
@@ -189,14 +400,47 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
     initMap()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 범위 변경 시 재검색
+  useEffect(() => {
+    if (rangeRef.current !== range) {
+      rangeRef.current = range
+      cacheRef.current = {}
+      searchPlaces(categories[activeIdx]?.query || '소아과')
+    }
+  }, [range]) // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="pb-28">
-      <div ref={mapRef} className="w-full h-48 bg-[#E8F0E8]" />
+      {/* 지도 + 범위 원 오버레이 */}
+      <div className="relative">
+        <div
+          ref={mapRef}
+          className={`w-full bg-[#E8F0E8] transition-[height] duration-300 ${editingRange ? 'h-72' : 'h-48'}`}
+        />
+        {/* 범위 버튼 — 지도 우상단 플로팅 */}
+        {!editingRange && (
+          <button
+            onClick={onEditRange}
+            className="absolute top-3 right-3 z-10 flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm shadow-[0_2px_8px_rgba(0,0,0,0.12)] active:scale-95 transition-transform"
+          >
+            <MapIcon className="w-3.5 h-3.5 text-[var(--color-primary)]" />
+            <span className="text-[12px] font-semibold text-[var(--color-primary)]">{formatRange(range)}</span>
+          </button>
+        )}
+        {editingRange && (
+          <RangeSlider
+            value={previewRange}
+            onChange={setPreviewRange}
+            onConfirm={() => onRangeConfirm(previewRange)}
+          />
+        )}
+      </div>
+
       <div className="flex gap-1.5 overflow-x-auto hide-scrollbar px-4 py-3">
         {categories.map((cat, i) => (
           <button key={cat.query} onClick={() => { setActiveIdx(i); searchPlaces(cat.query) }}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-[14px] font-semibold flex items-center gap-1 ${activeIdx === i ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-[#6B6966] border border-[#E8E4DF]'}`}>
-            <span className="text-sm">{cat.icon}</span> {cat.label}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-[13px] font-semibold ${activeIdx === i ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-[#6B6966] border border-[#E8E4DF]'}`}>
+            {cat.label}
           </button>
         ))}
       </div>
@@ -206,7 +450,12 @@ function MapTab({ categories }: { categories: { icon: string; label: string; que
         ) : places.length === 0 ? (
           <p className="text-[13px] text-[#9E9A95] text-center py-8">주변에 검색 결과가 없어요</p>
         ) : (
-          places.map(p => <PlaceCard key={p.id} place={p} stats={reviewStats[p.id]} />)
+          places.map((p, i) => (
+            <div key={p.id}>
+              <PlaceCard place={p} stats={reviewStats[p.id]} />
+              {i === 2 && places.length > 4 && <AdSlot variant="native" className="mt-2" />}
+            </div>
+          ))
         )}
       </div>
     </div>
@@ -251,19 +500,21 @@ function PlaceCard({ place: p, stats }: { place: Place; stats?: { avg: string; c
       {/* 액션 버튼 */}
       <div className="flex items-center gap-2 mt-2">
         {p.phone && (
-          <a href={`tel:${p.phone}`} className="w-9 h-9 rounded-full bg-[#FFF9F5] flex items-center justify-center active:opacity-60" title="전화">
-            <span className="text-[16px]">📞</span>
+          <a href={`tel:${p.phone}`} className="w-9 h-9 rounded-full bg-[var(--color-page-bg)] flex items-center justify-center active:opacity-60" title="전화">
+            <PhoneIcon className="w-4 h-4 text-[#6B6966]" />
           </a>
         )}
         <a href={`https://map.kakao.com/link/to/${encodeURIComponent(p.name)},${p.lat},${p.lng}`} target="_blank" rel="noopener noreferrer"
-          className="w-9 h-9 rounded-full bg-[#FFF9F5] flex items-center justify-center active:opacity-60" title="길찾기">
-          <span className="text-[16px]">🧭</span>
+          className="w-9 h-9 rounded-full bg-[var(--color-page-bg)] flex items-center justify-center active:opacity-60" title="길찾기">
+          <CompassIcon className="w-4 h-4 text-[#6B6966]" />
         </a>
-        <button onClick={loadReviews} className="w-9 h-9 rounded-full bg-[#FFF9F5] flex items-center justify-center active:opacity-60 relative" title="리뷰">
-          <span className="text-[16px]">💬</span>
+        <button onClick={loadReviews} className="w-9 h-9 rounded-full bg-[var(--color-page-bg)] flex items-center justify-center active:opacity-60 relative" title="리뷰">
+          <ChatIcon className="w-4 h-4 text-[#6B6966]" />
           {reviewCount > 0 && <span className="absolute -top-0.5 -right-0.5 bg-[var(--color-primary)] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">{reviewCount}</span>}
         </button>
-        <Link href={`/map/${p.id}/review`} className="ml-auto px-3 py-1.5 rounded-full bg-[var(--color-primary)] text-[12px] text-white font-semibold active:opacity-80">✏️ 리뷰</Link>
+        <Link href={`/map/${p.id}/review`} className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-full bg-[var(--color-primary)] text-[12px] text-white font-semibold active:opacity-80">
+          <PenIcon className="w-3 h-3" /> 리뷰
+        </Link>
       </div>
 
       {/* 리뷰 바텀시트 */}
@@ -315,7 +566,7 @@ function PlaceCard({ place: p, stats }: { place: Place; stats?: { avg: string; c
                   <Link href={`/map/${p.id}/review`} className="text-[14px] text-[var(--color-primary)] font-semibold mt-2 inline-block">첫 리뷰 작성하기 →</Link>
                 </div>
               ) : reviews.map(r => (
-                <div key={r.id} className="bg-[#FFF9F5] rounded-xl p-3">
+                <div key={r.id} className="bg-[var(--color-page-bg)] rounded-xl p-3">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <div className="flex">{[1,2,3,4,5].map(s => <span key={s} className={`text-[13px] ${s <= r.rating ? 'text-amber-400' : 'text-[#E0E0E0]'}`}>★</span>)}</div>
                     {r.child_age_months !== null && <span className="text-[13px] text-[#6B6966]">· 아이 {r.child_age_months}개월</span>}

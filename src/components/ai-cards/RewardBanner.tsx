@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import type { CareEvent } from '@/types'
+import { SproutIcon, SparkleIcon } from '@/components/ui/Icons'
 
 interface Props {
   events: CareEvent[]
@@ -28,10 +29,10 @@ export default function RewardBanner({ events }: Props) {
   if (streak < 1) return null
 
   const badges = [
-    { days: 3, label: '꾸준한 도담상 🌱', desc: '3일 연속 기록!' },
-    { days: 7, label: '일주일 도담상 🌿', desc: '7일 연속 기록 달성!' },
-    { days: 14, label: '보름 도담상 🌳', desc: '2주 연속 기록!' },
-    { days: 30, label: '한 달 도담상 🏆', desc: '30일 연속 기록 달성!' },
+    { days: 3, label: '꾸준한 도담상', desc: '3일 연속 기록!' },
+    { days: 7, label: '일주일 도담상', desc: '7일 연속 기록 달성!' },
+    { days: 14, label: '보름 도담상', desc: '2주 연속 기록!' },
+    { days: 30, label: '한 달 도담상', desc: '30일 연속 기록 달성!' },
   ]
 
   const nextBadge = badges.find((b) => b.days > streak)
@@ -42,7 +43,7 @@ export default function RewardBanner({ events }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[14px] font-bold text-[#FF6F0F]">🔥 {streak}일 연속 기록 중</span>
+            <span className="text-[14px] font-bold text-[var(--color-primary)] flex items-center gap-1"><SparkleIcon className="w-4 h-4" /> {streak}일 연속 기록 중</span>
           </div>
           {currentBadge && (
             <p className="text-[13px] text-[#C68A2E] mt-0.5">{currentBadge.label}</p>
@@ -51,7 +52,7 @@ export default function RewardBanner({ events }: Props) {
         {nextBadge && (
           <div className="text-right">
             <p className="text-[14px] text-[#9E9A95]">다음 배지까지</p>
-            <p className="text-[13px] font-bold text-[#FF6F0F]">{nextBadge.days - streak}일</p>
+            <p className="text-[13px] font-bold text-[var(--color-primary)]">{nextBadge.days - streak}일</p>
           </div>
         )}
       </div>

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { ChevronRightIcon } from '@/components/ui/Icons'
+import { ChevronRightIcon, UsersIcon } from '@/components/ui/Icons'
+// child avatars are .webm video files
 import ThemeSelector from '@/components/settings/ThemeSelector'
 import type { User } from '@supabase/supabase-js'
 import type { Child } from '@/types'
@@ -48,7 +49,7 @@ export default function SettingsPage() {
       await supabase.auth.signOut()
       window.location.href = '/onboarding'
     } catch {
-      alert('탈퇴 처리 중 오류가 발생했어요. 다시 시도해주세요.')
+      window.dispatchEvent(new CustomEvent('dodam-toast', { detail: { message: '탈퇴 처리 중 오류가 발생했어요. 다시 시도해주세요.' } }))
       setDeleteStep(0)
     }
   }
@@ -70,7 +71,7 @@ export default function SettingsPage() {
         {/* 프로필 카드 */}
         <div className="m-4 p-4 rounded-2xl bg-white border border-[#E8E4DF]">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF6F0F] to-[#4A90D9] flex items-center justify-center overflow-hidden shrink-0">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden shrink-0" style={{ background: 'linear-gradient(135deg, var(--color-primary-light), var(--color-primary))' }}>
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
               ) : (
@@ -96,8 +97,14 @@ export default function SettingsPage() {
               href={`/settings/children/${child.id}`}
               className="flex items-center gap-3 px-4 py-3.5 border-t border-[#E8E4DF] active:bg-[#f5f5f5] transition-colors"
             >
-              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
-                <span className="text-lg">👶</span>
+              <div className="w-9 h-9 rounded-xl overflow-hidden bg-[#f5f5f5]">
+                {child.photo_url ? (
+                  <video src={child.photo_url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-blue-50 flex items-center justify-center">
+                    <span className="text-blue-500 text-sm font-bold">{child.name.charAt(0)}</span>
+                  </div>
+                )}
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-[#0A0B0D]">{child.name}</p>
@@ -111,9 +118,9 @@ export default function SettingsPage() {
             className="flex items-center gap-3 px-4 py-3.5 border-t border-[#E8E4DF] active:bg-[#f5f5f5] transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-[#f5f5f5] flex items-center justify-center">
-              <span className="text-[#FF6F0F] text-lg font-light">+</span>
+              <span className="text-[var(--color-primary)] text-lg font-light">+</span>
             </div>
-            <p className="text-sm font-medium text-[#FF6F0F]">아이 추가</p>
+            <p className="text-sm font-medium text-[var(--color-primary)]">아이 추가</p>
           </Link>
         </div>
 
@@ -127,7 +134,7 @@ export default function SettingsPage() {
             className="flex items-center gap-3 px-4 py-3.5 border-t border-[#E8E4DF] active:bg-[#f5f5f5] transition-colors"
           >
             <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center">
-              <span className="text-lg">👨‍👩‍👧</span>
+              <UsersIcon className="w-5 h-5 text-green-600" />
             </div>
             <p className="text-sm font-semibold text-[#0A0B0D]">공동양육자</p>
             <div className="flex-1" />
@@ -252,7 +259,7 @@ export default function SettingsPage() {
                 {deleteStep === 3 && (
                   <div className="space-y-4">
                     <h3 className="text-[17px] font-bold text-[#1A1918]">정말 탈퇴하시겠어요?</h3>
-                    <div className="bg-[#FFF9F5] rounded-xl p-4">
+                    <div className="bg-[var(--color-page-bg)] rounded-xl p-4">
                       <p className="text-[13px] text-[#6B6966]">도담과 함께한 소중한 기록들이 30일 후 영구 삭제됩니다.</p>
                     </div>
                     <div className="flex gap-2">
@@ -281,7 +288,7 @@ export default function SettingsPage() {
                 {/* Step 5: 최종 탈퇴 */}
                 {deleteStep === 5 && (
                   <div className="space-y-4 text-center">
-                    <p className="text-3xl">😢</p>
+                    <p className="text-[15px] font-bold text-[#6B6966]">정말요?</p>
                     <h3 className="text-[17px] font-bold text-[#1A1918]">마지막 기회예요</h3>
                     <p className="text-[13px] text-[#6B6966]">탈퇴 버튼을 누르면 30일 유예 후 모든 데이터가 삭제됩니다.</p>
                     <button onClick={() => setDeleteStep(0)} className="w-full py-3 bg-[var(--color-primary)] text-white text-[14px] font-bold rounded-xl">역시 남을래요!</button>
@@ -294,7 +301,7 @@ export default function SettingsPage() {
         )}
 
         <p className="text-center text-xs text-[#9B9B9B] mt-6">
-          오늘도 도담하게 🌱
+          오늘도 도담하게
         </p>
       </div>
     </div>

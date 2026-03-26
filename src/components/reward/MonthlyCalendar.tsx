@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+import { CalendarIcon, TrophyIcon } from '@/components/ui/Icons'
 import type { CareEvent } from '@/types'
 
 interface Props {
@@ -41,12 +42,12 @@ export default function MonthlyCalendar({ events }: Props) {
   return (
     <div className="bg-white rounded-2xl p-4 border border-[#E8E4DF]">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-[14px] font-bold text-[#212124]">📅 {monthName} 도담 스토리</h3>
+        <h3 className="text-[14px] font-bold text-[#212124] flex items-center gap-1"><CalendarIcon className="w-4 h-4" /> {monthName} 도담 스토리</h3>
         <div className="flex items-center gap-1.5">
           <span className={`text-[14px] font-bold ${rate === 100 ? 'text-[var(--color-primary)]' : 'text-[#212124]'}`}>
             {rate}%
           </span>
-          {rate === 100 && <span className="text-[14px]">🏅</span>}
+          {rate === 100 && <TrophyIcon className="w-4 h-4 text-[var(--color-primary)]" />}
         </div>
       </div>
 
@@ -110,7 +111,7 @@ export default function MonthlyCalendar({ events }: Props) {
         <p className="text-center text-[13px] text-[#6B6966] mt-2">
           {rate >= 90
             ? `완벽한 ${monthName}까지 ${pastDates.length - recordedCount}일만 채우면 돼요!`
-            : `${monthName}에 ${recordedCount}일 기록했어요 👏`
+            : `${monthName}에 ${recordedCount}일 기록했어요`
           }
         </p>
       )}

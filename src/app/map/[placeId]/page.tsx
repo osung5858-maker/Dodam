@@ -67,7 +67,7 @@ export default function PlaceDetailPage() {
   if (!place) {
     return (
       <div className="flex flex-col items-center justify-center h-[100dvh] gap-3">
-        <div className="w-10 h-10 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
+        <div className="w-10 h-10 border-3 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
         <p className="text-[13px] text-[#6B6966]">장소 정보를 불러오는 중...</p>
       </div>
     )
@@ -87,13 +87,11 @@ export default function PlaceDetailPage() {
   return (
     <div className="min-h-[100dvh] bg-[#F0EDE8]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white border-b border-[#ECECEC]">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
-          <button onClick={() => router.back()} className="text-[13px] text-[#6B6966] shrink-0">뒤로</button>
-          <h1 className="text-[15px] font-bold text-[#212124] truncate mx-3 min-w-0">{place.name}</h1>
-          <div className="w-8 shrink-0" />
-        </div>
-      </header>
+      <div className="pt-4 pb-2 px-5 max-w-lg mx-auto w-full flex items-center justify-between">
+        <button onClick={() => router.back()} className="text-[13px] text-[#6B6966] shrink-0">뒤로</button>
+        <h1 className="text-[15px] font-bold text-[#212124] truncate mx-3 min-w-0">{place.name}</h1>
+        <div className="w-8 shrink-0" />
+      </div>
 
       <div className="max-w-lg mx-auto w-full pb-24">
         {/* 기본 정보 */}
@@ -102,16 +100,16 @@ export default function PlaceDetailPage() {
 
           <div className="flex items-center gap-2 mt-1.5">
             {avgRating && (
-              <span className="text-[13px] text-[#212124]">⭐ {avgRating} ({reviews.length})</span>
+              <span className="text-[13px] text-[#212124]">{avgRating} ({reviews.length})</span>
             )}
             {place.distance && (
-              <span className="text-[14px] font-medium text-[#FF6F0F]">{place.distance}</span>
+              <span className="text-[14px] font-medium text-[var(--color-primary)]">{place.distance}</span>
             )}
           </div>
 
           <p className="text-[13px] text-[#6B6966] mt-2">{place.address}</p>
           {place.phone && (
-            <p className="text-[13px] text-[#FF6F0F] font-medium mt-1">{place.phone}</p>
+            <p className="text-[13px] text-[var(--color-primary)] font-medium mt-1">{place.phone}</p>
           )}
           <p className="text-[13px] text-[#9E9A95] mt-1">{place.category}</p>
         </div>
@@ -121,16 +119,16 @@ export default function PlaceDetailPage() {
           {place.phone && (
             <button
               onClick={handleCall}
-              className="flex-1 h-12 rounded-2xl text-[13px] font-semibold border-2 border-[#FF6F0F] text-[#FF6F0F] active:scale-95 transition-transform flex items-center justify-center gap-1.5"
+              className="flex-1 h-12 rounded-2xl text-[13px] font-semibold border-2 border-[var(--color-primary)] text-[var(--color-primary)] active:scale-95 transition-transform flex items-center justify-center gap-1.5"
             >
-              📞 전화하기
+              전화하기
             </button>
           )}
           <button
             onClick={handleNavigate}
-            className="flex-1 h-12 rounded-2xl text-[13px] font-semibold bg-[#FF6F0F] text-white active:scale-95 transition-transform flex items-center justify-center gap-1.5"
+            className="flex-1 h-12 rounded-2xl text-[13px] font-semibold bg-[var(--color-primary)] text-white active:scale-95 transition-transform flex items-center justify-center gap-1.5"
           >
-            🗺️ 길찾기
+            길찾기
           </button>
         </div>
 
@@ -139,7 +137,7 @@ export default function PlaceDetailPage() {
           <p className="text-[13px] font-bold text-[#212124] mb-2">지금 혼잡도는?</p>
           {congestionSubmitted ? (
             <div className="flex items-center gap-2 py-1">
-              <span className="text-lg">{congestion === 'low' ? '🟢' : congestion === 'medium' ? '🟡' : '🔴'}</span>
+              <span className={`inline-block w-3 h-3 rounded-full ${congestion === 'low' ? 'bg-green-500' : congestion === 'medium' ? 'bg-amber-400' : 'bg-red-500'}`} />
               <p className="text-[14px] text-[#6B6966]">
                 {congestion === 'low' ? '여유' : congestion === 'medium' ? '보통' : '혼잡'}로 공유했어요!
               </p>
@@ -147,16 +145,16 @@ export default function PlaceDetailPage() {
           ) : (
             <div className="flex gap-2">
               {[
-                { level: 'low', label: '여유', emoji: '🟢', color: 'border-green-300 text-green-600 bg-green-50' },
-                { level: 'medium', label: '보통', emoji: '🟡', color: 'border-amber-300 text-amber-600 bg-amber-50' },
-                { level: 'high', label: '혼잡', emoji: '🔴', color: 'border-red-300 text-red-600 bg-red-50' },
+                { level: 'low', label: '여유', dotColor: 'bg-green-500', color: 'border-green-300 text-green-600 bg-green-50' },
+                { level: 'medium', label: '보통', dotColor: 'bg-amber-400', color: 'border-amber-300 text-amber-600 bg-amber-50' },
+                { level: 'high', label: '혼잡', dotColor: 'bg-red-500', color: 'border-red-300 text-red-600 bg-red-50' },
               ].map((opt) => (
                 <button
                   key={opt.level}
                   onClick={() => handleCongestionCheck(opt.level)}
-                  className={`flex-1 py-2.5 rounded-xl text-[14px] font-medium border ${opt.color} active:scale-95 transition-transform`}
+                  className={`flex-1 py-2.5 rounded-xl text-[14px] font-medium border ${opt.color} active:scale-95 transition-transform flex items-center justify-center gap-1.5`}
                 >
-                  {opt.emoji} {opt.label}
+                  <span className={`inline-block w-2 h-2 rounded-full ${opt.dotColor}`} /> {opt.label}
                 </button>
               ))}
             </div>
@@ -169,7 +167,7 @@ export default function PlaceDetailPage() {
             <p className="text-[13px] font-bold text-[#212124]">리뷰 {reviews.length}개</p>
             <Link
               href={`/map/${placeId}/review`}
-              className="text-[14px] font-semibold text-[#FF6F0F] active:opacity-70"
+              className="text-[14px] font-semibold text-[var(--color-primary)] active:opacity-70"
             >
               리뷰 쓰기
             </Link>
@@ -177,14 +175,14 @@ export default function PlaceDetailPage() {
 
           {reviewsLoading ? (
             <div className="flex justify-center py-8">
-              <div className="w-6 h-6 border-2 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
             </div>
           ) : reviews.length === 0 ? (
             <div className="px-4 py-8 text-center border-t border-[#ECECEC]">
               <p className="text-[13px] text-[#6B6966]">아직 리뷰가 없어요</p>
               <Link
                 href={`/map/${placeId}/review`}
-                className="inline-block mt-3 px-5 py-2 rounded-xl bg-[#FF6F0F] text-white text-[14px] font-semibold active:scale-95"
+                className="inline-block mt-3 px-5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-[14px] font-semibold active:scale-95"
               >
                 첫 리뷰 남기기
               </Link>

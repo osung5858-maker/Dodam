@@ -42,7 +42,7 @@ export default function PublicPostPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#FFF9F5]">
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)]">
       {/* 헤더 */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-[#E8E4DF]/60">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
@@ -61,8 +61,8 @@ export default function PublicPostPage() {
         <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
           <p className="text-[14px] text-[#1A1918] leading-relaxed whitespace-pre-line">{post.content}</p>
           <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#E8E4DF]">
-            <span className="text-[13px] text-[#6B6966]">❤️ {post.like_count || 0}</span>
-            <span className="text-[13px] text-[#6B6966]">💬 {comments.length}</span>
+            <span className="text-[13px] text-[#6B6966]">{post.like_count || 0} 좋아요</span>
+            <span className="text-[13px] text-[#6B6966]">{comments.length} 댓글</span>
             <span className="text-[13px] text-[#9E9A95] ml-auto">{new Date(post.created_at).toLocaleDateString('ko-KR')}</span>
           </div>
         </div>

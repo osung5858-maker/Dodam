@@ -33,7 +33,7 @@ export default function TempSheet({ open, onClose, onSubmit }: Props) {
         </div>
 
         {isCritical && (
-          <p className="text-xs text-red-500 font-medium">⚠️ 고열이에요. 소아과 상담을 추천드려요.</p>
+          <p className="text-xs text-red-500 font-medium">고열이에요. 소아과 상담을 추천드려요.</p>
         )}
         {isHigh && !isCritical && (
           <p className="text-xs text-orange-500 font-medium">미열이에요. 경과를 살펴보세요.</p>

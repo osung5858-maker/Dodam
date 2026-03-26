@@ -24,8 +24,8 @@ function sendKakao(params: {
     }
     // 클립보드 폴백
     navigator.clipboard.writeText(`${params.title}\n${params.description}\n${params.link || SITE_URL}`)
-      .then(() => alert('공유 내용이 복사되었어요!'))
-      .catch(() => alert('카카오톡 공유를 사용할 수 없어요'))
+      .then(() => window.dispatchEvent(new CustomEvent('dodam-toast', { detail: { message: '공유 내용이 복사되었어요!' } })))
+      .catch(() => window.dispatchEvent(new CustomEvent('dodam-toast', { detail: { message: '카카오톡 공유를 사용할 수 없어요' } })))
     return
   }
 

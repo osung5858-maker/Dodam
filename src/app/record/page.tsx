@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import IllustVideo from '@/components/ui/IllustVideo'
 import DiaryView from '@/components/diary/DiaryView'
 import StatsReport from '@/components/growth-chart/StatsReport'
 import DevelopmentCheck from '@/components/growth-chart/DevelopmentCheck'
 import GrowthTimelapse from '@/components/growth-chart/GrowthTimelapse'
 import CommunityComparison from '@/components/growth-chart/CommunityComparison'
+import GrowthStory from '@/components/growth-chart/GrowthStory'
+import SiblingCompare from '@/components/growth-chart/SiblingCompare'
 import type { Child, GrowthRecord, CareEvent } from '@/types'
 import { PregnantWaitingPage } from '@/app/waiting/page'
 import dynamic from 'next/dynamic'
@@ -43,11 +46,11 @@ function JourneyTimeline({ childName }: { childName: string }) {
   const pregTests = (() => { try { return JSON.parse(localStorage.getItem('dodam_preg_tests') || '[]') } catch { return [] } })()
   const timeline: { date: string; type: string; emoji: string; title: string; content: string; sub?: string }[] = []
 
-  letters.forEach((l: any) => { timeline.push({ date: l.date, type: 'letter', emoji: '✉️', title: '아이에게 보낸 편지', content: l.text?.slice(0, 60) || '', sub: l.reply?.slice(0, 40) }) })
-  diaries.forEach((d: any) => { timeline.push({ date: d.date, type: 'diary', emoji: '✍️', title: '태교일기', content: d.text?.slice(0, 60) || '', sub: d.comment?.slice(0, 40) }) })
-  checkups.forEach((c: any) => { timeline.push({ date: c.date, type: 'checkup', emoji: '🏥', title: `${c.week}주차 검진`, content: c.doctorNote || c.note || '', sub: c.babyWeight ? `⚖️ ${c.babyWeight}` : undefined }) })
-  pregTests.forEach((t: any) => { if (t.result === '양성') timeline.push({ date: t.date, type: 'positive', emoji: '🎉', title: '양성! 아이가 찾아왔어요', content: `D+${t.dpo}에 확인` }) })
-  journeyEntries.forEach((e: any) => { timeline.push({ date: e.date, type: 'manual', emoji: '💭', title: '추억 한마디', content: e.text?.slice(0, 80) || '' }) })
+  letters.forEach((l: any) => { timeline.push({ date: l.date, type: 'letter', emoji: '/images/illustrations/t1.webm', title: '아이에게 보낸 편지', content: l.text?.slice(0, 60) || '', sub: l.reply?.slice(0, 40) }) })
+  diaries.forEach((d: any) => { timeline.push({ date: d.date, type: 'diary', emoji: '/images/illustrations/t2.webm', title: '태교일기', content: d.text?.slice(0, 60) || '', sub: d.comment?.slice(0, 40) }) })
+  checkups.forEach((c: any) => { timeline.push({ date: c.date, type: 'checkup', emoji: '/images/illustrations/t3.webm', title: `${c.week}주차 검진`, content: c.doctorNote || c.note || '', sub: c.babyWeight ? `${c.babyWeight}` : undefined }) })
+  pregTests.forEach((t: any) => { if (t.result === '양성') timeline.push({ date: t.date, type: 'positive', emoji: '/images/illustrations/t4.webm', title: '양성! 아이가 찾아왔어요', content: `D+${t.dpo}에 확인` }) })
+  journeyEntries.forEach((e: any) => { timeline.push({ date: e.date, type: 'manual', emoji: '/images/illustrations/t5.webm', title: '추억 한마디', content: e.text?.slice(0, 80) || '' }) })
   timeline.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   const hasJourney = timeline.length > 0
@@ -55,7 +58,7 @@ function JourneyTimeline({ childName }: { childName: string }) {
   return (
     <div className="px-5 pt-4 space-y-3">
       <div className="bg-gradient-to-br from-[#FFF8F3] to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)]/50 p-5 text-center">
-        <p className="text-3xl mb-2">{hasJourney ? '📖' : '🌱'}</p>
+        <IllustVideo src={hasJourney ? '/images/illustrations/h3.webm' : '/images/illustrations/h2.webm'} variant="circle" className="w-24 h-24 mx-auto mb-2" />
         <p className="text-[16px] font-bold text-[#1A1918]">{hasJourney ? `${childName}를 만나기까지의 여정` : '여정이 시작될 거예요'}</p>
         {hasJourney && (
           <div className="flex justify-center gap-4 mt-3">
@@ -68,7 +71,7 @@ function JourneyTimeline({ childName }: { childName: string }) {
       </div>
 
       {!showForm ? (
-        <button onClick={() => setShowForm(true)} className="w-full py-2.5 bg-white rounded-xl border border-[#E8E4DF] text-[13px] text-[var(--color-primary)] font-semibold active:bg-[#F5F1EC]">💭 추억 남기기</button>
+        <button onClick={() => setShowForm(true)} className="w-full py-2.5 bg-white rounded-xl border border-[#E8E4DF] text-[13px] text-[var(--color-primary)] font-semibold active:bg-[#F5F1EC]">추억 남기기</button>
       ) : (
         <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
           <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="이 순간을 기록해보세요..." className="w-full h-20 text-[13px] bg-[#F5F1EC] rounded-lg p-3 resize-none focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]" maxLength={200} />
@@ -84,8 +87,8 @@ function JourneyTimeline({ childName }: { childName: string }) {
           <div className="absolute left-4 top-0 bottom-0 w-px bg-[#E0E0E0]" />
           {timeline.map((item, i) => (
             <div key={i} className="flex gap-3 mb-3 relative">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 ${item.type === 'positive' ? 'bg-[var(--color-primary)]' : 'bg-white border border-[#E0E0E0]'}`}>
-                <span className="text-[14px]">{item.emoji}</span>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 z-10 overflow-hidden ${item.type === 'positive' ? 'bg-[var(--color-primary)]' : 'bg-white border border-[#E0E0E0]'}`}>
+                <IllustVideo src={item.emoji} variant="icon" className="w-7 h-7" />
               </div>
               <div className="flex-1 bg-white rounded-xl border border-[#E8E4DF] p-3">
                 <div className="flex items-center justify-between mb-1">
@@ -94,13 +97,14 @@ function JourneyTimeline({ childName }: { childName: string }) {
                 </div>
                 {item.content && <p className="text-[13px] text-[#6B6966] line-clamp-2">{item.content}</p>}
                 {item.sub && <p className="text-[14px] text-[var(--color-primary)] mt-0.5 italic">{item.sub}</p>}
-                {item.type === 'positive' && <p className="text-[13px] text-[var(--color-primary)] font-semibold mt-1">🎉 이 순간부터 모든 게 시작되었어요</p>}
+                {item.type === 'positive' && <p className="text-[13px] text-[var(--color-primary)] font-semibold mt-1">이 순간부터 모든 게 시작되었어요</p>}
               </div>
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center py-8">
+          <IllustVideo src="/images/illustrations/empty-no-records.webm" className="w-48 h-48 mx-auto mb-4" />
           <p className="text-[13px] text-[#9E9A95]">아직 기록이 없어요</p>
           <p className="text-[13px] text-[#6B6966] mt-1">편지를 쓰거나, 태교일기를 남기면 여기에 모여요</p>
         </div>
@@ -164,25 +168,26 @@ function ParentingRecord() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-[#E8E4DF]/60">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
-          <h1 className="text-[17px] font-bold text-[#1A1918] truncate min-w-0">성장</h1>
-          <Link href="/growth/add" className="text-[13px] font-semibold text-[var(--color-primary)] whitespace-nowrap shrink-0 ml-3">+ 기록</Link>
+      <div className="max-w-lg mx-auto w-full px-5 pt-3 pb-3">
+        <div className="flex items-center justify-between mb-3">
+          <div />
+          <Link href="/growth/add" className="text-[13px] font-semibold text-[var(--color-primary)]">+ 측정</Link>
         </div>
-        <div className="flex px-5 pb-2 max-w-lg mx-auto w-full gap-1.5">
+        <div className="flex gap-2 bg-[#F0EDE8] p-1 rounded-xl">
           {TABS.map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)}
-              className={`flex-1 py-2 text-[13px] font-semibold text-center rounded-xl transition-colors ${tab === t.key ? 'bg-[var(--color-primary)] text-white' : 'bg-[#E8E4DF] text-[#9E9A95]'}`}>
+              className={`flex-1 py-1.5 text-[13px] font-semibold text-center rounded-lg transition-colors ${tab === t.key ? 'bg-white text-[#1A1918] shadow-sm' : 'text-[#9E9A95]'}`}>
               {t.label}
             </button>
           ))}
         </div>
-      </header>
+      </div>
 
       <div className="max-w-lg mx-auto w-full pb-28">
         {tab === 'growth' && (
           <div className="space-y-3 px-5 pt-4">
             {latestRecord ? (
+              <>
               <div className="bg-white rounded-xl border border-[#D5D0CA] shadow-sm p-4">
                 <div className="flex items-center justify-between mb-3">
                   <div>
@@ -206,8 +211,14 @@ function ParentingRecord() {
                   )}
                 </div>
               </div>
+              {/* AI 성장 스토리 */}
+              <GrowthStory childName={child?.name || '도담이'} ageMonths={ageMonths} records={records} events={events} />
+              {/* 형제자매 비교 AI */}
+              {child && <SiblingCompare currentChild={child} ageMonths={ageMonths} />}
+              </>
             ) : (
               <div className="bg-white rounded-xl border border-[#D5D0CA] shadow-sm p-6 text-center">
+                <IllustVideo src="/images/illustrations/empty-no-growth.webm" className="w-48 h-48 mx-auto mb-4" />
                 <p className="text-[14px] text-[#4A4744] mb-3">아직 성장 기록이 없어요</p>
                 <Link href="/growth/add" className="inline-block px-5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-[13px] font-semibold">기록 추가</Link>
               </div>
@@ -249,7 +260,7 @@ export default function RecordPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#FFF9F5]">
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)]">
       {mode === 'parenting' && <ParentingRecord />}
       {mode === 'pregnant' && <PregnantWaitingPage />}
       {mode === 'preparing' && <PreparingRecord />}

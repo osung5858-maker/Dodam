@@ -11,7 +11,16 @@
   --color-accent-bg: #FFE0D4;
   --dodam-gradient: linear-gradient(135deg, #FFF5F2 0%, #FFE8E0 50%, #FFD4C4 100%);
 
-  --color-bg: #FFF9F5;
+  /* Full Theme — 배경/그림자 */
+  --color-page-bg: #FFF5F2;
+  --color-card-shadow: rgba(232,147,122,0.08);
+  --color-header-shadow: rgba(232,147,122,0.1);
+  --color-tab-shadow: rgba(232,147,122,0.06);
+  --color-fab-from: #FFD4C4;
+  --color-fab-to: #E8937A;
+  --color-fab-shadow: rgba(232,147,122,0.35);
+
+  --color-bg: #FFF5F2;
   --color-surface: #FFFFFF;
   --color-surface-alt: #F0EDE8;
   --color-border: #E8E4DF;

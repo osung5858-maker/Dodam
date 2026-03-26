@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { EnvelopeIcon } from '@/components/ui/Icons'
 
 type InviteStatus = 'loading' | 'valid' | 'expired' | 'accepted' | 'error'
 
@@ -80,7 +81,7 @@ export default function InviteAcceptPage() {
     <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6">
       {status === 'loading' && (
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
+          <div className="w-10 h-10 border-3 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
           <p className="text-[13px] text-[#6B6966]">초대를 확인하는 중이에요...</p>
         </div>
       )}
@@ -88,7 +89,7 @@ export default function InviteAcceptPage() {
       {status === 'valid' && (
         <div className="text-center max-w-xs">
           <div className="w-20 h-20 rounded-full bg-[#FFF0E6] flex items-center justify-center mx-auto mb-6">
-            <span className="text-4xl">💌</span>
+            <EnvelopeIcon className="w-10 h-10 text-[#D08068]" />
           </div>
           <h1 className="text-[22px] font-bold text-[#212124] mb-2">
             {childName}의 가족이 되어주세요
@@ -100,7 +101,7 @@ export default function InviteAcceptPage() {
           <button
             onClick={handleAccept}
             disabled={processing}
-            className="w-full h-[52px] rounded-2xl font-semibold text-[15px] bg-[#FF6F0F] text-white active:scale-[0.98] transition-transform disabled:opacity-50"
+            className="w-full h-[52px] rounded-2xl font-semibold text-[15px] bg-[var(--color-primary)] text-white active:scale-[0.98] transition-transform disabled:opacity-50"
           >
             {processing ? '연결하는 중...' : '수락하기'}
           </button>
@@ -123,10 +124,10 @@ export default function InviteAcceptPage() {
       {status === 'accepted' && (
         <div className="text-center">
           <div className="w-16 h-16 rounded-full bg-[#E8F5E9] flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">✅</span>
+            <svg className="w-8 h-8 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
           </div>
           <h1 className="text-[18px] font-bold text-[#212124] mb-1">이미 연결되었어요!</h1>
-          <button onClick={() => window.location.href = '/'} className="mt-4 text-[14px] font-semibold text-[#FF6F0F]">
+          <button onClick={() => window.location.href = '/'} className="mt-4 text-[14px] font-semibold text-[var(--color-primary)]">
             홈으로 가기
           </button>
         </div>

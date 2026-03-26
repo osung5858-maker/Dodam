@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import { ChevronRightIcon } from '@/components/ui/Icons'
+import { ChevronRightIcon, UsersIcon } from '@/components/ui/Icons'
 
 interface CaregiverRow {
   id: string
@@ -58,7 +58,7 @@ export default function CaregiversPage() {
           {caregivers.length === 0 ? (
             <div className="px-4 py-8 text-center">
               <div className="w-16 h-16 rounded-2xl bg-[#f5f5f5] flex items-center justify-center mx-auto mb-3">
-                <span className="text-3xl">👨‍👩‍👧</span>
+                <UsersIcon className="w-8 h-8 text-[var(--color-primary)]" />
               </div>
               <p className="text-sm font-semibold text-[#0A0B0D]">아직 연결된 가족이 없어요</p>
               <p className="text-xs text-[#9B9B9B] mt-1">함께 기록하면 더 도담해요</p>
@@ -70,7 +70,7 @@ export default function CaregiversPage() {
                 className="flex items-center gap-3 px-4 py-3.5 border-b border-[#E8E4DF] last:border-b-0"
               >
                 <div className="w-9 h-9 rounded-full bg-green-50 flex items-center justify-center">
-                  <span className="text-sm">👤</span>
+                  <svg className="w-4 h-4 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-[#0A0B0D]">
@@ -89,9 +89,9 @@ export default function CaregiversPage() {
             className="flex items-center gap-3 px-4 py-3.5 border-t border-[#E8E4DF] active:bg-[#f5f5f5] transition-colors"
           >
             <div className="w-9 h-9 rounded-full bg-[#f5f5f5] flex items-center justify-center">
-              <span className="text-[#FF6F0F] text-lg font-light">+</span>
+              <span className="text-[var(--color-primary)] text-lg font-light">+</span>
             </div>
-            <p className="text-sm font-medium text-[#FF6F0F]">가족 초대하기</p>
+            <p className="text-sm font-medium text-[var(--color-primary)]">가족 초대하기</p>
             <div className="flex-1" />
             <ChevronRightIcon className="w-4 h-4 text-[#9B9B9B]" />
           </Link>

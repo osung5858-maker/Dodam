@@ -5,7 +5,7 @@ import { BottleIcon, MoonIcon, CircleIcon, DropletIcon, ThermometerIcon } from '
 import type { EventType } from '@/types'
 
 const BUTTONS = [
-  { type: 'feed' as EventType, icon: BottleIcon, label: '수유', bg: 'bg-[#FFF0E6]', iconColor: 'text-[#FF6F0F]', ring: 'ring-[#FF6F0F]' },
+  { type: 'feed' as EventType, icon: BottleIcon, label: '수유', bg: 'bg-[#FFF0E6]', iconColor: 'text-[var(--color-primary)]', ring: 'ring-[var(--color-primary)]' },
   { type: 'sleep' as EventType, icon: MoonIcon, label: '수면', bg: 'bg-[#EEF0FF]', iconColor: 'text-[#5B6DFF]', ring: 'ring-[#5B6DFF]' },
   { type: 'poop' as EventType, icon: CircleIcon, label: '대변', bg: 'bg-[#FFF4E6]', iconColor: 'text-[#C68A2E]', ring: 'ring-[#C68A2E]' },
   { type: 'pee' as EventType, icon: DropletIcon, label: '소변', bg: 'bg-[#E6F5FF]', iconColor: 'text-[#3DA5F5]', ring: 'ring-[#3DA5F5]' },

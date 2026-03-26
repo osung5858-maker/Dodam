@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { WrenchIcon, TrashIcon } from '@/components/ui/Icons'
 
 export default function DevResetButton() {
   const [open, setOpen] = useState(false)
@@ -35,13 +36,13 @@ export default function DevResetButton() {
         onClick={() => setOpen(!open)}
         className="fixed top-20 right-2 z-[100] w-8 h-8 rounded-full bg-red-500 text-white text-[14px] font-bold shadow-lg active:scale-90 opacity-60"
       >
-        🔧
+        <WrenchIcon className="w-4 h-4" />
       </button>
 
       {/* 패널 */}
       {open && (
         <div className="fixed top-30 right-2 z-[100] bg-white rounded-xl shadow-xl border border-[#E8E4DF] p-3 w-48">
-          <p className="text-[13px] font-bold text-[#1A1918] mb-2">🔧 개발 도구</p>
+          <p className="text-[13px] font-bold text-[#1A1918] mb-2 flex items-center gap-1"><WrenchIcon className="w-3.5 h-3.5" /> 개발 도구</p>
 
           <p className="text-[13px] text-[#6B6966] mb-1">모드 전환</p>
           <div className="flex gap-1 mb-2">
@@ -51,7 +52,7 @@ export default function DevResetButton() {
               { mode: 'parenting', label: '육아' },
             ].map(m => (
               <button key={m.mode} onClick={() => resetToMode(m.mode)}
-                className="flex-1 py-1 rounded text-[13px] font-medium bg-[#FFF9F5] text-[#6B6966] active:bg-[var(--color-primary)] active:text-white">
+                className="flex-1 py-1 rounded text-[13px] font-medium bg-[var(--color-page-bg)] text-[#6B6966] active:bg-[var(--color-primary)] active:text-white">
                 {m.label}
               </button>
             ))}
@@ -59,7 +60,7 @@ export default function DevResetButton() {
 
           <button onClick={resetLocalData}
             className="w-full py-2 rounded-lg bg-red-500 text-white text-[13px] font-semibold active:opacity-80 mb-1">
-            🗑️ 로컬 데이터 리셋
+            <span className="inline-flex items-center gap-1"><TrashIcon className="w-3.5 h-3.5 inline" /> 로컬 데이터 리셋</span>
           </button>
 
           <p className="text-[13px] text-[#9E9A95] text-center">로그인은 유지됩니다</p>

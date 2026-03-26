@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { HeartIcon, ClipboardIcon } from '@/components/ui/Icons'
 
 export default function InvitePage() {
   const [inviteLink, setInviteLink] = useState<string | null>(null)
@@ -58,7 +59,7 @@ export default function InvitePage() {
       window.Kakao.Share.sendDefault({
         objectType: 'feed',
         content: {
-          title: '도담 - 함께 기록해요 💌',
+          title: '도담 - 함께 기록해요',
           description: '도담에서 아이의 수유, 수면, 기저귀 기록을 함께 볼 수 있어요. 가족으로 참여해주세요!',
           imageUrl: 'https://www.dodam.life/og-image.png',
           link: {
@@ -103,7 +104,7 @@ export default function InvitePage() {
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 max-w-lg mx-auto w-full">
         <div className="w-20 h-20 rounded-3xl bg-green-50 flex items-center justify-center mb-6">
-          <span className="text-4xl">💌</span>
+          <HeartIcon className="w-10 h-10 text-green-600" />
         </div>
 
         <h2 className="text-xl font-bold text-[#0A0B0D] text-center">
@@ -135,12 +136,12 @@ export default function InvitePage() {
               onClick={handleCopy}
               className="w-full h-[48px] rounded-xl font-medium text-[15px] border border-[#E8E4DF] text-[#0A0B0D] active:scale-[0.98] transition-transform"
             >
-              {copied ? '✅ 복사 완료!' : '📋 링크 복사'}
+              {copied ? '복사 완료!' : '링크 복사'}
             </button>
           </div>
         ) : (
           <div className="mt-8">
-            <div className="w-6 h-6 border-2 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
+            <div className="w-6 h-6 border-2 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
           </div>
         )}
 

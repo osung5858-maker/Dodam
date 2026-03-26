@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import PageLayout from '@/components/layout/PageLayout'
+import { BreastfeedIcon } from '@/components/ui/Icons'
 
 type Side = 'left' | 'right'
 
@@ -129,12 +130,12 @@ export default function FeedTimerPage() {
             <div className="flex gap-3 mt-4">
               <button onClick={() => start('left')}
                 className="flex-1 py-4 rounded-xl bg-[#4A90D9] text-white text-[15px] font-semibold active:opacity-80">
-                <span className="text-xl">🤱</span><br />
+                <BreastfeedIcon className="w-6 h-6" /><br />
                 <span className="text-[13px]">왼쪽 시작</span>
               </button>
               <button onClick={() => start('right')}
                 className="flex-1 py-4 rounded-xl bg-[#D089A5] text-white text-[15px] font-semibold active:opacity-80">
-                <span className="text-xl">🤱</span><br />
+                <BreastfeedIcon className="w-6 h-6" /><br />
                 <span className="text-[13px]">오른쪽 시작</span>
               </button>
             </div>

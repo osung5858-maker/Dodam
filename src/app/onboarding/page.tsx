@@ -3,8 +3,15 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-
+import { HeartIcon, PregnantIcon, BabyIcon } from '@/components/ui/Icons'
 type Mode = 'preparing' | 'pregnant' | 'parenting'
+
+const PROFILE_AVATARS = [
+  '/images/illustrations/profile-default1.webm',
+  '/images/illustrations/profile-default2.webm',
+  '/images/illustrations/profile-default3.webm',
+  '/images/illustrations/profile-default4.webm',
+]
 
 export default function OnboardingPage() {
   const [loading, setLoading] = useState<string | null>(null)
@@ -74,32 +81,40 @@ export default function OnboardingPage() {
 
   // 로그인 완료 → 모드 선택
   if (user) {
+    const randomAvatar = PROFILE_AVATARS[Math.floor(Math.random() * PROFILE_AVATARS.length)]
+
     return (
       <div className="min-h-[100dvh] flex flex-col bg-white">
-        <div className="flex-1 flex flex-col items-center justify-center px-6">
-          <div className="w-16 h-16 rounded-full bg-[var(--color-primary)] flex items-center justify-center mb-4">
-            <span className="text-2xl font-bold text-white">도</span>
+        <div className="flex-1 flex flex-col items-center px-6 pt-16">
+          {/* 랜덤 프로필 아바타 */}
+          <div className="w-20 h-20 rounded-full overflow-hidden mb-5 shadow-[0_4px_20px_rgba(61,138,90,0.15)]">
+            <video src={randomAvatar} autoPlay loop muted playsInline className="w-full h-full object-cover" />
           </div>
           <h1 className="text-[22px] font-bold text-[#212124] mb-1">환영해요!</h1>
           <p className="text-[14px] text-[#6B6966] mb-8">지금 어떤 상태인가요?</p>
 
-          <div className="w-full max-w-xs space-y-3">
+          <div className="w-full max-w-sm space-y-4">
             {[
-              { key: 'preparing' as Mode, emoji: '💝', title: '임신을 준비하고 있어요', desc: '배란일 · 건강 체크 · 준비 가이드' },
-              { key: 'pregnant' as Mode, emoji: '🤰', title: '임신 중이에요', desc: '주차별 태아 성장 · D-day · 체크리스트' },
-              { key: 'parenting' as Mode, emoji: '👶', title: '아이를 키우고 있어요', desc: '수유 · 수면 · 성장 기록 · AI 인사이트' },
+              { key: 'preparing' as Mode, title: '임신을 준비하고 있어요', desc: '배란일 · 건강 체크 · 준비 가이드', video: '/images/illustrations/onboarding-preparing.webm' },
+              { key: 'pregnant' as Mode, title: '임신 중이에요', desc: '주차별 태아 성장 · D-day · 체크리스트', video: '/images/illustrations/onboarding-pregnant.webm' },
+              { key: 'parenting' as Mode, title: '아이를 키우고 있어요', desc: '수유 · 수면 · 성장 기록 · AI 인사이트', video: '/images/illustrations/onboarding-parenting.webm' },
             ].map((option) => (
               <button
                 key={option.key}
                 onClick={() => handleModeSelect(option.key)}
-                className="w-full p-5 rounded-2xl border-2 border-[#ECECEC] bg-white text-left transition-all active:scale-[0.98] active:border-[var(--color-primary)] active:bg-[#F0F9F4]"
+                className="w-full rounded-2xl border-2 border-[#ECECEC] bg-white text-left transition-all active:scale-[0.98] active:border-[var(--color-primary)] active:bg-[#F0F9F4] overflow-hidden"
               >
-                <div className="flex items-center gap-4">
-                  <span className="text-3xl">{option.emoji}</span>
-                  <div>
-                    <p className="text-[15px] font-bold text-[#212124]">{option.title}</p>
-                    <p className="text-[14px] text-[#6B6966] mt-0.5">{option.desc}</p>
-                  </div>
+                {/* 일러스트 영상 (그라데이션 페이드) */}
+                <div className="w-full h-36 bg-white relative overflow-hidden">
+                  <video src={option.video} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 pointer-events-none" style={{
+                    background: 'linear-gradient(to bottom, transparent 60%, white 100%), linear-gradient(to top, transparent 85%, white 100%), linear-gradient(to right, white 0%, transparent 10%, transparent 90%, white 100%)',
+                  }} />
+                </div>
+                {/* 텍스트 */}
+                <div className="p-4">
+                  <p className="text-[15px] font-bold text-[#212124]">{option.title}</p>
+                  <p className="text-[13px] text-[#6B6966] mt-1">{option.desc}</p>
                 </div>
               </button>
             ))}

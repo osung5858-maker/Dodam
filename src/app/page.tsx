@@ -7,9 +7,10 @@ import FeedSheet from '@/components/quick-buttons/FeedSheet'
 import PoopSheet from '@/components/quick-buttons/PoopSheet'
 import TempSheet from '@/components/quick-buttons/TempSheet'
 import Toast from '@/components/ui/Toast'
-import { BellIcon, ChevronRightIcon } from '@/components/ui/Icons'
+import { BellIcon, ChevronRightIcon, BottleIcon, MoonIcon, PoopIcon, DropletIcon, ThermometerIcon, PillIcon, NoteIcon, SyringeIcon, BowlIcon, ChartIcon, SparkleIcon, BuildingIcon, BabyIcon, BathIcon, PumpIcon, CookieIcon, RiceIcon } from '@/components/ui/Icons'
 import { createClient } from '@/lib/supabase/client'
 import { shareTodayRecord } from '@/lib/kakao/share-parenting'
+import AIMealCard from '@/components/ai-cards/AIMealCard'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { savePendingEvent } from '@/lib/offline/db'
 import type { CareEvent, EventType, Child } from '@/types'
@@ -59,6 +60,11 @@ export default function HomePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/onboarding'); return }
       setUser(user)
+      // 카카오/구글 프로필 정보 캐싱
+      const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || ''
+      const userName = user.user_metadata?.name || user.user_metadata?.full_name || ''
+      if (avatarUrl) localStorage.setItem('dodam_user_avatar', avatarUrl)
+      if (userName) localStorage.setItem('dodam_user_name', userName)
 
       const { data: children, error: childError } = await supabase
         .from('children').select('*').eq('user_id', user.id)
@@ -72,6 +78,8 @@ export default function HomePage() {
       setChild(currentChild)
       // FAB 월령별 구성을 위해 localStorage에 저장
       localStorage.setItem('dodam_child_birthdate', currentChild.birthdate)
+      localStorage.setItem('dodam_child_name', currentChild.name)
+      if (currentChild.photo_url) localStorage.setItem('dodam_child_photo', currentChild.photo_url)
 
       const { start, end } = getTodayRange()
       const { data: todayEvents } = await supabase
@@ -117,13 +125,14 @@ export default function HomePage() {
     if (type === 'sleep') {
       setSleepActive(true)
       const e = await insertEvent(type)
-      if (e) setToast({ message: '수면 시작! 🌙 자장가 틀까요?', undoId: e.id, action: { label: '자장가 듣기', href: '/lullaby' } })
+      if (e) setToast({ message: '수면 시작! 자장가 틀까요?', undoId: e.id, action: { label: '자장가 듣기', href: '/lullaby' } })
       return
     }
     if (type === 'feed') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setFeedSheetOpen(true) }; return }
     if (type === 'poop') { const e = await insertEvent(type); if (e) { setPendingEventId(e.id); setPoopSheetOpen(true) }; return }
     if (type === 'temp') { setTempSheetOpen(true); return }
-    if (type === 'memo') { const e = await insertEvent(type, { tags: { category: 'medication' } }); if (e) setToast({ message: '투약 기록 완료!', undoId: e.id }); return }
+    if (type === 'medication' || type === 'memo') { const e = await insertEvent('medication'); if (e) setToast({ message: '투약 기록 완료!', undoId: e.id }); return }
+    if (type === 'bath') { const e = await insertEvent('bath'); if (e) setToast({ message: '목욕 기록 완료!', undoId: e.id }); return }
     const e = await insertEvent(type)
     if (e) setToast({ message: '소변 기록 완료!', undoId: e.id })
   }, [user, child, sleepActive, events, supabase]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -203,31 +212,91 @@ export default function HomePage() {
   // FAB 퀵버튼 이벤트 리스너 (BottomNav에서 dispatch)
   // FAB에서 이미 상세 선택(tags/amount)을 완료한 경우 바텀시트를 건너뛰고 바로 기록
   const handleFabRecord = useCallback(async (detail: Record<string, unknown>) => {
-    const type = detail.type as EventType
-    if (!type) return
+    const rawType = detail.type as string
+    if (!rawType) return
     const { type: _, ...extra } = detail
+
+    // 타입 매핑: FAB의 세부 타입 → DB 이벤트 타입
+    const typeMap: Record<string, EventType> = {
+      breast_left: 'feed', breast_right: 'feed',
+      poop_normal: 'poop', poop_soft: 'poop', poop_hard: 'poop',
+      night_sleep: 'sleep', nap: 'sleep',
+      note: 'memo',
+    }
+    const eventType = (typeMap[rawType] || rawType) as EventType
+
+    // 라벨 매핑
+    const labelMap: Record<string, string> = {
+      feed: '수유', poop: '배변', pee: '소변', sleep: '수면',
+      temp: '체온', memo: '메모', bath: '목욕', pump: '유축',
+      babyfood: '이유식', snack: '간식', toddler_meal: '유아식', medication: '투약',
+    }
+
+    // ===== Duration 종료 이벤트 (start_ts + end_ts 포함) =====
+    if (extra.start_ts && extra.end_ts) {
+      if (!user || !child) return
+      const eventData = {
+        child_id: child.id,
+        recorder_id: user.id,
+        type: eventType,
+        start_ts: extra.start_ts as string,
+        end_ts: extra.end_ts as string,
+        tags: (extra.tags as Record<string, unknown>) || undefined,
+        source: 'quick_button' as const,
+      }
+      if (navigator.vibrate) navigator.vibrate([30, 50, 30])
+      const { data, error } = await supabase.from('events').insert(eventData).select().single()
+      if (error) {
+        const offline = { id: crypto.randomUUID(), ...eventData, synced: false, created_at: new Date().toISOString() }
+        await savePendingEvent(offline)
+        setEvents((prev) => [offline as CareEvent, ...prev])
+        const mins = Math.round((new Date(extra.end_ts as string).getTime() - new Date(extra.start_ts as string).getTime()) / 60000)
+        setToast({ message: `${labelMap[eventType] || eventType} ${mins}분 기록 완료!` })
+      } else {
+        setEvents((prev) => [data as CareEvent, ...prev])
+        const mins = Math.round((new Date(extra.end_ts as string).getTime() - new Date(extra.start_ts as string).getTime()) / 60000)
+        setToast({ message: `${labelMap[eventType] || eventType} ${mins}분 기록 완료!`, undoId: data.id })
+      }
+      return
+    }
+
+    // ===== 즉시 기록 (tags/amount 포함) =====
     const hasTags = extra.tags && Object.keys(extra.tags as object).length > 0
     const hasAmount = 'amount_ml' in extra
 
-    // FAB에서 상세 정보가 이미 포함된 경우 → 바로 기록
-    if (type === 'poop' && hasTags) {
-      const e = await insertEvent(type, extra)
-      if (e) setToast({ message: '배변 기록 완료!', undoId: e.id })
+    if (hasTags || hasAmount) {
+      const e = await insertEvent(eventType, extra)
+      if (e) {
+        const celsius = (extra.tags as Record<string, unknown>)?.celsius
+        const msg = celsius ? `체온 ${celsius}°C 기록 완료!` : `${labelMap[eventType] || eventType} 기록 완료!`
+        setToast({ message: msg, undoId: e.id })
+      }
       return
     }
-    if (type === 'feed' && (hasTags || hasAmount)) {
-      const e = await insertEvent(type, extra)
-      if (e) setToast({ message: '수유 기록 완료!', undoId: e.id })
-      return
+
+    // ===== 단순 즉시 기록 (추가 데이터 없음) =====
+    if (eventType === 'pee') {
+      const e = await insertEvent('pee'); if (e) setToast({ message: '소변 기록 완료!', undoId: e.id }); return
     }
-    if (type === 'temp' && hasTags && (extra.tags as Record<string, unknown>).celsius) {
-      const e = await insertEvent(type, extra)
-      if (e) setToast({ message: `체온 ${(extra.tags as Record<string, unknown>).celsius}°C 기록 완료!`, undoId: e.id })
-      return
+    if (eventType === 'bath') {
+      const e = await insertEvent('bath'); if (e) setToast({ message: '목욕 기록 완료!', undoId: e.id }); return
     }
-    // 상세 정보 없으면 기존 handleRecord 흐름 (바텀시트 열기)
-    handleRecord(type)
-  }, [handleRecord, insertEvent]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (eventType === 'medication' || rawType === 'medication') {
+      const e = await insertEvent('medication'); if (e) setToast({ message: '투약 기록 완료!', undoId: e.id }); return
+    }
+    if (eventType === 'snack') {
+      const e = await insertEvent('snack'); if (e) setToast({ message: '간식 기록 완료!', undoId: e.id }); return
+    }
+    if (eventType === 'toddler_meal') {
+      const e = await insertEvent('toddler_meal'); if (e) setToast({ message: '유아식 기록 완료!', undoId: e.id }); return
+    }
+    if (rawType === 'note' || eventType === 'memo') {
+      const e = await insertEvent('memo'); if (e) setToast({ message: '메모 기록 완료!', undoId: e.id }); return
+    }
+
+    // 그 외 (수면 토글, 수유 바텀시트, 체온 바텀시트 등) → handleRecord로 위임
+    handleRecord(eventType)
+  }, [user, child, supabase, handleRecord, insertEvent]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -274,17 +343,28 @@ export default function HomePage() {
     setTempSheetOpen(false)
     const e = await insertEvent('temp', { tags: { celsius } })
     if (e) {
-      const msg = celsius >= 38.5 ? `체온 ${celsius}°C 🚨` : celsius >= 37.5 ? `체온 ${celsius}°C 미열` : `체온 ${celsius}°C`
+      const msg = celsius >= 38.5 ? `체온 ${celsius}°C 주의` : celsius >= 37.5 ? `체온 ${celsius}°C 미열` : `체온 ${celsius}°C`
       setToast({ message: msg, undoId: e.id })
     }
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[100dvh] bg-white">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
-          <p className="text-[13px] text-[#6B6966]">도담이가 준비 중이에요</p>
+      <div className="h-[100dvh] bg-white px-5 pt-14">
+        {/* 스켈레톤: 인사 영역 */}
+        <div className="h-5 w-32 bg-[#E8E4DF] rounded-lg animate-pulse mb-2" />
+        <div className="h-4 w-48 bg-[#E8E4DF] rounded-lg animate-pulse mb-6" />
+        {/* 스켈레톤: 퀵버튼 */}
+        <div className="flex gap-3 mb-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="w-14 h-14 bg-[#E8E4DF] rounded-2xl animate-pulse" />
+          ))}
+        </div>
+        {/* 스켈레톤: 카드 3개 */}
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-24 bg-[#E8E4DF] rounded-xl animate-pulse" />
+          ))}
         </div>
       </div>
     )
@@ -301,9 +381,9 @@ export default function HomePage() {
       {showFeedback && lastGesture && (
         <div className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center">
           <div className="bg-black/70 text-white px-6 py-4 rounded-2xl text-center animate-[fadeIn_0.15s_ease-out]">
-            <p className="text-3xl mb-1">
-              {lastGesture.type === 'feed' ? '🍼' : lastGesture.type === 'sleep' ? '💤' : lastGesture.type === 'poop' ? '💩' : '💧'}
-            </p>
+            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-1">
+              {lastGesture.type === 'feed' ? <BottleIcon className="w-6 h-6 text-white" /> : lastGesture.type === 'sleep' ? <MoonIcon className="w-6 h-6 text-white" /> : lastGesture.type === 'poop' ? <PoopIcon className="w-6 h-6 text-white" /> : <DropletIcon className="w-6 h-6 text-white" />}
+            </div>
             <p className="text-[14px] font-semibold">
               {lastGesture.type === 'feed' ? '수유' : lastGesture.type === 'sleep' ? '수면' : lastGesture.type === 'poop' ? '대변' : '소변'} 기록!
             </p>
@@ -311,52 +391,19 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white">
-        <div className="px-5 pt-3 pb-2 max-w-lg mx-auto w-full">
-          {/* 상단: 인사 + 알림 */}
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-[13px] text-[#6B6966]">{getGreeting()} 👋</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[18px] font-bold text-[#212124]">{child?.name || '도담이'}</span>
-                <span className="text-[13px] text-[#9E9A95]">{ageMonths}개월</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {(new Date().getHours() >= 20 || new Date().getHours() < 6) && (
-                <Link href="/lullaby" className="w-9 h-9 rounded-full bg-[#1A1918] flex items-center justify-center active:opacity-80">
-                  <span className="text-[14px]">🌙</span>
-                </Link>
-              )}
-              <Link href="/settings" className="relative w-9 h-9 rounded-full bg-[#F0EDE8] flex items-center justify-center active:bg-[#ECECEC]">
-                <BellIcon className="w-[18px] h-[18px] text-[#212124]" />
-                {events.length > 0 && events.length < 5 && <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full" />}
-              </Link>
-              <Link href="/settings/children" className="w-9 h-9 rounded-full bg-[var(--color-primary)] flex items-center justify-center overflow-hidden active:opacity-80">
-                {user?.user_metadata?.avatar_url ? (
-                  <img src={user.user_metadata.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white text-[13px] font-bold">{child?.name?.charAt(0) || '도'}</span>
-                )}
-              </Link>
-            </div>
-          </div>
-
-        </div>
-      </header>
+      {/* 헤더는 GlobalHeader (layout.tsx)에서 처리 */}
 
       {/* 배너 */}
       {!isOnline && (
         <div className="bg-[#FFF8F3] px-4 py-2">
-          <p className="text-[13px] text-[#FF6F0F] text-center font-medium">
-            📡 오프라인 · 기록은 저장돼요 {pendingCount > 0 && `(${pendingCount}건 대기)`}
+          <p className="text-[13px] text-[var(--color-primary)] text-center font-medium">
+            오프라인 · 기록은 저장돼요 {pendingCount > 0 && `(${pendingCount}건 대기)`}
           </p>
         </div>
       )}
 
       {/* 콘텐츠 */}
-      <div className="flex-1 overflow-y-auto bg-[#FFF9F5]">
+      <div className="flex-1 overflow-y-auto bg-[var(--color-page-bg)]">
         <div className="max-w-lg mx-auto w-full pt-4 pb-44 px-5 space-y-3">
 
           {/* ━━━ 1. AI 히어로 ━━━ */}
@@ -370,7 +417,35 @@ export default function HomePage() {
             onShare={() => shareTodayRecord(child?.name || '아이', ageMonths, todayFeedCount, todaySleepCount, todayPoopCount)}
           />
 
-          {/* ━━━ 2. 최근 기록 (스크롤) ━━━ */}
+          {/* ━━━ 하루 요약 바 ━━━ */}
+          {events.length > 0 && (() => {
+            const totalFeedMl = events.filter(e => e.type === 'feed').reduce((s, e) => s + (e.amount_ml || 0), 0)
+            const feedCount = events.filter(e => e.type === 'feed').length
+            const sleepEvents = events.filter(e => e.type === 'sleep' && e.end_ts)
+            const napMin = sleepEvents.filter(e => e.tags?.sleepType === 'nap' || (!e.tags?.sleepType && new Date(e.start_ts).getHours() >= 6 && new Date(e.start_ts).getHours() < 20))
+              .reduce((s, e) => s + (new Date(e.end_ts!).getTime() - new Date(e.start_ts).getTime()) / 60000, 0)
+            const nightMin = sleepEvents.filter(e => e.tags?.sleepType === 'night' || (!e.tags?.sleepType && (new Date(e.start_ts).getHours() >= 20 || new Date(e.start_ts).getHours() < 6)))
+              .reduce((s, e) => s + (new Date(e.end_ts!).getTime() - new Date(e.start_ts).getTime()) / 60000, 0)
+            const fmtMin = (m: number) => m >= 60 ? `${Math.floor(m/60)}시간 ${Math.round(m%60)}분` : `${Math.round(m)}분`
+            return (
+              <div className="flex gap-2">
+                <div className="flex-1 bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
+                  <p className="text-[11px] text-[#9E9A95]">밤잠</p>
+                  <p className="text-[14px] font-bold text-[#6366F1]">{nightMin > 0 ? fmtMin(nightMin) : '-'}</p>
+                </div>
+                <div className="flex-1 bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
+                  <p className="text-[11px] text-[#9E9A95]">낮잠</p>
+                  <p className="text-[14px] font-bold text-[#F59E0B]">{napMin > 0 ? fmtMin(napMin) : '-'}</p>
+                </div>
+                <div className="flex-1 bg-white rounded-xl border border-[#E8E4DF] p-2.5 text-center">
+                  <p className="text-[11px] text-[#9E9A95]">수유 {feedCount}회</p>
+                  <p className="text-[14px] font-bold text-[var(--color-primary)]">{totalFeedMl > 0 ? `${totalFeedMl}ml` : `${feedCount}회`}</p>
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* ━━━ 2. 최근 기록 ━━━ */}
           <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
             <div className="flex items-center justify-between mb-2">
               <p className="text-[14px] font-bold text-[#1A1918]">최근 기록 {events.length > 0 && <span className="text-[13px] text-[#9E9A95] font-normal ml-1">{events.length}건</span>}</p>
@@ -379,26 +454,42 @@ export default function HomePage() {
               )}
             </div>
             {events.length === 0 ? (
-              <p className="text-[14px] text-[#9E9A95] text-center py-3">아직 기록이 없어요. FAB(+)으로 첫 기록을 남겨보세요!</p>
+              <p className="text-[14px] text-[#9E9A95] text-center py-3">아직 기록이 없어요. 펜 버튼으로 첫 기록을 남겨보세요!</p>
             ) : (
-              <div className="grid grid-cols-2 gap-1.5 max-h-[240px] overflow-y-auto hide-scrollbar">
-                {events.slice(0, 8).map((e) => {
+              <div className="max-h-[220px] overflow-y-auto hide-scrollbar">
+                {events.slice(0, 10).map((e) => {
                   const time = new Date(e.start_ts).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
-                  const icons: Record<string, string> = { feed: '🍼', sleep: '💤', poop: '💩', pee: '💧', temp: '🌡️', memo: '💊' }
-                  const labels: Record<string, string> = { feed: '수유', sleep: '수면', poop: '대변', pee: '소변', temp: '체온', memo: '투약' }
+                  const iconMap: Record<string, { Icon: React.FC<{ className?: string }>; bg: string; color: string }> = {
+                    feed: { Icon: BottleIcon, bg: 'bg-[#FFF0E6]', color: 'text-[var(--color-primary)]' },
+                    sleep: { Icon: MoonIcon, bg: 'bg-[#E8E0F8]', color: 'text-[#7B6DB0]' },
+                    poop: { Icon: PoopIcon, bg: 'bg-[#FFF5E6]', color: 'text-[#C4913E]' },
+                    pee: { Icon: DropletIcon, bg: 'bg-[#E6F4FF]', color: 'text-[#5B9FD6]' },
+                    temp: { Icon: ThermometerIcon, bg: 'bg-[#FFE8E8]', color: 'text-[#D46A6A]' },
+                    memo: { Icon: NoteIcon, bg: 'bg-[#F0EDE8]', color: 'text-[#9E9A95]' },
+                    bath: { Icon: BathIcon, bg: 'bg-[#E6F4FF]', color: 'text-[#5B9FD6]' },
+                    pump: { Icon: PumpIcon, bg: 'bg-[#FFF0E6]', color: 'text-[var(--color-primary)]' },
+                    babyfood: { Icon: BowlIcon, bg: 'bg-[#FFF8F0]', color: 'text-[#C4913E]' },
+                    snack: { Icon: CookieIcon, bg: 'bg-[#FFF8F0]', color: 'text-[#C4913E]' },
+                    toddler_meal: { Icon: RiceIcon, bg: 'bg-[#FFF8F0]', color: 'text-[#C4913E]' },
+                    medication: { Icon: PillIcon, bg: 'bg-[#FFECDB]', color: 'text-[#C4783E]' },
+                  }
+                  const labels: Record<string, string> = { feed: '수유', sleep: '수면', poop: '대변', pee: '소변', temp: '체온', memo: '메모', bath: '목욕', pump: '유축', babyfood: '이유식', snack: '간식', toddler_meal: '유아식', medication: '투약' }
+                  const iconInfo = iconMap[e.type] || { Icon: NoteIcon, bg: 'bg-[#F0EDE8]', color: 'text-[#9E9A95]' }
                   const detail = e.amount_ml ? `${e.amount_ml}ml` :
                     e.end_ts ? `${Math.round((new Date(e.end_ts).getTime() - new Date(e.start_ts).getTime()) / 60000)}분` :
                     e.tags?.celsius ? `${e.tags.celsius}°C` :
                     e.tags?.status ? ({ normal: '정상', watery: '묽음', hard: '단단' }[e.tags.status as string] || '') : ''
+                  const isAlert = e.type === 'temp' && Number(e.tags?.celsius) >= 37.5
 
                   return (
-                    <div key={e.id} className="flex items-center gap-2 py-2 px-2.5 bg-[#F5F1EC] rounded-lg">
-                      <span className="text-[14px]">{icons[e.type] || '📝'}</span>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[13px] font-semibold text-[#1A1918]">{labels[e.type]}</span>
-                        {detail && <span className="text-[12px] text-[var(--color-primary)] ml-1">{detail}</span>}
-                        <p className="text-[11px] text-[#9E9A95]">{time}</p>
+                    <div key={e.id} className="flex items-center gap-2.5 py-2 border-b border-[#F0EDE8] last:border-0">
+                      <span className="text-[12px] text-[#9E9A95] w-10 shrink-0 text-right font-mono">{time}</span>
+                      <div className={`w-7 h-7 rounded-full ${iconInfo.bg} flex items-center justify-center shrink-0`}>
+                        <iconInfo.Icon className={`w-3.5 h-3.5 ${iconInfo.color}`} />
                       </div>
+                      <span className="text-[13px] font-semibold text-[#1A1918]">{labels[e.type]}</span>
+                      {detail && <span className={`text-[12px] font-medium ${isAlert ? 'text-red-500' : 'text-[var(--color-primary)]'}`}>{detail}</span>}
+                      {isAlert && <span className="text-[10px] bg-red-50 text-red-500 px-1 py-0.5 rounded font-bold">주의</span>}
                     </div>
                   )
                 })}
@@ -410,7 +501,9 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-2">
             {/* 예방접종 */}
             <Link href="/vaccination" className="bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5 active:bg-[#F5F1EC]">
-              <span className="text-lg">💉</span>
+              <div className="w-9 h-9 rounded-full bg-[#E6F4FF] flex items-center justify-center shrink-0">
+                <SyringeIcon className="w-4.5 h-4.5 text-[#5B9FD6]" />
+              </div>
               <div>
                 <p className="text-[14px] font-semibold text-[#1A1918]">
                   {(() => {
@@ -422,18 +515,14 @@ export default function HomePage() {
                 <p className="text-[13px] text-[#9E9A95]">다음 접종</p>
               </div>
             </Link>
-            {/* 이유식 or 성장 */}
+            {/* 이유식 AI 식단 or 성장 */}
             {ageMonths >= 5 ? (
-              <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5">
-                <span className="text-lg">🥣</span>
-                <div>
-                  <p className="text-[14px] font-semibold text-[#1A1918]">{ageMonths < 6 ? '초기' : ageMonths < 8 ? '중기' : ageMonths < 10 ? '후기' : '완료기'} 이유식</p>
-                  <p className="text-[13px] text-[#9E9A95]">{ageMonths}개월 단계</p>
-                </div>
-              </div>
+              <AIMealCard mode="parenting" value={ageMonths} />
             ) : (
               <Link href="/record" className="bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5 active:bg-[#F5F1EC]">
-                <span className="text-lg">📈</span>
+                <div className="w-9 h-9 rounded-full bg-[#E8F5E9] flex items-center justify-center shrink-0">
+                  <ChartIcon className="w-4.5 h-4.5 text-[#4A9B6E]" />
+                </div>
                 <div>
                   <p className="text-[14px] font-semibold text-[#1A1918]">{ageMonths}개월</p>
                   <p className="text-[13px] text-[#9E9A95]">성장 기록</p>
@@ -442,7 +531,8 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* 키즈노트·스트릭·커뮤니티·팁·퀵링크 → 성장탭/우리탭으로 이동 완료 */}
+          {/* 키즈노트 — 조건부 노출 */}
+          <KidsnoteCard ageMonths={ageMonths} />
 
         </div>
       </div>
@@ -499,21 +589,14 @@ function KnImageViewer({ images, startIndex, onClose }: { images: { original: st
   )
 }
 
-function KidsnoteCard() {
+function KidsnoteCard({ ageMonths }: { ageMonths: number }) {
   const [connected, setConnected] = useState(false)
   const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [knError, setKnError] = useState<string | null>(null)
   const [viewerImages, setViewerImages] = useState<{ original: string; thumbnail: string }[] | null>(null)
   const [viewerStart, setViewerStart] = useState(0)
-
-  useEffect(() => {
-    const hasCreds = !!localStorage.getItem('kn_credentials')
-    setConnected(hasCreds)
-    // 자동 로그인 → 최신 알림장 1건 가져오기
-    if (hasCreds) {
-      autoFetch()
-    }
-  }, [])
+  const [daycare, setDaycare] = useState(false)
 
   const autoFetch = async () => {
     try {
@@ -525,7 +608,7 @@ function KidsnoteCard() {
         body: JSON.stringify({ action: 'login', username: creds.u, password: creds.p }),
       })
       const loginData = await loginRes.json()
-      if (!loginData.success || !loginData.children?.length) { setLoading(false); return }
+      if (!loginData.success || !loginData.children?.length) { setReports([]); setKnError('로그인 실패 — 키즈노트 계정을 확인해주세요'); setLoading(false); return }
       const childId = loginData.children[0].id
       const reportRes = await fetch('/api/kidsnote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -537,21 +620,46 @@ function KidsnoteCard() {
     setLoading(false)
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const hasCreds = !!localStorage.getItem('kn_credentials')
+    const hasDaycare = localStorage.getItem('dodam_daycare') === 'true'
+    setConnected(hasCreds)
+    setDaycare(hasDaycare)
+    if (hasCreds) autoFetch()
+  }, [])
+
+  // 노출 조건: 연동됨 OR 어린이집 등록 OR 12개월+
+  if (!connected && !daycare && ageMonths < 12) return null
+
   // 미연결: 유도 카드
   if (!connected) {
+    const hour = new Date().getHours()
+    const isPickupTime = hour >= 16 && hour <= 19 // 하원 시간
     return (
-      <Link href="/kidsnote" className="block bg-gradient-to-r from-[#FFF8F0] to-[#F0FAF4] rounded-xl border border-[#E8E4DF] p-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-r from-[#FFF8F0] to-[#F0FAF4] rounded-xl border border-[#E8E4DF] p-4">
+        <Link href="/kidsnote" className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🏫</span>
+            <BuildingIcon className="w-6 h-6 text-[var(--color-primary)]" />
             <div>
-              <p className="text-[13px] font-bold text-[#1A1918]">키즈노트 연동</p>
+              <p className="text-[13px] font-bold text-[#1A1918]">
+                {isPickupTime ? '오늘 알림장 확인하셨나요?' : '키즈노트 연동'}
+              </p>
               <p className="text-[13px] text-[#6B6966]">어린이집 알림장을 도담에서 확인해요</p>
             </div>
           </div>
           <ChevronRightIcon className="w-4 h-4 text-[#9E9A95]" />
-        </div>
-      </Link>
+        </Link>
+        {/* 어린이집 등록 토글 */}
+        {!daycare && ageMonths >= 12 && (
+          <button
+            onClick={() => { localStorage.setItem('dodam_daycare', 'true'); setDaycare(true) }}
+            className="mt-2.5 w-full text-center text-[12px] text-[#6B6966] py-1.5 bg-white/60 rounded-lg active:bg-white"
+          >
+            우리 아이 어린이집 다녀요
+          </button>
+        )}
+      </div>
     )
   }
 
@@ -560,18 +668,25 @@ function KidsnoteCard() {
     <div className="bg-white rounded-xl border border-[#E8E4DF] p-3">
       <Link href="/kidsnote" className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
-          <span className="text-sm">🏫</span>
+          <BuildingIcon className="w-4 h-4 text-[var(--color-primary)]" />
           <span className="text-[13px] font-bold text-[#1A1918]">오늘의 키즈노트</span>
+          {reports.length > 0 && (
+            <span className="w-2 h-2 rounded-full bg-[#D05050]" />
+          )}
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-[13px] text-[var(--color-primary)] bg-[#E8F5E9] px-1.5 py-0.5 rounded-full">연동됨</span>
+          <span className="text-[11px] text-[var(--color-primary)] bg-[#E8F5E9] px-1.5 py-0.5 rounded-full">연동됨</span>
           <ChevronRightIcon className="w-4 h-4 text-[#9E9A95]" />
         </div>
       </Link>
 
       {loading && <p className="text-[13px] text-[#9E9A95] py-2 text-center">알림장 확인 중...</p>}
 
-      {!loading && reports.length === 0 && (
+      {!loading && knError && (
+        <p className="text-[13px] text-[#D05050] py-2 text-center">{knError}</p>
+      )}
+
+      {!loading && !knError && reports.length === 0 && (
         <p className="text-[13px] text-[#9E9A95] py-2 text-center">새 알림장이 없어요</p>
       )}
 
@@ -663,7 +778,7 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
     <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)] p-4">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-sm">✨</span>
+          <SparkleIcon className="w-4 h-4 text-[#C4913E]" />
           <p className="text-[14px] font-bold text-[#1A1918]">AI 데일리 케어</p>
           {ai?.status && (
             <span className={`text-[13px] px-1.5 py-0.5 rounded-full font-medium ${statusColors[ai.status] || 'bg-[#E8E4DF] text-[#6B6966]'}`}>
@@ -677,12 +792,12 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
       {/* 오늘 요약 */}
       <div className="flex gap-2 mb-3">
         {[
-          { emoji: '🍼', count: todayFeedCount, label: '수유' },
-          { emoji: '💤', count: todaySleepCount, label: '수면' },
-          { emoji: '💩', count: todayPoopCount, label: '배변' },
+          { label: '수유', count: todayFeedCount, Icon: BottleIcon },
+          { label: '수면', count: todaySleepCount, Icon: MoonIcon },
+          { label: '배변', count: todayPoopCount, Icon: PoopIcon },
         ].map((s) => (
           <div key={s.label} className="flex-1 bg-white/60 rounded-lg py-2 text-center">
-            <p className="text-[14px] font-bold text-[#1A1918]">{s.emoji} {s.count}</p>
+            <p className="text-[14px] font-bold text-[#1A1918] flex items-center justify-center gap-1"><s.Icon className="w-4 h-4" /> {s.count}</p>
             <p className="text-[13px] text-[#9E9A95]">{s.label}</p>
           </div>
         ))}
@@ -694,7 +809,7 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
       {!ai && !loading && (
         <button onClick={handleAiCare} disabled={events.length < 3}
           className="w-full py-2.5 bg-[var(--color-primary)] text-white text-[13px] font-semibold rounded-xl active:opacity-80 disabled:opacity-40">
-          {events.length < 3 ? `기록 ${3 - events.length}건 더 남기면 AI 케어 가능` : '✨ AI 케어받기'}
+          {events.length < 3 ? `기록 ${3 - events.length}건 더 남기면 AI 케어 가능` : 'AI 케어받기'}
         </button>
       )}
 
@@ -717,10 +832,10 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
           {/* 다음 행동 + 경고 (인라인) */}
           <div className="space-y-1.5">
             {ai.nextAction && (
-              <p className="text-[13px] text-[#2E7D32] bg-[#E8F5E9] rounded-lg px-3 py-1.5">👉 {ai.nextAction}</p>
+              <p className="text-[13px] text-[#2E7D32] bg-[#E8F5E9] rounded-lg px-3 py-1.5">{ai.nextAction}</p>
             )}
             {ai.warning && (
-              <p className="text-[13px] text-[#D08068] bg-[#FFF0E6] rounded-lg px-3 py-1.5">⚠️ {ai.warning}</p>
+              <p className="text-[13px] text-[#D08068] bg-[#FFF0E6] rounded-lg px-3 py-1.5">{ai.warning}</p>
             )}
           </div>
 
@@ -730,9 +845,9 @@ function AiCareCard({ childName, ageMonths, events, todayFeedCount, todaySleepCo
               <button onClick={() => setExpanded(true)} className="text-[12px] text-[var(--color-primary)]">자세히 ▼</button>
             ) : (
               <div className="text-[12px] text-[#6B6966] space-y-1 pt-1.5 border-t border-[var(--color-accent-bg)]/40">
-                {ai.feedAnalysis && <p>🍼 {ai.feedAnalysis}</p>}
-                {ai.sleepAnalysis && <p>💤 {ai.sleepAnalysis}</p>}
-                {ai.parentTip && <p className="text-[var(--color-primary)]">💚 {ai.parentTip}</p>}
+                {ai.feedAnalysis && <p>{ai.feedAnalysis}</p>}
+                {ai.sleepAnalysis && <p>{ai.sleepAnalysis}</p>}
+                {ai.parentTip && <p className="text-[var(--color-primary)]">{ai.parentTip}</p>}
                 <button onClick={() => setExpanded(false)} className="text-[#9E9A95]">접기 ▲</button>
               </div>
             )

@@ -53,7 +53,7 @@ export default function PWAInstallPrompt() {
     <div className="fixed bottom-20 left-4 right-4 z-[55] max-w-lg mx-auto animate-slideUp">
       <div className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-[#ECECEC] p-4">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#FF6F0F] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center shrink-0">
             <span className="text-white text-sm font-bold">도</span>
           </div>
           <div className="flex-1">
@@ -64,7 +64,7 @@ export default function PWAInstallPrompt() {
         </div>
         <button
           onClick={handleInstall}
-          className="w-full h-10 rounded-xl bg-[#FF6F0F] text-white text-[13px] font-semibold mt-3 active:scale-[0.98] transition-transform"
+          className="w-full h-10 rounded-xl bg-[var(--color-primary)] text-white text-[13px] font-semibold mt-3 active:scale-[0.98] transition-transform"
         >
           홈 화면에 추가
         </button>

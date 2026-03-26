@@ -39,7 +39,7 @@ export default function PublicMarketItemPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#FFF9F5]">
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)]">
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-[#E8E4DF]/60">
         <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
           <div className="flex items-center gap-2">
@@ -65,12 +65,12 @@ export default function PublicMarketItemPage() {
 
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-[16px] font-bold text-[#1A1918]">{item.title}</h2>
-            <span className={`text-[13px] px-2 py-0.5 rounded-full ${item.status === 'active' ? 'bg-[#F0F9F4] text-[var(--color-primary)]' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
+            <span className={`text-[13px] px-2 py-0.5 rounded-full ${item.status === 'active' ? 'bg-[#F0F9F4] text-[var(--color-primary)]' : 'bg-[var(--color-page-bg)] text-[#6B6966]'}`}>
               {item.status === 'active' ? '판매중' : item.status === 'reserved' ? '예약중' : '거래완료'}
             </span>
           </div>
 
-          <p className="text-[20px] font-bold text-[var(--color-primary)] mb-3">{item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔 🤝'}</p>
+          <p className="text-[20px] font-bold text-[var(--color-primary)] mb-3">{item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔'}</p>
 
           {item.description && <p className="text-[13px] text-[#1A1918] leading-relaxed whitespace-pre-line">{item.description}</p>}
 

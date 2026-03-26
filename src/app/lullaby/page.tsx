@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { MoonIcon } from '@/components/ui/Icons'
 
 type Category = 'lullaby' | 'nursery' | 'nature'
 
@@ -61,9 +62,9 @@ const LULLABY_TRACKS: Track[] = [
   { id: 'l36', title: '밤하늘 수면 — Sleep #23', youtubeId: 'YyvL-Ttlob0', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l37', title: '밤하늘 수면 — Sleep #22', youtubeId: 'UKrOwiHYTS4', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   // ── 통합본 (3개) ──
-  { id: 'l38', title: '🔁 숲 수면 4시간 통합본', youtubeId: 'GgodfVK2F_4', category: 'lullaby', duration: '4:00:00', playlistId: LULLABY_PLAYLIST },
-  { id: 'l39', title: '🔁 별빛 수면 2시간+ 통합본', youtubeId: 'UTgM6VPpiUo', category: 'lullaby', duration: '2:30:37', playlistId: LULLABY_PLAYLIST },
-  { id: 'l40', title: '🔁 별빛 수면 2시간+ 통합본 II', youtubeId: 'k2Wp0cTlPdY', category: 'lullaby', duration: '2:30:37', playlistId: LULLABY_PLAYLIST },
+  { id: 'l38', title: '[연속]숲 수면 4시간 통합본', youtubeId: 'GgodfVK2F_4', category: 'lullaby', duration: '4:00:00', playlistId: LULLABY_PLAYLIST },
+  { id: 'l39', title: '[연속]별빛 수면 2시간+ 통합본', youtubeId: 'UTgM6VPpiUo', category: 'lullaby', duration: '2:30:37', playlistId: LULLABY_PLAYLIST },
+  { id: 'l40', title: '[연속]별빛 수면 2시간+ 통합본 II', youtubeId: 'k2Wp0cTlPdY', category: 'lullaby', duration: '2:30:37', playlistId: LULLABY_PLAYLIST },
   // ── Group 3 (18개) ──
   { id: 'l41', title: '바다 수면 — Sleep #20', youtubeId: '8uFbotz_pU0', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l42', title: '숲 수면 — Sleep #19', youtubeId: 'vsl3FdhmWqw', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
@@ -74,13 +75,13 @@ const LULLABY_TRACKS: Track[] = [
   { id: 'l47', title: '파도 소리 통잠 — Sleep #13', youtubeId: 'XkkPHTEsfgs', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l48', title: '밤하늘 피아노 자장가 — Sleep #12', youtubeId: 'inD43hSwrcg', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l49', title: '숲속 빗소리 새소리 — Sleep #11', youtubeId: 'n34LdBx5XXw', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
-  { id: 'l50', title: '🔴 3분 꿀잠 수면음악 — Sleep #10', youtubeId: 'JafQEfCimyE', category: 'lullaby', duration: '3:00', playlistId: LULLABY_PLAYLIST },
+  { id: 'l50', title: '[LIVE]3분 꿀잠 수면음악 — Sleep #10', youtubeId: 'JafQEfCimyE', category: 'lullaby', duration: '3:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l51', title: '꿈나라 피아노 자장가 — Sleep #9', youtubeId: 'Qt3agLM_194', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l52', title: '신생아 수면교육 자장가 — Sleep #8', youtubeId: 'eBAPAfUC8Vc', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
-  { id: 'l53', title: '🔴 3분 마법의 소리 — Sleep #7', youtubeId: '2pKf6v-xDj0', category: 'lullaby', duration: '3:00', playlistId: LULLABY_PLAYLIST },
+  { id: 'l53', title: '[LIVE]3분 마법의 소리 — Sleep #7', youtubeId: '2pKf6v-xDj0', category: 'lullaby', duration: '3:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l54', title: '편안한 숲속 소리 — Sleep #6', youtubeId: 'nIaHttJUUk8', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l55', title: '엄마 뱃속 파도 소리 — Sleep #5', youtubeId: 'm6eTbG7ZjaU', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
-  { id: 'l56', title: '🔴 화면 꺼진 수면 — Sleep #4', youtubeId: 'S8Dv2W9XNF0', category: 'lullaby', duration: '3:00', playlistId: LULLABY_PLAYLIST },
+  { id: 'l56', title: '[LIVE]화면 꺼진 수면 — Sleep #4', youtubeId: 'S8Dv2W9XNF0', category: 'lullaby', duration: '3:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l57', title: '숲소리 물소리 자연 ASMR — Sleep #3', youtubeId: 'XxEWnfAmdGk', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
   { id: 'l58', title: '우리 아이 꿀잠 음악 — Sleep #2', youtubeId: 'kJ3Bg0CwKP4', category: 'lullaby', duration: '5:00', playlistId: LULLABY_PLAYLIST },
 ]
@@ -88,8 +89,8 @@ const LULLABY_TRACKS: Track[] = [
 // 동요 57곡 (도하 — 개별 YouTube ID 매핑)
 const NURSERY_TRACKS: Track[] = [
   // ── 통합본 (2개) ──
-  { id: 'n1', title: '🔁 블랙스크린 연속재생', youtubeId: 'ecaKInVnqR0', category: 'nursery', duration: '1:08:23', playlistId: NURSERY_PLAYLIST, isRecommended: true },
-  { id: 'n2', title: '🔁 20곡 연속재생 (18~24M)', youtubeId: 'Pq3j_Oh5yS8', category: 'nursery', duration: '57:07', playlistId: NURSERY_PLAYLIST, isRecommended: true },
+  { id: 'n1', title: '[연속]블랙스크린 연속재생', youtubeId: 'ecaKInVnqR0', category: 'nursery', duration: '1:08:23', playlistId: NURSERY_PLAYLIST, isRecommended: true },
+  { id: 'n2', title: '[연속]20곡 연속재생 (18~24M)', youtubeId: 'Pq3j_Oh5yS8', category: 'nursery', duration: '57:07', playlistId: NURSERY_PLAYLIST, isRecommended: true },
   // ── 컴필레이션 (2개) ──
   { id: 'n3', title: '아이 동물 20-21 컴필레이션', youtubeId: 'VBx8iRUh64w', category: 'nursery', duration: '3:00', playlistId: NURSERY_PLAYLIST, isRecommended: true },
   { id: 'n4', title: '아이 동물 20개 연속재생', youtubeId: 'wMSnHATVLmI', category: 'nursery', duration: '3:00', playlistId: NURSERY_PLAYLIST },
@@ -207,6 +208,34 @@ export default function LullabyPage() {
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
+  // 다음 곡 자동 재생
+  const playNext = useCallback(() => {
+    if (!playing) return
+    const filtered = TRACKS.filter(t => t.category === category)
+    const currentIdx = filtered.findIndex(t => t.id === playing)
+    if (currentIdx >= 0 && currentIdx < filtered.length - 1) {
+      setPlaying(filtered[currentIdx + 1].id)
+    } else {
+      // 마지막 곡이면 첫 곡으로
+      setPlaying(filtered[0]?.id || null)
+    }
+  }, [playing, category])
+
+  // YouTube iframe API 메시지 수신 (곡 종료 감지)
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      try {
+        const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+        // YouTube iframe API: state 0 = ended
+        if (data?.event === 'onStateChange' && data?.info === 0) {
+          playNext()
+        }
+      } catch { /* non-YouTube message */ }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [playNext])
+
   const togglePlay = useCallback((trackId: string) => {
     if (playing === trackId) {
       setPlaying(null)
@@ -218,26 +247,23 @@ export default function LullabyPage() {
 
   const getYouTubeEmbedUrl = (track: Track): string | null => {
     if (track.youtubeId) {
-      return `https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&loop=1&playlist=${track.youtubeId}`
+      return `https://www.youtube.com/embed/${track.youtubeId}?autoplay=1&enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`
     }
     if (track.playlistId) {
-      // playlist 내 곡 인덱스 계산 (역순 — YouTube playlist는 최신이 먼저)
       const catTracks = TRACKS.filter(t => t.category === track.category && t.playlistId === track.playlistId)
       const idx = catTracks.length - 1 - catTracks.indexOf(track)
-      return `https://www.youtube.com/embed/videoseries?list=${track.playlistId}&index=${Math.max(0, idx)}&autoplay=1`
+      return `https://www.youtube.com/embed/videoseries?list=${track.playlistId}&index=${Math.max(0, idx)}&autoplay=1&enablejsapi=1`
     }
     return null
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#1A1918] text-white pb-[env(safe-area-inset-bottom)]">
-      <header className="sticky top-0 z-40 bg-[#1A1918]/90 backdrop-blur-xl">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
-          <Link href="/" className="text-white/60 text-sm">←</Link>
-          <h1 className="text-[15px] font-bold">수면 도우미</h1>
-          <div className="w-6" />
-        </div>
-      </header>
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)] pb-[env(safe-area-inset-bottom)]">
+      <div className="pt-4 pb-2 px-5 max-w-lg mx-auto w-full flex items-center justify-between">
+        <Link href="/" className="text-[#9E9A95] text-sm">←</Link>
+        <h1 className="text-[15px] font-bold text-[#1A1918]">자장가 · 동요</h1>
+        <div className="w-6" />
+      </div>
 
       <div className="max-w-lg mx-auto w-full pb-40">
         {/* YouTube player */}
@@ -254,18 +280,21 @@ export default function LullabyPage() {
         )}
 
         {currentTrack && !getYouTubeEmbedUrl(currentTrack) && (
-          <div className="mx-5 mt-2 rounded-xl bg-[#2a2a2a] p-6 text-center">
-            <p className="text-[14px] font-medium text-white/80">{currentTrack.title}</p>
-            <p className="text-[13px] text-white/40 mt-1">재생 준비 중...</p>
+          <div className="mx-5 mt-2 rounded-xl bg-white border border-[#E8E4DF] p-6 text-center">
+            <p className="text-[14px] font-medium text-[#1A1918]">{currentTrack.title}</p>
+            <p className="text-[13px] text-[#9E9A95] mt-1">재생 준비 중...</p>
           </div>
         )}
 
-        {/* 카테고리별 곡 수 표시 */}
+        {/* 카테고리별 곡 수 표시 + 첫 진입 가이드 */}
         {!currentTrack && (
           <div className="mx-5 mt-4 text-center">
-            <p className="text-3xl mb-2">🌙</p>
-            <p className="text-[16px] font-bold text-white/90">수면 도우미</p>
-            <p className="text-[14px] text-white/50 mt-1">자장가 {LULLABY_TRACKS.length}곡 · 동요 {NURSERY_TRACKS.length}곡 · 자연음 {NATURE_TRACKS.length}곡</p>
+            <MoonIcon className="w-8 h-8 mx-auto mb-2 text-[var(--color-primary)]" />
+            <p className="text-[16px] font-bold text-[#1A1918]">자장가 · 동요</p>
+            <p className="text-[14px] text-[#9E9A95] mt-1">자장가 {LULLABY_TRACKS.length}곡 · 동요 {NURSERY_TRACKS.length}곡 · 자연음 {NATURE_TRACKS.length}곡</p>
+            <div className="mt-3 px-4 py-2 bg-[var(--color-accent-bg)] rounded-lg inline-block">
+              <p className="text-[13px] text-[#6B6966]">아래에서 곡을 선택해서 재생해보세요</p>
+            </div>
           </div>
         )}
 
@@ -276,7 +305,7 @@ export default function LullabyPage() {
               key={cat}
               onClick={() => setCategory(cat)}
               className={`px-4 py-2 rounded-full text-[14px] font-semibold transition-colors ${
-                category === cat ? 'bg-white text-[#1A1918]' : 'bg-[#2a2a2a] text-white/60'
+                category === cat ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-[#9E9A95] border border-[#E8E4DF]'
               }`}
             >
               {CATEGORY_LABELS[cat]}
@@ -295,19 +324,19 @@ export default function LullabyPage() {
                 onClick={() => hasAudio ? togglePlay(track.id) : undefined}
                 disabled={!hasAudio}
                 className={`w-full flex items-center gap-3 p-3 rounded-xl transition-colors ${
-                  isPlaying ? 'bg-[var(--color-primary)]/20 border border-[var(--color-primary)]/40' : hasAudio ? 'bg-[#2a2a2a] border border-transparent' : 'bg-[#2a2a2a]/50 border border-transparent opacity-50'
+                  isPlaying ? 'bg-[var(--color-accent-bg)] border border-[var(--color-primary)]/30' : hasAudio ? 'bg-white border border-[#E8E4DF]' : 'bg-white/60 border border-[#E8E4DF] opacity-50'
                 }`}
               >
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                  isPlaying ? 'bg-[var(--color-primary)]' : 'bg-[#3a3a3a]'
+                  isPlaying ? 'bg-[var(--color-primary)]' : 'bg-[#F0EDE8]'
                 }`}>
-                  <span className="text-white text-sm">{isPlaying ? '⏸' : hasAudio ? '▶' : '🔒'}</span>
+                  <span className={`text-sm ${isPlaying ? 'text-white' : 'text-[#6B6966]'}`}>{isPlaying ? '||' : hasAudio ? '▶' : '—'}</span>
                 </div>
                 <div className="flex-1 text-left">
-                  <p className={`text-[13px] font-medium ${isPlaying ? 'text-[var(--color-primary)]' : 'text-white/90'}`}>
+                  <p className={`text-[13px] font-medium ${isPlaying ? 'text-[var(--color-primary)]' : 'text-[#1A1918]'}`}>
                     {track.title}
                   </p>
-                  <p className="text-[13px] text-white/40">{track.duration}</p>
+                  <p className="text-[13px] text-[#9E9A95]">{track.duration}</p>
                 </div>
                 {track.avgSleepMin && (
                   <span className="text-[14px] text-[var(--color-primary)] font-semibold shrink-0">
@@ -343,6 +372,9 @@ export default function LullabyPage() {
                 <p className="text-[13px] font-medium text-white truncate">{currentTrack.title}</p>
                 <p className="text-[13px] text-white/40">{CATEGORY_LABELS[currentTrack.category]}</p>
               </div>
+              <button onClick={playNext} className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                <span className="text-white text-sm">⏭</span>
+              </button>
               <button
                 onClick={() => togglePlay(currentTrack.id)}
                 className="w-9 h-9 rounded-full bg-white flex items-center justify-center"

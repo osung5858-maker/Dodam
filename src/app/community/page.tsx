@@ -3,6 +3,8 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { ChatIcon, FireIcon, TrashIcon, HeartIcon, HeartFilledIcon, BookmarkIcon, BookmarkFilledIcon, GiftIcon, PackageIcon, MapPinIcon, CameraIcon, XIcon } from '@/components/ui/Icons'
+import AdSlot from '@/components/ads/AdSlot'
 
 type MainTab = 'feed' | 'market'
 
@@ -39,12 +41,12 @@ interface MarketItem {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  clothes: '👕 의류',
-  feeding: '🍼 수유/이유식',
-  toys: '🧸 장난감',
-  furniture: '🪑 가구/침대',
-  stroller: '🚗 유모차/카시트',
-  etc: '📦 기타',
+  clothes: '의류',
+  feeding: '수유/이유식',
+  toys: '장난감',
+  furniture: '가구/침대',
+  stroller: '유모차/카시트',
+  etc: '기타',
 }
 
 const CONDITION_LABELS: Record<string, string> = {
@@ -84,6 +86,31 @@ function timeAgo(dateStr: string): string {
   const hr = Math.floor(min / 60)
   if (hr < 24) return `${hr}시간 전`
   return `${Math.floor(hr / 24)}일 전`
+}
+
+const MODE_TAGS: Record<string, string[]> = {
+  preparing: ['난임극복', '기초체온공유', '시술후기', '배란테스트', '임신준비팁', '난임병원추천'],
+  pregnant: ['입덧극복', '태교일기', '임산부운동', '출산준비', '병원후기', '임신초기'],
+  parenting: ['이유식', '수면교육', '육아템추천', '소아과후기', '발달상담', '일상기록'],
+}
+
+function ModeHashtags({ onTag }: { onTag: (tag: string) => void }) {
+  const [mode, setMode] = useState('parenting')
+  useEffect(() => {
+    const saved = localStorage.getItem('dodam_mode')
+    if (saved) setMode(saved)
+  }, [])
+  const tags = MODE_TAGS[mode] || MODE_TAGS.parenting
+  return (
+    <div className="flex gap-1.5 overflow-x-auto hide-scrollbar mt-3">
+      {tags.map(tag => (
+        <button key={tag} onClick={() => onTag(tag)}
+          className="shrink-0 px-2.5 py-1.5 rounded-full text-[12px] font-semibold bg-white border border-[#E8E4DF] text-[#6B6966] active:bg-[var(--color-page-bg)]">
+          #{tag}
+        </button>
+      ))}
+    </div>
+  )
 }
 
 // 레거시 /community → /town 리다이렉트 (CommunityPageInner는 /town에서 사용)
@@ -189,14 +216,14 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
     } else if (navigator.share) {
       navigator.share({ title, text: desc, url }).catch(() => {})
     } else {
-      navigator.clipboard.writeText(url).then(() => alert('링크가 복사되었어요!'))
+      navigator.clipboard.writeText(url).then(() => window.dispatchEvent(new CustomEvent('dodam-toast', { detail: { message: '링크가 복사되었어요!' } })))
     }
   }
 
   const shareMarketItem = (item: any) => {
     const url = `${SITE_URL}/market-item/${item.id}`
     const title = `도담장터 · ${item.title}`
-    const desc = item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔 🤝'
+    const desc = item.price > 0 ? `${item.price.toLocaleString()}원` : '나눔'
 
     if (window.Kakao?.isInitialized?.()) {
       window.Kakao.Share.sendDefault({
@@ -207,7 +234,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
     } else if (navigator.share) {
       navigator.share({ title, text: `${desc} - ${item.description?.slice(0, 60) || ''}`, url }).catch(() => {})
     } else {
-      navigator.clipboard.writeText(url).then(() => alert('링크가 복사되었어요!'))
+      navigator.clipboard.writeText(url).then(() => window.dispatchEvent(new CustomEvent('dodam-toast', { detail: { message: '링크가 복사되었어요!' } })))
     }
   }
 
@@ -278,7 +305,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
       photos: mPhotos, condition: mCondition,
     }).select().single()
     if (error) {
-      alert(`등록 실패: ${error.message}`)
+      window.dispatchEvent(new CustomEvent('dodam-toast', { detail: { message: '등록에 실패했어요. 다시 시도해주세요.' } }))
       setPosting(false)
       return
     }
@@ -359,11 +386,11 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
   }
 
   return (
-    <div className={hideHeader ? '' : 'min-h-[100dvh] bg-[#FFF9F5]'}>
+    <div className={hideHeader ? '' : 'min-h-[100dvh] bg-[var(--color-page-bg)]'}>
       {!hideHeader && (
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-[#E8E4DF]/60">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
-          <h1 className="text-[17px] font-bold text-[#1A1918]">소통</h1>
+      <div className="pt-4 pb-2 px-5 max-w-lg mx-auto w-full">
+        <div className="flex items-center justify-between mb-3">
+          <h1 className="text-[15px] font-bold text-[#1A1918]">소통</h1>
           <button
             onClick={() => tab === 'feed' ? setWriteOpen(true) : setMarketOpen(true)}
             className="text-[14px] font-semibold text-white bg-[var(--color-primary)] px-3 py-1.5 rounded-lg active:opacity-80"
@@ -372,7 +399,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
           </button>
         </div>
 
-        <div className="flex px-5 pb-2 max-w-lg mx-auto w-full gap-2">
+        <div className="flex gap-2">
           {[
             { key: 'feed' as MainTab, label: '이야기' },
             { key: 'market' as MainTab, label: '도담장터' },
@@ -388,7 +415,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
             </button>
           ))}
         </div>
-      </header>
+      </div>
       )}
 
       {/* 글쓰기 FAB (hideHeader일 때 = town 페이지에서 사용 시) */}
@@ -407,6 +434,9 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
         {/* ===== 이야기 탭 ===== */}
         {tab === 'feed' && (
           <>
+            {/* 모드별 추천 해시태그 */}
+            <ModeHashtags onTag={(tag) => { setWriteText(`#${tag} `); setWriteOpen(true) }} />
+
             <div className="mt-3 p-4 bg-white rounded-xl border border-[#E8E4DF]">
               <p className="text-[14px] font-semibold text-[var(--color-primary)] mb-1">오늘의 질문</p>
               <p className="text-[14px] font-bold text-[#1A1918] mb-2">{dailyQuestion}</p>
@@ -452,21 +482,25 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
             <div className="mt-3 space-y-2">
               {posts.length === 0 ? (
                 <div className="bg-white rounded-xl p-8 border border-[#E8E4DF] text-center">
-                  <p className="text-2xl mb-2">💬</p>
-                  <p className="text-[13px] text-[#6B6966]">아직 글이 없어요</p>
+                  <ChatIcon className="w-7 h-7 mx-auto mb-2 text-[#9E9A95]" />
+                  <p className="text-[14px] font-bold text-[#1A1918] mb-1">첫 이야기를 나눠보세요</p>
+                  <p className="text-[13px] text-[#6B6966] mb-3">우리 동네 부모들과 육아 이야기를 나눠보세요</p>
+                  <button onClick={() => setWriteOpen(true)} className="px-4 py-2 bg-[var(--color-primary)] text-white text-[13px] font-semibold rounded-lg active:opacity-80">글쓰기</button>
                 </div>
-              ) : posts.map((post) => (
-                <div key={post.id} className="bg-white rounded-xl p-4 border border-[#E8E4DF]">
+              ) : posts.map((post, pi) => (
+                <div key={post.id}>
+                {pi === 3 && posts.length > 5 && <AdSlot variant="native" className="mb-2" />}
+                <div className="bg-white rounded-xl p-4 border border-[#E8E4DF]">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-[#FFF9F5] flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-full bg-[var(--color-page-bg)] flex items-center justify-center">
                         <span className="text-[14px] font-bold text-[var(--color-primary)]">도</span>
                       </div>
                       <p className="text-[14px] text-[#9E9A95]">{timeAgo(post.created_at)}</p>
-                      {post.like_count >= 5 && <span className="text-[13px] font-semibold text-[#D89575]">🔥 인기</span>}
+                      {post.like_count >= 5 && <span className="text-[13px] font-semibold text-[#D89575] flex items-center gap-0.5"><FireIcon className="w-3.5 h-3.5" /> 인기</span>}
                     </div>
                     {post.user_id === userId && (
-                      <button onClick={() => { if (confirm('정말 삭제할까요?')) handleDelete(post.id) }} className="text-[14px] text-[#9E9A95]">🗑</button>
+                      <button onClick={() => { if (confirm('정말 삭제할까요?')) handleDelete(post.id) }} className="text-[#9E9A95]"><TrashIcon className="w-4 h-4" /></button>
                     )}
                   </div>
                   <p className="text-[13px] text-[#1A1918] leading-relaxed mb-3 whitespace-pre-line">{post.content}</p>
@@ -475,19 +509,19 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                       onClick={() => toggleLike(post.id)}
                       className={`flex items-center gap-1 text-[13px] ${userLikes.has(post.id) ? 'text-[var(--color-primary)] font-semibold' : 'text-[#6B6966]'}`}
                     >
-                      {userLikes.has(post.id) ? '♥' : '♡'} {post.like_count}
+                      {userLikes.has(post.id) ? <HeartFilledIcon className="w-3.5 h-3.5 inline" /> : <HeartIcon className="w-3.5 h-3.5 inline" />} {post.like_count}
                     </button>
                     <button
                       onClick={() => toggleComments(post.id)}
                       className={`flex items-center gap-1 text-[13px] ${openComments === post.id ? 'text-[var(--color-primary)] font-semibold' : 'text-[#6B6966]'}`}
                     >
-                      💬 {post.comment_count}
+                      댓글 {post.comment_count}
                     </button>
                     <button
                       onClick={() => toggleBookmark(post.id)}
                       className={`flex items-center gap-1 text-[13px] ml-auto ${bookmarks.has(post.id) ? 'text-[var(--color-primary)] font-semibold' : 'text-[#6B6966]'}`}
                     >
-                      {bookmarks.has(post.id) ? '🔖' : '🔖'}
+                      {bookmarks.has(post.id) ? <BookmarkFilledIcon className="w-3.5 h-3.5 inline" /> : <BookmarkIcon className="w-3.5 h-3.5 inline" />}
                     </button>
                     <button
                       onClick={() => sharePost(post)}
@@ -505,7 +539,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                         <div className="space-y-2 mb-3">
                           {(comments[post.id] || []).map((c) => (
                             <div key={c.id} className="flex gap-2">
-                              <div className="w-6 h-6 rounded-full bg-[#FFF9F5] flex items-center justify-center shrink-0 mt-0.5">
+                              <div className="w-6 h-6 rounded-full bg-[var(--color-page-bg)] flex items-center justify-center shrink-0 mt-0.5">
                                 <span className="text-[13px] font-bold text-[var(--color-primary)]">도</span>
                               </div>
                               <div className="flex-1">
@@ -513,7 +547,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                                 <div className="flex items-center gap-2 mt-0.5">
                                   <span className="text-[13px] text-[#9E9A95]">{timeAgo(c.created_at)}</span>
                                   {c.user_id === userId && (
-                                    <button onClick={() => { if (confirm('댓글을 삭제할까요?')) deleteComment(c.id, post.id) }} className="text-[13px] text-[#9E9A95]">🗑</button>
+                                    <button onClick={() => { if (confirm('댓글을 삭제할까요?')) deleteComment(c.id, post.id) }} className="text-[#9E9A95]"><TrashIcon className="w-3 h-3" /></button>
                                   )}
                                 </div>
                               </div>
@@ -530,7 +564,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                           value={commentText}
                           onChange={(e) => setCommentText(e.target.value.slice(0, 500))}
                           placeholder="댓글을 입력하세요..."
-                          className="flex-1 h-9 px-3 rounded-xl bg-[#FFF9F5] text-[14px] focus:outline-none"
+                          className="flex-1 h-9 px-3 rounded-xl bg-[var(--color-page-bg)] text-[14px] focus:outline-none"
                           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitComment(post.id) } }}
                         />
                         <button
@@ -545,6 +579,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                       </div>
                     </div>
                   )}
+                </div>
                 </div>
               ))}
             </div>
@@ -587,7 +622,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
               })
               .length === 0 ? (
               <div className="bg-white rounded-xl p-8 border border-[#E8E4DF] text-center">
-                <p className="text-2xl mb-2">🎁</p>
+                <span className="block mb-2"><GiftIcon className="w-7 h-7 mx-auto text-[#9E9A95]" /></span>
                 <p className="text-[13px] text-[#6B6966]">아직 등록된 물품이 없어요</p>
                 <p className="text-[13px] text-[#9E9A95] mt-1">쓰지 않는 육아용품을 등록해보세요!</p>
               </div>
@@ -604,11 +639,11 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
               <div key={item.id} className="bg-white rounded-xl border border-[#E8E4DF] overflow-hidden">
                 {/* 썸네일 + 기본 정보 */}
                 <div className="flex items-start gap-3 p-4">
-                  <div className="w-20 h-20 rounded-xl bg-[#FFF9F5] flex items-center justify-center shrink-0 overflow-hidden">
+                  <div className="w-20 h-20 rounded-xl bg-[var(--color-page-bg)] flex items-center justify-center shrink-0 overflow-hidden">
                     {item.photos && item.photos.length > 0 ? (
                       <img src={item.photos[0]} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-2xl">{CATEGORY_LABELS[item.category]?.split(' ')[0] || '📦'}</span>
+                      <PackageIcon className="w-6 h-6 text-[#9E9A95]" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -627,7 +662,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                         <span className="ml-1 text-[#8B7355]">· {CONDITION_LABELS[(item as MarketItem & { condition?: string }).condition!] || ''}</span>
                       )}
                     </p>
-                    <p className="text-[14px] text-[#9E9A95] mt-0.5">📍 {item.region} · {timeAgo(item.created_at)}</p>
+                    <p className="text-[14px] text-[#9E9A95] mt-0.5 flex items-center gap-0.5"><MapPinIcon className="w-3 h-3 inline" /> {item.region} · {timeAgo(item.created_at)}</p>
                     <p className={`text-[15px] font-bold mt-1 ${item.price === 0 ? 'text-[var(--color-primary)]' : 'text-[#1A1918]'}`}>
                       {item.price === 0 ? '무료 나눔' : `${item.price.toLocaleString()}원`}
                     </p>
@@ -645,7 +680,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                 {item.photos && item.photos.length > 1 && (
                   <div className="flex gap-1 px-5 pb-3 overflow-x-auto">
                     {item.photos.map((url: string, i: number) => (
-                      <div key={i} className="w-14 h-14 rounded-lg bg-[#FFF9F5] shrink-0 overflow-hidden">
+                      <div key={i} className="w-14 h-14 rounded-lg bg-[var(--color-page-bg)] shrink-0 overflow-hidden">
                         <img src={url} alt="" className="w-full h-full object-cover" />
                       </div>
                     ))}
@@ -691,7 +726,7 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                       {/* 다른 사람 글: 거래 신청 */}
                       {item.status === 'active' && (
                         <button
-                          onClick={() => alert('채팅 기능은 준비 중이에요. 소통 탭에서 글로 문의해주세요!')}
+                          onClick={() => window.dispatchEvent(new CustomEvent('dodam-toast', { detail: { message: '채팅 기능은 준비 중이에요' } }))}
                           className="flex-1 py-2.5 text-[14px] font-semibold text-[var(--color-primary)] text-center"
                         >
                           거래 신청하기
@@ -797,17 +832,17 @@ export function CommunityPageInner({ initialTab: propTab, hideHeader }: { initia
                 <p className="text-[14px] font-semibold text-[#6B6966] mb-1">사진 (최대 {MAX_PHOTOS}장)</p>
                 <div className="flex gap-2">
                   {mPhotos.map((url, i) => (
-                    <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#FFF9F5]">
+                    <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden bg-[var(--color-page-bg)]">
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       <button
                         onClick={() => setMPhotos((prev) => prev.filter((_, j) => j !== i))}
                         className="absolute top-0.5 right-0.5 w-4 h-4 bg-black/50 rounded-full text-white text-[13px] flex items-center justify-center"
-                      >✕</button>
+                      ><XIcon className="w-3 h-3" /></button>
                     </div>
                   ))}
                   {mPhotos.length < MAX_PHOTOS && (
-                    <label className="w-16 h-16 rounded-xl border-2 border-dashed border-[#AEB1B9] flex flex-col items-center justify-center cursor-pointer active:bg-[#FFF9F5]">
-                      <span className="text-lg text-[#9E9A95]">{uploading ? '...' : '📷'}</span>
+                    <label className="w-16 h-16 rounded-xl border-2 border-dashed border-[#AEB1B9] flex flex-col items-center justify-center cursor-pointer active:bg-[var(--color-page-bg)]">
+                      {uploading ? <span className="text-lg text-[#9E9A95]">...</span> : <CameraIcon className="w-5 h-5 text-[#9E9A95]" />}
                       <span className="text-[13px] text-[#9E9A95]">{uploading ? '업로드' : '추가'}</span>
                       <input type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoUpload} disabled={uploading} />
                     </label>

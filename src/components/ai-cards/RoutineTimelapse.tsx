@@ -8,7 +8,7 @@ interface Props {
 }
 
 const TYPE_CONFIG: Record<string, { color: string; label: string }> = {
-  feed: { color: 'bg-[#FF6F0F]', label: '수유' },
+  feed: { color: 'bg-[var(--color-primary)]', label: '수유' },
   sleep: { color: 'bg-[#5B6DFF]', label: '수면' },
   poop: { color: 'bg-[#C68A2E]', label: '대변' },
   pee: { color: 'bg-[#3DA5F5]', label: '소변' },

@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import type { CareEvent } from '@/types'
 import { createBrowserClient } from '@supabase/ssr'
+import { AlertIcon, XIcon } from '@/components/ui/Icons'
 
 interface Props {
   events: CareEvent[]
@@ -74,7 +75,7 @@ export default function EmergencyCard({ events }: Props) {
         : 'bg-orange-50 border-orange-200'
     }`}>
       <div className="flex items-start gap-3">
-        <span className="text-xl shrink-0">{isCritical ? '🚨' : '⚠️'}</span>
+        <span className="shrink-0"><AlertIcon className={`w-5 h-5 ${isCritical ? 'text-red-600' : 'text-orange-600'}`} /></span>
         <div className="flex-1">
           <p className={`text-[14px] font-bold ${isCritical ? 'text-red-600' : 'text-orange-600'}`}>
             체온 {celsius}°C {isCritical ? '— 고열이에요!' : '— 미열이에요'}
@@ -106,10 +107,10 @@ export default function EmergencyCard({ events }: Props) {
             )}
           </div>
           <p className="text-[14px] text-[#9E9A95] mt-2">
-            ⚠️ 참고용 정보예요. 걱정되시면 소아과 상담을 추천드려요.
+            참고용 정보예요. 걱정되시면 소아과 상담을 추천드려요.
           </p>
         </div>
-        <button onClick={() => setDismissed(true)} className="text-[#9E9A95] text-xs p-1">✕</button>
+        <button onClick={() => setDismissed(true)} className="text-[#9E9A95] p-1"><XIcon className="w-4 h-4" /></button>
       </div>
     </div>
   )

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import { PregnantIcon, EnvelopeIcon, CheckCircleIcon, SproutIcon, RainbowIcon } from '@/components/ui/Icons'
+import IllustVideo from '@/components/ui/IllustVideo'
 
 export default function CelebrationPage() {
   const router = useRouter()
@@ -64,15 +66,15 @@ export default function CelebrationPage() {
                   opacity: 0.7 + Math.random() * 0.3,
                 }}
               >
-                {['✨', '💛', '🌟', '💕', '🎉', '⭐', '🤍', '💫'][Math.floor(Math.random() * 8)]}
+                {['*', '+', '·', ':', '*', '+', '·', ':'][Math.floor(Math.random() * 8)]}
               </div>
             ))}
           </div>
         )}
 
         <div className="relative z-10 text-center">
-          <div className="w-28 h-28 mx-auto rounded-full bg-gradient-to-br from-[#FFF8F0] to-[#F0F9F4] flex items-center justify-center mb-6 shadow-[0_8px_40px_rgba(61,138,90,0.15)]">
-            <span className="text-5xl">🤰</span>
+          <div className="mb-6">
+            <IllustVideo src="/images/illustrations/celebration-hero.webm" className="w-56 h-56 mx-auto" />
           </div>
 
           <h1 className="text-[28px] font-bold text-[#1A1918] mb-2">
@@ -110,7 +112,7 @@ export default function CelebrationPage() {
   // Step 1: 여정 회고
   if (step === 1) {
     return (
-      <div className="min-h-[100dvh] bg-[#FFF9F5] flex flex-col">
+      <div className="min-h-[100dvh] bg-[var(--color-page-bg)] flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center px-6">
           <p className="text-[13px] text-[#6B6966] mb-2">임신 준비 여정</p>
           <h2 className="text-[22px] font-bold text-[#1A1918] mb-8">함께 걸어온 길</h2>
@@ -118,7 +120,7 @@ export default function CelebrationPage() {
           <div className="w-full max-w-xs space-y-4">
             {/* 준비 기간 */}
             <div className="bg-white rounded-2xl p-5 text-center shadow-sm">
-              <p className="text-3xl mb-2">📅</p>
+              <p className="text-[15px] font-bold text-[var(--color-primary)] mb-2">D-day</p>
               <p className="text-[24px] font-bold text-[var(--color-primary)]">{journey.days}일</p>
               <p className="text-[13px] text-[#6B6966]">함께 준비한 날들</p>
             </div>
@@ -126,28 +128,28 @@ export default function CelebrationPage() {
             <div className="grid grid-cols-2 gap-3">
               {/* 편지 */}
               <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl mb-1">✉️</p>
+                <EnvelopeIcon className="w-6 h-6 mx-auto mb-1 text-[#6B6966]" />
                 <p className="text-[20px] font-bold text-[#1A1918]">{journey.letters}</p>
                 <p className="text-[13px] text-[#6B6966]">아이에게 보낸 편지</p>
               </div>
 
               {/* 검사 완료 */}
               <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl mb-1">🏥</p>
+                <CheckCircleIcon className="w-6 h-6 mx-auto mb-1 text-[#6B6966]" />
                 <p className="text-[20px] font-bold text-[#1A1918]">{journey.supplements}</p>
                 <p className="text-[13px] text-[#6B6966]">완료한 검사</p>
               </div>
 
               {/* 체크리스트 */}
               <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl mb-1">✅</p>
+                <CheckCircleIcon className="w-6 h-6 mx-auto mb-1 text-[var(--color-primary)]" />
                 <p className="text-[20px] font-bold text-[#1A1918]">{journey.checks}/8</p>
                 <p className="text-[13px] text-[#6B6966]">준비 체크리스트</p>
               </div>
 
               {/* 성장 시각화 */}
               <div className="bg-white rounded-2xl p-4 text-center shadow-sm">
-                <p className="text-2xl mb-1">{journey.letters >= 30 ? '🌳' : journey.letters >= 10 ? '🌿' : '🌱'}</p>
+                <SproutIcon className="w-6 h-6 mx-auto mb-1 text-[var(--color-primary)]" />
                 <p className="text-[13px] font-semibold text-[var(--color-primary)]">
                   {journey.letters >= 30 ? '큰 나무' : journey.letters >= 10 ? '푸른 잎' : '작은 새싹'}
                 </p>
@@ -158,7 +160,7 @@ export default function CelebrationPage() {
             {journey.letters > 0 && (
               <div className="bg-[#FFF8F3] rounded-2xl p-4 text-center">
                 <p className="text-[14px] text-[#6B6966] mb-1">보낸 편지들은 소중히 보관돼요</p>
-                <p className="text-[13px] text-[var(--color-primary)] font-semibold">아이가 태어나면 함께 읽어보세요 💌</p>
+                <p className="text-[13px] text-[var(--color-primary)] font-semibold">아이가 태어나면 함께 읽어보세요</p>
               </div>
             )}
           </div>
@@ -177,9 +179,7 @@ export default function CelebrationPage() {
   // Step 2: 출산 예정일 설정 + 모드 전환
   return (
     <div className="min-h-[100dvh] bg-white flex flex-col items-center justify-center px-6">
-      <div className="w-20 h-20 rounded-full bg-[#F0F9F4] flex items-center justify-center mb-4">
-        <span className="text-3xl">🌈</span>
-      </div>
+      <IllustVideo src="/images/illustrations/celebration-new-start.webm" className="w-48 h-48 mb-4" />
 
       <h2 className="text-[22px] font-bold text-[#1A1918] mb-1">새로운 시작</h2>
       <p className="text-[14px] text-[#6B6966] mb-8 text-center">
@@ -202,15 +202,15 @@ export default function CelebrationPage() {
           <p className="text-[13px] font-semibold text-[var(--color-primary)] mb-2">앞으로 도담이 도와줄 것들</p>
           <div className="space-y-2">
             {[
-              { icon: '🫐', text: '주차별 태아 크기 · 발달 정보' },
-              { icon: '📋', text: '트리메스터별 체크리스트' },
-              { icon: '💚', text: '엄마 건강 관리 · AI 케어' },
-              { icon: '📝', text: '태교 일기 · 감정 기록' },
-              { icon: '👥', text: '가족과 함께 공유' },
-            ].map((item) => (
-              <div key={item.text} className="flex items-center gap-2">
-                <span className="text-sm">{item.icon}</span>
-                <p className="text-[14px] text-[#1A1918]">{item.text}</p>
+              '주차별 태아 크기 · 발달 정보',
+              '트리메스터별 체크리스트',
+              '엄마 건강 관리 · AI 케어',
+              '태교 일기 · 감정 기록',
+              '가족과 함께 공유',
+            ].map((text) => (
+              <div key={text} className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shrink-0" />
+                <p className="text-[14px] text-[#1A1918]">{text}</p>
               </div>
             ))}
           </div>
@@ -221,7 +221,7 @@ export default function CelebrationPage() {
         onClick={handleComplete}
         className="mt-8 w-full max-w-xs py-3.5 bg-[var(--color-primary)] text-white text-[15px] font-semibold rounded-2xl shadow-[0_4px_20px_rgba(61,138,90,0.3)] active:scale-[0.98] transition-all"
       >
-        {dueDate ? '임신 여정 시작하기 💛' : '나중에 설정할게요'}
+        {dueDate ? '임신 여정 시작하기' : '나중에 설정할게요'}
       </button>
     </div>
   )

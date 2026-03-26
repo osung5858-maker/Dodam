@@ -117,8 +117,8 @@ export function setGestureEnabled(enabled: boolean): void {
 
 // 제스처 안내 오버레이용 데이터
 export const GESTURE_GUIDE = [
-  { direction: '↑ 위로', type: '수유', emoji: '🍼' },
-  { direction: '↓ 아래로', type: '대변', emoji: '💩' },
-  { direction: '← 왼쪽', type: '수면', emoji: '💤' },
-  { direction: '→ 오른쪽', type: '소변', emoji: '💧' },
+  { direction: '위로', type: '수유' },
+  { direction: '아래로', type: '대변' },
+  { direction: '왼쪽', type: '수면' },
+  { direction: '오른쪽', type: '소변' },
 ]

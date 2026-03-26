@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react'
 import { getUpcomingSchedule } from '@/lib/utils/checkup-schedule'
+import { StethoscopeIcon, ClipboardIcon, SyringeIcon } from '@/components/ui/Icons'
 
 interface Props {
   birthdate: string
@@ -16,7 +17,7 @@ export default function CheckupBanner({ birthdate }: Props) {
     <div className="px-4 mb-3">
       <div className="rounded-2xl bg-white border border-[#E8E4DF] overflow-hidden">
         <div className="px-3.5 pt-3 pb-1.5 flex items-center gap-2">
-          <span className="text-xs">🩺</span>
+          <StethoscopeIcon className="w-3.5 h-3.5 text-[#5A5854]" />
           <span className="text-xs font-bold text-[#0A0B0D]">검진 · 접종 일정</span>
         </div>
         {schedule.map((item, i) => (
@@ -29,7 +30,9 @@ export default function CheckupBanner({ birthdate }: Props) {
                 ? 'bg-orange-50'
                 : 'bg-blue-50'
             }`}>
-              <span className="text-sm">{item.type === 'checkup' ? '📋' : '💉'}</span>
+              {item.type === 'checkup'
+                ? <ClipboardIcon className="w-4 h-4 text-[#5B9FD6]" />
+                : <SyringeIcon className="w-4 h-4 text-[#5B9FD6]" />}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-[#0A0B0D] truncate">{item.name}</p>

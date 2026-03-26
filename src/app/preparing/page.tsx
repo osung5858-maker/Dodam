@@ -4,6 +4,8 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { shareAIAdvice, shareProgress, sharePartnerNudge } from '@/lib/kakao/share'
+import { SparkleIcon, PenIcon } from '@/components/ui/Icons'
+import AIMealCard from '@/components/ai-cards/AIMealCard'
 
 function addDays(date: Date, days: number): Date {
   const d = new Date(date); d.setDate(d.getDate() + days); return d
@@ -27,33 +29,33 @@ interface AIBriefing {
 
 // ===== 더보기 섹션 데이터 =====
 const GOOD_FOODS = [
-  { icon: '🥬', name: '엽산 식품', items: '시금치 · 브로콜리 · 아보카도' },
-  { icon: '🐟', name: '오메가3', items: '연어 · 고등어 · 호두' },
-  { icon: '🥩', name: '철분', items: '소고기 · 두부 · 렌틸콩' },
-  { icon: '🫐', name: '항산화', items: '블루베리 · 토마토 · 석류' },
+  { icon: '', name: '엽산 식품', items: '시금치 · 브로콜리 · 아보카도' },
+  { icon: '', name: '오메가3', items: '연어 · 고등어 · 호두' },
+  { icon: '', name: '철분', items: '소고기 · 두부 · 렌틸콩' },
+  { icon: '', name: '항산화', items: '블루베리 · 토마토 · 석류' },
 ]
 const BAD_FOODS = [
-  { icon: '☕', name: '카페인', desc: '하루 1잔 이하' },
-  { icon: '🍺', name: '알코올', desc: '완전 금주' },
-  { icon: '🐟', name: '고수은 생선', desc: '참치(큰것) · 황새치' },
+  { icon: '', name: '카페인', desc: '하루 1잔 이하' },
+  { icon: '', name: '알코올', desc: '완전 금주' },
+  { icon: '', name: '고수은 생선', desc: '참치(큰것) · 황새치' },
 ]
 
 const APPOINTMENTS = [
-  { id: 'basic', title: '🩸 기본 혈액검사', priority: 'high', desc: '빈혈 · 갑상선 · 간기능 · 혈당 · 혈액형', where: '산부인과 또는 보건소 (무료)', why: '임신 전 몸 상태 확인. 빈혈이 있으면 임신이 어려울 수 있어요' },
-  { id: 'rubella', title: '💉 풍진 항체검사', priority: 'high', desc: '풍진 면역 여부 확인', where: '산부인과 또는 보건소 (무료)', why: '임신 중 풍진 감염 시 태아 기형 위험. 항체 없으면 접종 후 1개월 피임 필요' },
-  { id: 'amh', title: '🔬 AMH 검사', priority: 'high', desc: '난소 기능 · 잔여 난자 수 예측', where: '산부인과 (유료 5~10만원)', why: '35세 이상 필수. 난소 나이를 확인해 임신 계획에 도움' },
-  { id: 'dental', title: '🦷 치과 검진', priority: 'medium', desc: '충치 · 잇몸 치료', where: '치과', why: '임신 중 치과 치료 제한됨. 미리 치료해야 해요' },
-  { id: 'pap', title: '🏥 자궁경부암 검사', priority: 'medium', desc: '자궁경부 세포 검사', where: '산부인과 또는 보건소 (만 20세+ 무료)', why: '2년 이내 미실시 시 필수' },
-  { id: 'std', title: '🧪 성병 검사', priority: 'medium', desc: '클라미디아 · 매독 · HIV', where: '산부인과 또는 보건소', why: '무증상 감염도 있어 임신 전 확인 필요' },
-  { id: 'genetic', title: '🧬 유전 상담', priority: 'low', desc: '유전 질환 가족력 확인', where: '대학병원 유전 상담 센터', why: '가족 중 유전 질환이 있을 경우 상담 권장' },
-  { id: 'sperm', title: '🔎 정액 검사', priority: 'low', desc: '정자 수 · 운동성 · 형태', where: '비뇨기과 또는 난임 클리닉', why: '6개월 이상 임신 안 될 때. 남성 요인이 40%' },
+  { id: 'basic', title: '기본 혈액검사', priority: 'high', desc: '빈혈 · 갑상선 · 간기능 · 혈당 · 혈액형', where: '산부인과 또는 보건소 (무료)', why: '임신 전 몸 상태 확인. 빈혈이 있으면 임신이 어려울 수 있어요' },
+  { id: 'rubella', title: '풍진 항체검사', priority: 'high', desc: '풍진 면역 여부 확인', where: '산부인과 또는 보건소 (무료)', why: '임신 중 풍진 감염 시 태아 기형 위험. 항체 없으면 접종 후 1개월 피임 필요' },
+  { id: 'amh', title: 'AMH 검사', priority: 'high', desc: '난소 기능 · 잔여 난자 수 예측', where: '산부인과 (유료 5~10만원)', why: '35세 이상 필수. 난소 나이를 확인해 임신 계획에 도움' },
+  { id: 'dental', title: '치과 검진', priority: 'medium', desc: '충치 · 잇몸 치료', where: '치과', why: '임신 중 치과 치료 제한됨. 미리 치료해야 해요' },
+  { id: 'pap', title: '자궁경부암 검사', priority: 'medium', desc: '자궁경부 세포 검사', where: '산부인과 또는 보건소 (만 20세+ 무료)', why: '2년 이내 미실시 시 필수' },
+  { id: 'std', title: '성병 검사', priority: 'medium', desc: '클라미디아 · 매독 · HIV', where: '산부인과 또는 보건소', why: '무증상 감염도 있어 임신 전 확인 필요' },
+  { id: 'genetic', title: '유전 상담', priority: 'low', desc: '유전 질환 가족력 확인', where: '대학병원 유전 상담 센터', why: '가족 중 유전 질환이 있을 경우 상담 권장' },
+  { id: 'sperm', title: '정액 검사', priority: 'low', desc: '정자 수 · 운동성 · 형태', where: '비뇨기과 또는 난임 클리닉', why: '6개월 이상 임신 안 될 때. 남성 요인이 40%' },
 ]
 
 const STRESS_TIPS = [
-  { icon: '🧘', title: '4-7-8 호흡법', desc: '4초 들숨 → 7초 멈춤 → 8초 날숨' },
-  { icon: '🚶‍♀️', title: '산책 명상', desc: '15분 걷기 + 자연 소리' },
-  { icon: '📝', title: '감사 일기', desc: '매일 3가지 감사한 것' },
-  { icon: '🎵', title: '음악 테라피', desc: '편안한 음악 20분' },
+  { icon: '', title: '4-7-8 호흡법', desc: '4초 들숨 → 7초 멈춤 → 8초 날숨' },
+  { icon: '', title: '산책 명상', desc: '15분 걷기 + 자연 소리' },
+  { icon: '', title: '감사 일기', desc: '매일 3가지 감사한 것' },
+  { icon: '', title: '음악 테라피', desc: '편안한 음악 20분' },
 ]
 
 // ===== 생년월일 선택 (년/월/일) =====
@@ -123,10 +125,10 @@ function AITypingDisplay({ briefing, onRefresh, onShare }: { briefing: any; onRe
           {expanded && (
             <div className="mt-2 space-y-2 bg-white/60 rounded-lg p-2.5">
               <p className="text-[13px] text-[#4A4744] leading-relaxed">{briefing.mainAdvice}</p>
-              {briefing.cycleInsight && <p className="text-[13px] text-[#4A4744] leading-relaxed">🔄 {briefing.cycleInsight}</p>}
-              {briefing.emotionalCare && <p className="text-[13px] text-[#4A4744] leading-relaxed">💚 {briefing.emotionalCare}</p>}
-              {briefing.nutritionTip && <p className="text-[13px] text-[#4A4744] leading-relaxed">🥗 {briefing.nutritionTip}</p>}
-              {briefing.partnerTip && <p className="text-[13px] text-[#4A4744] leading-relaxed">💑 {briefing.partnerTip}</p>}
+              {briefing.cycleInsight && <p className="text-[13px] text-[#4A4744] leading-relaxed">{briefing.cycleInsight}</p>}
+              {briefing.emotionalCare && <p className="text-[13px] text-[#4A4744] leading-relaxed">{briefing.emotionalCare}</p>}
+              {briefing.nutritionTip && <p className="text-[13px] text-[#4A4744] leading-relaxed">{briefing.nutritionTip}</p>}
+              {briefing.partnerTip && <p className="text-[13px] text-[#4A4744] leading-relaxed">{briefing.partnerTip}</p>}
             </div>
           )}
 
@@ -144,6 +146,81 @@ function AITypingDisplay({ briefing, onRefresh, onShare }: { briefing: any; onRe
 }
 
 function haptic() { if (navigator.vibrate) navigator.vibrate(20) }
+
+// ===== 임신 준비 식단 추천 카드 =====
+function PreparingMealCard({ phase }: { phase: string }) {
+  const [meal, setMeal] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const phaseKo: Record<string, string> = { follicular: '난포기', fertile: '가임기', ovulation: '배란기', luteal: '황체기', tww: '착상대기', menstrual: '생리기' }
+
+  useEffect(() => {
+    const cacheKey = `dodam_prep_meal_${phase}_${new Date().toISOString().split('T')[0]}`
+    try { const c = localStorage.getItem(cacheKey); if (c) { const d = JSON.parse(c); if (d.breakfast) setMeal(d) } } catch { /* */ }
+  }, [phase])
+
+  const fetchMeal = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/ai-preparing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'meal', phase }) })
+      const data = await res.json()
+      if (data.breakfast) {
+        setMeal(data); setExpanded(true)
+        try { localStorage.setItem(`dodam_prep_meal_${phase}_${new Date().toISOString().split('T')[0]}`, JSON.stringify(data)) } catch { /* */ }
+      }
+    } catch { /* */ }
+    setLoading(false)
+  }
+
+  if (!meal && !loading) {
+    return (
+      <button onClick={fetchMeal} className="w-full bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5 active:bg-[#F5F1EC] text-left">
+        <div className="w-9 h-9 rounded-full bg-[#F0F4FF] flex items-center justify-center shrink-0">
+          <SparkleIcon className="w-4.5 h-4.5 text-[#4A6FA5]" />
+        </div>
+        <div className="flex-1">
+          <p className="text-[14px] font-semibold text-[#1A1918]">{phaseKo[phase] || phase} 맞춤 식단</p>
+          <p className="text-[13px] text-[#9E9A95]">AI 오늘의 식단 추천받기</p>
+        </div>
+      </button>
+    )
+  }
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 flex items-center gap-2.5">
+        <div className="w-5 h-5 border-2 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
+        <p className="text-[13px] text-[#6B6966]">AI가 {phaseKo[phase] || ''} 맞춤 식단을 추천 중...</p>
+      </div>
+    )
+  }
+  return (
+    <div className="bg-white rounded-xl border border-[#E8E4DF] overflow-hidden">
+      <button onClick={() => setExpanded(v => !v)} className="w-full p-3 flex items-center gap-2.5 text-left active:bg-[#F5F1EC]">
+        <div className="w-9 h-9 rounded-full bg-[#F0F4FF] flex items-center justify-center shrink-0">
+          <SparkleIcon className="w-4.5 h-4.5 text-[#4A6FA5]" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-[#1A1918]">{phaseKo[phase] || phase} · 오늘의 식단</p>
+          <p className="text-[13px] text-[#6B6966] truncate">{meal.breakfast?.menu} · {meal.lunch?.menu}</p>
+        </div>
+        <span className="text-[12px] text-[#9E9A95]">{expanded ? '접기' : '펼치기'}</span>
+      </button>
+      {expanded && (
+        <div className="px-3 pb-3 space-y-2">
+          {[{ label: '아침', data: meal.breakfast }, { label: '점심', data: meal.lunch }, { label: '저녁', data: meal.dinner }, { label: '간식', data: meal.snack }].map(m => m.data && (
+            <div key={m.label} className="p-2.5 rounded-lg bg-[var(--color-page-bg)]">
+              <p className="text-[12px] font-semibold text-[#6B6966]">{m.label}</p>
+              <p className="text-[13px] font-medium text-[#1A1918] mt-0.5">{m.data.menu}</p>
+              <p className="text-[11px] text-[#9E9A95]">{m.data.reason}</p>
+            </div>
+          ))}
+          {meal.keyNutrient && <p className="text-[12px] text-[var(--color-primary)] font-medium px-1">핵심 영양소: {meal.keyNutrient}</p>}
+          <button onClick={fetchMeal} className="w-full py-1.5 text-[11px] text-[#6B6966] bg-[var(--color-page-bg)] rounded-lg active:bg-[#E8E4DF]">다른 식단</button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function PreparingPage() {
   const [toast, setToast] = useState<string | null>(null)
@@ -354,6 +431,7 @@ export default function PreparingPage() {
   }
 
   // 핸들러
+  const SUPPL_NAMES: Record<string, string> = { folic: '엽산', vitd: '비타민D', iron: '철분', omega3: '오메가3' }
   const toggleSupplement = (key: string) => {
     const today = new Date().toISOString().split('T')[0]
     const next = { ...supplements, [key]: !supplements[key] }
@@ -361,7 +439,8 @@ export default function PreparingPage() {
     saveHistory('suppl', Object.values(next).filter(Boolean).length)
     const done = Object.values(next).filter(Boolean).length
     const total = Object.keys(next).length
-    showToast(next[key] ? `${key} 복용 완료! (${done}/${total})` : `${key} 취소`)
+    const name = SUPPL_NAMES[key] || key
+    showToast(next[key] ? `${name} 복용 완료! (${done}/${total})` : `${name} 취소`)
   }
   const saveMood = (mood: string) => {
     const today = new Date().toISOString().split('T')[0]
@@ -421,12 +500,12 @@ export default function PreparingPage() {
             <p className="text-[14px] font-semibold text-[#6B6966] mb-2">나는</p>
             <div className="flex gap-2">
               <button onClick={() => setMyRole('mom')}
-                className={`flex-1 py-3 rounded-xl text-[14px] font-semibold ${myRole === 'mom' ? 'bg-[var(--color-primary)] text-white' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
-                🤰 예비맘
+                className={`flex-1 py-3 rounded-xl text-[14px] font-semibold ${myRole === 'mom' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-page-bg)] text-[#6B6966]'}`}>
+                예비맘
               </button>
               <button onClick={() => setMyRole('dad')}
-                className={`flex-1 py-3 rounded-xl text-[14px] font-semibold ${myRole === 'dad' ? 'bg-[var(--color-primary)] text-white' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
-                👨 예비파파
+                className={`flex-1 py-3 rounded-xl text-[14px] font-semibold ${myRole === 'dad' ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-page-bg)] text-[#6B6966]'}`}>
+                예비파파
               </button>
             </div>
           </div>
@@ -457,7 +536,7 @@ export default function PreparingPage() {
             <div className="mb-5 bg-[#F0F9F4] rounded-xl p-4 text-center">
               <p className="text-[13px] font-semibold text-[var(--color-primary)] mb-1">아내를 초대하세요</p>
               <p className="text-[13px] text-[#6B6966] mb-3">아내가 생리 주기를 입력하면 더 정확한 조언을 받을 수 있어요</p>
-              <a href="/settings/caregivers/invite" className="inline-block px-4 py-2 bg-[var(--color-primary)] text-white text-[14px] font-semibold rounded-xl">💌 아내 초대하기</a>
+              <a href="/settings/caregivers/invite" className="inline-block px-4 py-2 bg-[var(--color-primary)] text-white text-[14px] font-semibold rounded-xl">아내 초대하기</a>
             </div>
           )}
 
@@ -480,29 +559,8 @@ export default function PreparingPage() {
   const showTWW = dpo >= 0 && dpo <= 16
 
   return (
-    <div className="min-h-[100dvh] bg-[#FFF9F5]">
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-[#E8E4DF]/60">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
-          <div>
-            <p className="text-[14px] text-[#6B6966]">임신 준비 · {phaseLabel[getCyclePhase()]}</p>
-            <p className="text-[16px] font-bold text-[#1A1918]">{cycle ? `주기 ${cycle.cycleDay}일차` : '주기 설정'}</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setEditingCycle(true)} className="text-[13px] text-[#6B6966]">✏️</button>
-            <Link href="/waiting" className="relative w-9 h-9 rounded-full bg-[#F0EDE8] flex items-center justify-center">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#212124" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              {supplCount === 0 && <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full" />}
-            </Link>
-            <Link href="/settings" className="w-9 h-9 rounded-full bg-[var(--color-primary)] flex items-center justify-center overflow-hidden">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              )}
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)]">
+      {/* 헤더는 GlobalHeader (layout.tsx)에서 처리 */}
 
       <div className="max-w-lg mx-auto w-full px-5 pt-4 pb-28 space-y-3">
 
@@ -511,7 +569,7 @@ export default function PreparingPage() {
           <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)] p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-sm">✨</span>
+                <SparkleIcon className="w-4 h-4 text-[#C4913E]" />
                 <p className="text-[14px] font-bold text-[#1A1918]">오늘의 AI 케어</p>
               </div>
               {aiBriefing?.todayScore ? (
@@ -540,7 +598,7 @@ export default function PreparingPage() {
               <div className="text-center py-3">
                 <p className="text-[13px] text-[#1A1918] mb-2">오늘의 맞춤 조언을 받아보세요</p>
                 <button onClick={() => fetchAIBriefing()} className="px-6 py-2.5 bg-[var(--color-primary)] text-white text-[13px] font-semibold rounded-xl active:opacity-80 shadow-[0_2px_12px_rgba(61,138,90,0.3)]">
-                  ✨ AI 조언 받기
+                  AI 조언 받기
                 </button>
               </div>
             )}
@@ -549,7 +607,7 @@ export default function PreparingPage() {
             {showTWW && (
               <div className="mt-3 pt-3 border-t border-[var(--color-accent-bg)]/50">
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-[13px] font-semibold text-[#1A1918]">🤞 착상 기다리는 중 D+{dpo}</p>
+                  <p className="text-[13px] font-semibold text-[#1A1918]">착상 기다리는 중 D+{dpo}</p>
                   <p className="text-[14px] text-[var(--color-primary)]">{Math.round((dpo / 14) * 100)}%</p>
                 </div>
                 <div className="w-full h-1.5 bg-white/50 rounded-full">
@@ -564,22 +622,22 @@ export default function PreparingPage() {
         {(() => {
           const suggestions: { icon: string; text: string; action?: string; href?: string }[] = []
           // 영양제 안 챙김
-          if (supplCount === 0) suggestions.push({ icon: '💊', text: '오늘 엽산 아직 안 챙겼어요!', action: 'suppl' })
+          if (supplCount === 0) suggestions.push({ icon: '', text: '오늘 엽산 아직 안 챙겼어요!', action: 'suppl' })
           // 가임기 알림
           if (getCyclePhase() === 'fertile') {
-            suggestions.push({ icon: '💕', text: '지금 가임기예요! 타이밍 잡아보세요', href: '/waiting' })
+            suggestions.push({ icon: '', text: '지금 가임기예요! 타이밍 잡아보세요', href: '/waiting' })
           }
           // TWW 안내
           if (getCyclePhase() === 'tww') {
-            suggestions.push({ icon: '🤞', text: '착상 기다리는 중이에요. 무리하지 마세요', href: '/waiting' })
+            suggestions.push({ icon: '', text: '착상 기다리는 중이에요. 무리하지 마세요', href: '/waiting' })
           }
 
           if (suggestions.length === 0) return null
           return (
             <div className="space-y-1.5">
               {suggestions.slice(0, 3).map((s, i) => (
-                <Link key={i} href={s.href || '#'} className="flex items-center gap-2.5 bg-white rounded-xl border border-[#FFDDC8] p-3 active:bg-[#FFF9F5]">
-                  <span className="text-[16px]">{s.icon}</span>
+                <Link key={i} href={s.href || '#'} className="flex items-center gap-2.5 bg-white rounded-xl border border-[#FFDDC8] p-3 active:bg-[var(--color-page-bg)]">
+                  <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] shrink-0" />
                   <p className="text-[13px] text-[#1A1918] flex-1">{s.text}</p>
                   <span className="text-[#9E9A95] text-[12px]">→</span>
                 </Link>
@@ -605,7 +663,7 @@ export default function PreparingPage() {
                 { key: 'omega3', name: '오메가3' },
               ].map((s) => (
                 <button key={s.key} onClick={() => toggleSupplement(s.key)}
-                  className={`flex-1 py-2 rounded-lg text-center text-[13px] font-medium ${supplements[s.key] ? 'bg-[var(--color-primary)] text-white' : 'bg-[#FFF9F5] text-[#6B6966]'}`}>
+                  className={`flex-1 py-2 rounded-lg text-center text-[13px] font-medium ${supplements[s.key] ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-page-bg)] text-[#6B6966]'}`}>
                   {supplements[s.key] ? '✓ ' : ''}{s.name}
                 </button>
               ))}
@@ -613,6 +671,9 @@ export default function PreparingPage() {
           </div>
 
         </div>
+
+        {/* ━━━ 임신 준비 식단 추천 ━━━ */}
+        <AIMealCard mode="preparing" value={0} phase={getCyclePhase()} />
 
         {/* ━━━ 3. 상태 카드 2열 ━━━ */}
         <div className="grid grid-cols-2 gap-2">
@@ -626,7 +687,7 @@ export default function PreparingPage() {
             prob = Math.max(5, Math.min(45, prob))
             return (
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center">
-                <p className="text-[13px] text-[#6B6966]">🤰 임신 가능성</p>
+                <p className="text-[13px] text-[#6B6966]">임신 가능성</p>
                 <p className="text-[22px] font-bold text-[var(--color-primary)] mt-1">{prob}%</p>
                 <div className="w-full h-1.5 bg-[#E8E4DF] rounded-full mt-1.5">
                   <div className="h-full bg-[var(--color-primary)] rounded-full" style={{ width: `${prob}%` }} />
@@ -653,20 +714,20 @@ export default function PreparingPage() {
             let valueColor = '#6B6966'
 
             if (phase === 'ovulation' || daysUntil === 0) {
-              label = '🥚 오늘 배란일!'
+              label = '오늘 배란일!'
               valueText = 'TODAY'
               valueColor = '#E85D4A'
             } else if (daysUntil > 0 && daysUntil <= 5) {
-              label = '🥚 배란 예정'
+              label = '배란 예정'
               valueText = `D-${daysUntil}`
-              valueColor = '#FF6F0F'
+              valueColor = 'var(--color-primary)'
             } else if (daysUntil > 5) {
-              label = '🥚 배란 예정'
+              label = '배란 예정'
               valueText = `D-${daysUntil}`
               valueColor = 'var(--color-primary)'
             } else {
               // 배란 지남 (TWW)
-              label = '🥚 다음 배란'
+              label = '다음 배란'
               valueText = `D-${Math.max(0, daysUntil + cycleLength)}`
               valueColor = '#6B6966'
             }

@@ -1,6 +1,6 @@
 'use client'
 
-import { BottleIcon, MoonIcon, CircleIcon, DropletIcon, ThermometerIcon } from '@/components/ui/Icons'
+import { BottleIcon, MoonIcon, PoopIcon, DropletIcon, ThermometerIcon, BathIcon, PumpIcon, BowlIcon, CookieIcon, RiceIcon, PillIcon, NoteIcon } from '@/components/ui/Icons'
 import type { CareEvent } from '@/types'
 
 const EVENT_CONFIG: Record<string, {
@@ -12,7 +12,7 @@ const EVENT_CONFIG: Record<string, {
   feed: {
     icon: BottleIcon,
     bg: 'bg-[#FFF0E6]',
-    iconColor: 'text-[#FF6F0F]',
+    iconColor: 'text-[var(--color-primary)]',
     label: (e) => `수유${e.amount_ml ? ` ${e.amount_ml}ml` : ''}`,
   },
   sleep: {
@@ -30,7 +30,7 @@ const EVENT_CONFIG: Record<string, {
     },
   },
   poop: {
-    icon: CircleIcon,
+    icon: PoopIcon,
     bg: 'bg-[#FFF4E6]',
     iconColor: 'text-[#C68A2E]',
     label: (e) => {
@@ -54,14 +54,56 @@ const EVENT_CONFIG: Record<string, {
     },
   },
   memo: {
-    icon: BottleIcon,
+    icon: NoteIcon,
     bg: 'bg-[#F0EDE8]',
     iconColor: 'text-[#6B6966]',
     label: (e) => {
       const msg = e.tags?.message as string | undefined
-      if (e.tags?.emergency) return '🚨 응급 모드 실행'
+      if (e.tags?.emergency) return '응급 모드 실행'
       return msg || '메모'
     },
+  },
+  bath: {
+    icon: BathIcon,
+    bg: 'bg-[#E6F5FF]',
+    iconColor: 'text-[#5B9FD6]',
+    label: (e) => {
+      if (e.end_ts) {
+        const mins = Math.round((new Date(e.end_ts).getTime() - new Date(e.start_ts).getTime()) / 60000)
+        return `목욕 ${mins}분`
+      }
+      return '목욕'
+    },
+  },
+  pump: {
+    icon: PumpIcon,
+    bg: 'bg-[#FFF0E6]',
+    iconColor: 'text-[var(--color-primary)]',
+    label: (e) => `유축${e.amount_ml ? ` ${e.amount_ml}ml` : ''}`,
+  },
+  babyfood: {
+    icon: BowlIcon,
+    bg: 'bg-[#FFF8F0]',
+    iconColor: 'text-[#C4913E]',
+    label: () => '이유식',
+  },
+  snack: {
+    icon: CookieIcon,
+    bg: 'bg-[#FFF8F0]',
+    iconColor: 'text-[#C4913E]',
+    label: () => '간식',
+  },
+  toddler_meal: {
+    icon: RiceIcon,
+    bg: 'bg-[#FFF8F0]',
+    iconColor: 'text-[#C4913E]',
+    label: () => '유아식',
+  },
+  medication: {
+    icon: PillIcon,
+    bg: 'bg-[#FFECDB]',
+    iconColor: 'text-[#C4783E]',
+    label: () => '투약',
   },
 }
 

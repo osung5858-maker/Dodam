@@ -19,7 +19,7 @@ export default function PageHeader({ title, showBack = false, rightAction, subti
         {/* 좌측: 뒤로가기 */}
         <div className="w-10 shrink-0">
           {showBack && (
-            <button onClick={() => router.back()} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full active:bg-[#FFF9F5]">
+            <button onClick={() => router.back()} className="flex items-center justify-center w-10 h-10 -ml-2 rounded-full active:bg-[var(--color-page-bg)]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#1A1918]">
                 <path d="M15 18l-6-6 6-6" />
               </svg>

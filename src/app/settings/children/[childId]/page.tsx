@@ -3,7 +3,15 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+// profile avatars are .webm video files
 import type { Child } from '@/types'
+
+const PROFILE_AVATARS = [
+  '/images/illustrations/profile-default1.webm',
+  '/images/illustrations/profile-default2.webm',
+  '/images/illustrations/profile-default3.webm',
+  '/images/illustrations/profile-default4.webm',
+]
 
 export default function EditChildPage() {
   const router = useRouter()
@@ -15,6 +23,7 @@ export default function EditChildPage() {
   const [name, setName] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [sex, setSex] = useState('not_specified')
+  const [photoUrl, setPhotoUrl] = useState(PROFILE_AVATARS[0])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -31,6 +40,7 @@ export default function EditChildPage() {
         setName(c.name)
         setBirthdate(c.birthdate)
         setSex(c.sex || 'not_specified')
+        setPhotoUrl(c.photo_url || PROFILE_AVATARS[0])
       }
     }
     load()
@@ -46,6 +56,7 @@ export default function EditChildPage() {
         name: name.trim() || '도담이',
         birthdate,
         sex: sex === 'not_specified' ? null : sex,
+        photo_url: photoUrl,
       })
       .eq('id', childId)
 
@@ -68,7 +79,7 @@ export default function EditChildPage() {
   if (!child) {
     return (
       <div className="flex items-center justify-center h-[100dvh]">
-        <div className="w-8 h-8 border-3 border-[#FF6F0F]/20 border-t-[#FF6F0F] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-3 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
       </div>
     )
   }
@@ -84,9 +95,28 @@ export default function EditChildPage() {
       </header>
 
       <div className="flex-1 px-6 pt-8 max-w-lg mx-auto w-full">
-        <div className="flex justify-center mb-8">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#FF6F0F] to-[#4A90D9] flex items-center justify-center shadow-[0_8px_30px_rgba(0,82,255,0.15)]">
-            <span className="text-4xl">👶</span>
+        {/* 프로필 아바타 선택 */}
+        <div className="mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-24 h-24 rounded-3xl overflow-hidden shadow-[0_8px_30px_rgba(0,82,255,0.15)] bg-[#f5f5f5]">
+              <video src={photoUrl} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+            </div>
+          </div>
+          <div className="flex justify-center gap-3">
+            {PROFILE_AVATARS.map((url, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setPhotoUrl(url)}
+                className={`w-14 h-14 rounded-2xl overflow-hidden transition-all ${
+                  photoUrl === url
+                    ? 'ring-[3px] ring-[var(--color-primary)] ring-offset-2 scale-105'
+                    : 'opacity-60 hover:opacity-80'
+                }`}
+              >
+                <video src={url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+              </button>
+            ))}
           </div>
         </div>
 
@@ -98,7 +128,7 @@ export default function EditChildPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={20}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors"
           />
         </div>
 
@@ -110,7 +140,7 @@ export default function EditChildPage() {
             value={birthdate}
             onChange={(e) => setBirthdate(e.target.value)}
             max={new Date().toISOString().split('T')[0]}
-            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] focus:outline-none focus:border-[#FF6F0F] focus:ring-1 focus:ring-[#FF6F0F] transition-colors"
+            className="w-full h-12 px-4 rounded-xl bg-[#f5f5f5] border border-[#E8E4DF] text-[15px] text-[#0A0B0D] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors"
           />
         </div>
 
@@ -129,7 +159,7 @@ export default function EditChildPage() {
                 onClick={() => setSex(option.value)}
                 className={`flex-1 h-11 rounded-xl text-sm font-medium transition-all active:scale-95 ${
                   sex === option.value
-                    ? 'bg-[#FF6F0F] text-white'
+                    ? 'bg-[var(--color-primary)] text-white'
                     : 'bg-[#f5f5f5] text-[#6B6B6B] border border-[#E8E4DF]'
                 }`}
               >

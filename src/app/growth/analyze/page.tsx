@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { SparkleIcon, ChartIcon, ClipboardIcon } from '@/components/ui/Icons'
 
 interface AnalysisResult {
   extracted: {
@@ -133,23 +134,21 @@ export default function AnalyzeCheckupPage() {
 
   return (
     <div className="min-h-[100dvh] bg-white flex flex-col">
-      <header className="sticky top-0 z-40 bg-white border-b border-[#ECECEC]">
-        <div className="flex items-center justify-between h-14 px-5 max-w-lg mx-auto w-full">
-          <button onClick={() => router.back()} className="text-[13px] text-[#6B6966]">뒤로</button>
-          <h1 className="text-[15px] font-bold text-[#212124]">검진결과 AI 분석</h1>
-          {history.length > 0 && (
-            <button onClick={() => setShowHistory(!showHistory)} className="text-[13px] text-[var(--color-primary)] font-medium">
-              이력 {history.length}건
-            </button>
-          )}
-          {history.length === 0 && <div className="w-8" />}
-        </div>
-      </header>
+      <div className="pt-4 pb-2 px-5 max-w-lg mx-auto w-full flex items-center justify-between">
+        <button onClick={() => router.back()} className="text-[13px] text-[#6B6966]">뒤로</button>
+        <h1 className="text-[15px] font-bold text-[#212124]">검진결과 AI 분석</h1>
+        {history.length > 0 && (
+          <button onClick={() => setShowHistory(!showHistory)} className="text-[13px] text-[var(--color-primary)] font-medium">
+            이력 {history.length}건
+          </button>
+        )}
+        {history.length === 0 && <div className="w-8" />}
+      </div>
 
       <div className="flex-1 px-5 pt-6 max-w-lg mx-auto w-full pb-10">
         {/* 검진 히스토리 */}
         {showHistory && history.length > 0 && (
-          <div className="mb-4 bg-[#FFF9F5] rounded-xl p-3 space-y-2">
+          <div className="mb-4 bg-[var(--color-page-bg)] rounded-xl p-3 space-y-2">
             <p className="text-[13px] font-bold text-[#1A1918]">분석 이력</p>
             {history.map((h, i) => (
               <div key={i} className="bg-white rounded-lg p-2.5">
@@ -170,10 +169,10 @@ export default function AnalyzeCheckupPage() {
         {!preview ? (
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full aspect-[4/3] rounded-2xl border-2 border-dashed border-[#ECECEC] flex flex-col items-center justify-center gap-3 hover:border-[#FF6F0F] hover:bg-[#FFF8F3] transition-colors active:scale-[0.99]"
+            className="w-full aspect-[4/3] rounded-2xl border-2 border-dashed border-[#ECECEC] flex flex-col items-center justify-center gap-3 hover:border-[var(--color-primary)] hover:bg-[#FFF8F3] transition-colors active:scale-[0.99]"
           >
             <div className="w-16 h-16 rounded-2xl bg-[#FFF0E6] flex items-center justify-center">
-              <svg className="w-8 h-8 text-[#FF6F0F]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+              <svg className="w-8 h-8 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                 <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" strokeLinecap="round" />
                 <rect x="3" y="3" width="18" height="18" rx="2" />
               </svg>
@@ -208,7 +207,7 @@ export default function AnalyzeCheckupPage() {
           <button
             onClick={handleAnalyze}
             disabled={analyzing}
-            className="w-full h-[52px] rounded-2xl font-semibold text-[15px] bg-[#FF6F0F] text-white mt-5 active:scale-[0.98] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full h-[52px] rounded-2xl font-semibold text-[15px] bg-[var(--color-primary)] text-white mt-5 active:scale-[0.98] transition-transform disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {analyzing ? (
               <>
@@ -216,14 +215,14 @@ export default function AnalyzeCheckupPage() {
                 AI가 분석하는 중이에요...
               </>
             ) : (
-              '🤖 AI 분석 시작'
+              'AI 분석 시작'
             )}
           </button>
         )}
 
         {/* 에러 */}
         {error && (
-          <div className="mt-4 p-3 rounded-2xl bg-[#FFF0E6] text-[13px] text-[#FF6F0F] text-center font-medium">
+          <div className="mt-4 p-3 rounded-2xl bg-[#FFF0E6] text-[13px] text-[var(--color-primary)] text-center font-medium">
             {error}
           </div>
         )}
@@ -234,7 +233,7 @@ export default function AnalyzeCheckupPage() {
             {/* 추출된 수치 */}
             {(result.extracted.height_cm || result.extracted.weight_kg || result.extracted.head_cm) && (
               <div className="p-4 rounded-2xl bg-[#FFF8F3] border border-[#FFE4CC]">
-                <p className="text-[13px] font-bold text-[#FF6F0F] mb-3">📊 추출된 성장 데이터</p>
+                <p className="text-[13px] font-bold text-[var(--color-primary)] mb-3 flex items-center gap-1"><ChartIcon className="w-3.5 h-3.5" /> 추출된 성장 데이터</p>
                 <div className="flex gap-3">
                   {result.extracted.weight_kg && (
                     <div className="flex-1 bg-white rounded-xl p-3 text-center">
@@ -260,13 +259,13 @@ export default function AnalyzeCheckupPage() {
                   <button
                     onClick={handleSaveToGrowth}
                     disabled={saving}
-                    className="w-full h-11 rounded-xl font-semibold text-[13px] bg-[#FF6F0F] text-white mt-3 active:scale-[0.98] transition-transform disabled:opacity-50"
+                    className="w-full h-11 rounded-xl font-semibold text-[13px] bg-[var(--color-primary)] text-white mt-3 active:scale-[0.98] transition-transform disabled:opacity-50"
                   >
                     {saving ? '저장 중...' : '성장 기록에 저장하기'}
                   </button>
                 ) : (
                   <div className="mt-3 py-2 text-center text-[13px] text-green-600 font-medium">
-                    ✅ 성장 기록에 저장되었어요!
+                    성장 기록에 저장되었어요!
                   </div>
                 )}
               </div>
@@ -274,18 +273,18 @@ export default function AnalyzeCheckupPage() {
 
             {/* AI 요약 */}
             <div className="p-4 rounded-2xl bg-white border border-[#ECECEC]">
-              <p className="text-[13px] font-bold text-[#212124] mb-2">🤖 AI 분석 요약</p>
+              <p className="text-[13px] font-bold text-[#212124] mb-2 flex items-center gap-1"><SparkleIcon className="w-3.5 h-3.5" /> AI 분석 요약</p>
               <p className="text-[14px] text-[#212124] leading-relaxed">{result.summary}</p>
             </div>
 
             {/* 상세 분석 */}
             {result.details.length > 0 && (
               <div className="p-4 rounded-2xl bg-white border border-[#ECECEC]">
-                <p className="text-[13px] font-bold text-[#212124] mb-2">📋 상세 분석</p>
+                <p className="text-[13px] font-bold text-[#212124] mb-2 flex items-center gap-1"><ClipboardIcon className="w-3.5 h-3.5" /> 상세 분석</p>
                 <ul className="space-y-2">
                   {result.details.map((d, i) => (
                     <li key={i} className="flex gap-2 text-[13px] text-[#212124]">
-                      <span className="text-[#FF6F0F] shrink-0">•</span>
+                      <span className="text-[var(--color-primary)] shrink-0">•</span>
                       {d}
                     </li>
                   ))}
@@ -296,7 +295,7 @@ export default function AnalyzeCheckupPage() {
             {/* 권장사항 */}
             {result.recommendations.length > 0 && (
               <div className="p-4 rounded-2xl bg-[#F0F4FF] border border-[#D0DBFF]">
-                <p className="text-[13px] font-bold text-[#5B6DFF] mb-2">💡 권장사항</p>
+                <p className="text-[13px] font-bold text-[#5B6DFF] mb-2">권장사항</p>
                 <ul className="space-y-2">
                   {result.recommendations.map((r, i) => (
                     <li key={i} className="flex gap-2 text-[13px] text-[#212124]">
@@ -310,7 +309,7 @@ export default function AnalyzeCheckupPage() {
 
             {/* 면책 */}
             <p className="text-[13px] text-[#9E9A95] text-center px-4">
-              ⚠️ 참고용 정보예요. 정확한 진단은 소아과 전문의와 상담하세요.
+              참고용 정보예요. 정확한 진단은 소아과 전문의와 상담하세요.
             </p>
           </div>
         )}

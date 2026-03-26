@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { ChatIcon } from '@/components/ui/Icons'
 
 // 동네 수다 활동 티저 — "다른 엄마들이 이야기하고 있어요"
 export default function CommunityTeaser() {
@@ -39,10 +40,10 @@ export default function CommunityTeaser() {
   if (recentCount === 0 && !latestPost) return null
 
   return (
-    <Link href="/town" className="block bg-white rounded-xl border border-[#E8E4DF] p-3 active:bg-[#FFF9F5]">
+    <Link href="/town" className="block bg-white rounded-xl border border-[#E8E4DF] p-3 active:bg-[var(--color-page-bg)]">
       <div className="flex items-center gap-2.5">
         <div className="w-9 h-9 rounded-xl bg-[#F0F9F4] flex items-center justify-center shrink-0">
-          <span className="text-base">💬</span>
+          <ChatIcon className="w-5 h-5 text-[var(--color-primary)]" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[14px] font-semibold text-[#1A1918]">

@@ -4,12 +4,13 @@ import { useMemo, useState, useEffect } from 'react'
 import Link from 'next/link'
 import type { CareEvent } from '@/types'
 import { predictNextEvent, detectAnomalies } from '@/lib/ai/prediction-engine'
+import { BottleIcon, MoonIcon, AlertIcon, HospitalIcon, SparkleIcon, HeartIcon, HeartFilledIcon, XIcon } from '@/components/ui/Icons'
 
 interface AICard {
   id: string
   type: 'routine' | 'health' | 'emotion' | 'info'
   colorBar: string
-  icon: string
+  icon: React.ReactNode
   body: string
   disclaimer?: string
 }
@@ -30,9 +31,12 @@ function formatTime(ts: string): string {
 
 interface Props {
   events: CareEvent[]
+  childName?: string
+  ageMonths?: number
+  mood?: string
 }
 
-export default function AICardFeed({ events }: Props) {
+export default function AICardFeed({ events, childName, ageMonths, mood }: Props) {
   const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const [feedback, setFeedback] = useState<Record<string, 'helpful' | 'not_helpful'>>({})
 
@@ -46,7 +50,7 @@ export default function AICardFeed({ events }: Props) {
         id: 'pred-feed',
         type: 'routine',
         colorBar: 'bg-[#0052FF]',
-        icon: '🍼',
+        icon: <BottleIcon className="w-4 h-4" />,
         body: `다음 수유는 ${formatTimeRemaining(feedPred.predicted_ts)}예요 (${formatTime(feedPred.predicted_ts)} ±${feedPred.ci_minutes}분)`,
       })
     }
@@ -57,7 +61,7 @@ export default function AICardFeed({ events }: Props) {
         id: 'pred-sleep',
         type: 'routine',
         colorBar: 'bg-indigo-500',
-        icon: '💤',
+        icon: <MoonIcon className="w-4 h-4" />,
         body: `다음 낮잠은 ${formatTimeRemaining(sleepPred.predicted_ts)}예요 (${formatTime(sleepPred.predicted_ts)} ±${sleepPred.ci_minutes}분)`,
       })
     }
@@ -69,7 +73,7 @@ export default function AICardFeed({ events }: Props) {
         id: `anomaly-${i}`,
         type: a.severity === 'info' ? 'info' : 'health',
         colorBar: a.severity === 'critical' ? 'bg-red-500' : a.severity === 'major' ? 'bg-orange-500' : 'bg-[#9B9B9B]',
-        icon: a.severity === 'critical' ? '🚨' : a.severity === 'major' ? '⚠️' : 'ℹ️',
+        icon: <AlertIcon className={`w-4 h-4 ${a.severity === 'critical' ? 'text-red-500' : a.severity === 'major' ? 'text-orange-500' : 'text-[#9B9B9B]'}`} />,
         body: a.message,
         disclaimer: a.severity !== 'info' ? '참고용 정보예요. 걱정되시면 소아과 상담을 추천드려요.' : undefined,
       })
@@ -95,7 +99,7 @@ export default function AICardFeed({ events }: Props) {
             id: 'location-clinic',
             type: 'health',
             colorBar: hasCritical ? 'bg-red-500' : 'bg-orange-500',
-            icon: '🏥',
+            icon: <HospitalIcon className="w-4 h-4" />,
             body: '근처 소아과를 확인해보세요. 지도에서 실시간 진료 가능한 소아과를 찾을 수 있어요.',
             disclaimer: '응급 상황 시 119에 연락하세요.',
           })
@@ -106,7 +110,7 @@ export default function AICardFeed({ events }: Props) {
             id: 'location-clinic',
             type: 'health',
             colorBar: hasCritical ? 'bg-red-500' : 'bg-orange-500',
-            icon: '🏥',
+            icon: <HospitalIcon className="w-4 h-4" />,
             body: '체온이 높아요. 가까운 소아과를 확인해보세요.',
           })
         },
@@ -115,46 +119,74 @@ export default function AICardFeed({ events }: Props) {
     }
   }, [events])
 
-  // Gemini AI 감정 카드 (비동기)
+  // Gemini AI 감정 카드 (고도화 — 부모 mood + 상세 데이터)
   const [aiCard, setAiCard] = useState<AICard | null>(null)
 
   useEffect(() => {
     if (events.length < 5) return
-    const todayCount = events.filter((e) => new Date(e.start_ts).toDateString() === new Date().toDateString()).length
-    if (todayCount < 3) return
+    const today = new Date().toDateString()
+    const todayEvents = events.filter((e) => new Date(e.start_ts).toDateString() === today)
+    if (todayEvents.length < 3) return
+
+    const feedEvents = todayEvents.filter(e => e.type === 'feed')
+    const sleepEvents = todayEvents.filter(e => e.type === 'sleep')
+    const poopEvents = todayEvents.filter(e => e.type === 'poop')
+    const feedTotal = feedEvents.reduce((s, e) => s + (e.amount_ml || 0), 0)
+    const sleepTotal = sleepEvents.reduce((s, e) => {
+      if (!e.end_ts) return s
+      return s + Math.round((new Date(e.end_ts).getTime() - new Date(e.start_ts).getTime()) / 60000)
+    }, 0)
+    const sleepActive = sleepEvents.some(e => !e.end_ts)
+
+    const colorMap: Record<string, string> = { warm: 'bg-orange-400', calm: 'bg-blue-400', energy: 'bg-green-500', cozy: 'bg-purple-400' }
 
     fetch('/api/ai-card', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ageMonths: 0, // 부모 컴포넌트에서 전달 필요 시 추가
         cardType: 'emotion',
-        context: `오늘 ${todayCount}건 기록, 수유 ${events.filter(e => e.type === 'feed').length}회, 수면 ${events.filter(e => e.type === 'sleep').length}회`,
+        ageMonths: ageMonths || 0,
+        childName: childName || '',
+        feedCount: feedEvents.length,
+        sleepCount: sleepEvents.length,
+        poopCount: poopEvents.length,
+        feedTotal: feedTotal || undefined,
+        sleepTotal: sleepTotal || undefined,
+        sleepActive,
+        mood: mood || undefined,
+        hour: new Date().getHours(),
       }),
     })
       .then((r) => r.json())
       .then((data) => {
-        if (data.text) {
+        if (data.title && data.body) {
+          setAiCard({
+            id: 'ai-emotion',
+            type: 'emotion',
+            colorBar: colorMap[data.colorTag] || 'bg-green-500',
+            icon: <HeartFilledIcon className="w-5 h-5 text-[#2D7A4A]" />,
+            body: `${data.title} — ${data.body}`,
+          })
+        } else if (data.text) {
           setAiCard({
             id: 'ai-emotion',
             type: 'emotion',
             colorBar: 'bg-green-500',
-            icon: '🤖',
+            icon: <SparkleIcon className="w-4 h-4" />,
             body: data.text,
           })
         }
       })
       .catch(() => {
-        // 폴백: 템플릿
         setAiCard({
           id: 'ai-emotion',
           type: 'emotion',
           colorBar: 'bg-green-500',
-          icon: '💛',
+          icon: <HeartIcon className="w-4 h-4 text-[#C4A35A]" />,
           body: '오늘 기록이 꾸준해요. 도담하게 잘하고 있어요!',
         })
       })
-  }, [events])
+  }, [events, childName, ageMonths, mood])
 
   const extraCards = [locationCard, aiCard].filter(Boolean) as AICard[]
   const allCards = [...cards, ...extraCards]
@@ -181,7 +213,7 @@ export default function AICardFeed({ events }: Props) {
                   {card.body}
                 </p>
                 {card.disclaimer && (
-                  <p className="text-[14px] text-[#9B9B9B] mt-1.5">⚠️ {card.disclaimer}</p>
+                  <p className="text-[14px] text-[#9B9B9B] mt-1.5">{card.disclaimer}</p>
                 )}
                 {card.type === 'health' && !feedback[card.id] && (
                   <div className="flex gap-2 mt-2">
@@ -214,7 +246,7 @@ export default function AICardFeed({ events }: Props) {
                 onClick={() => setDismissed((prev) => new Set(prev).add(card.id))}
                 className="text-[#c0c0c0] hover:text-[#9B9B9B] shrink-0 text-xs p-1"
               >
-                ✕
+                <XIcon className="w-3 h-3" />
               </button>
             </div>
           </div>

@@ -26,7 +26,7 @@ export interface Child {
 }
 
 // --- 육아 이벤트 ---
-export type EventType = 'feed' | 'sleep' | 'poop' | 'pee' | 'temp' | 'memo'
+export type EventType = 'feed' | 'sleep' | 'poop' | 'pee' | 'temp' | 'memo' | 'bath' | 'pump' | 'babyfood' | 'snack' | 'toddler_meal' | 'medication'
 export type EventSource = 'quick_button' | 'gesture' | 'manual'
 
 export interface CareEvent {

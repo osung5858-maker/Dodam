@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { PageHeader } from '@/components/layout/PageLayout'
+import { CrystalBallIcon, DragonIcon, CardIcon, StarIcon, HeartIcon, AlertIcon, LightbulbIcon, RefreshIcon, EnvelopeIcon } from '@/components/ui/Icons'
+import { shareFortune } from '@/lib/kakao/share-parenting'
 
 export default function FortunePage() {
   const [tab, setTab] = useState<'biorhythm' | 'zodiac' | 'fortune'>('biorhythm')
@@ -32,24 +34,24 @@ export default function FortunePage() {
 
   // 띠 계산
   const getZodiacAnimal = (year: number) => {
-    const animals = ['🐒 원숭이', '🐔 닭', '🐕 개', '🐷 돼지', '🐭 쥐', '🐮 소', '🐯 호랑이', '🐰 토끼', '🐉 용', '🐍 뱀', '🐴 말', '🐑 양']
+    const animals = ['원숭이', '닭', '개', '돼지', '쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양']
     return animals[year % 12]
   }
 
   // 별자리 계산
   const getConstellation = (month: number, day: number) => {
     const signs = [
-      { name: '♑ 염소자리', end: [1, 19] }, { name: '♒ 물병자리', end: [2, 18] },
-      { name: '♓ 물고기자리', end: [3, 20] }, { name: '♈ 양자리', end: [4, 19] },
-      { name: '♉ 황소자리', end: [5, 20] }, { name: '♊ 쌍둥이자리', end: [6, 21] },
-      { name: '♋ 게자리', end: [7, 22] }, { name: '♌ 사자자리', end: [8, 22] },
-      { name: '♍ 처녀자리', end: [9, 22] }, { name: '♎ 천칭자리', end: [10, 23] },
-      { name: '♏ 전갈자리', end: [11, 22] }, { name: '♐ 궁수자리', end: [12, 21] },
+      { name: '염소자리', end: [1, 19] }, { name: '물병자리', end: [2, 18] },
+      { name: '물고기자리', end: [3, 20] }, { name: '양자리', end: [4, 19] },
+      { name: '황소자리', end: [5, 20] }, { name: '쌍둥이자리', end: [6, 21] },
+      { name: '게자리', end: [7, 22] }, { name: '사자자리', end: [8, 22] },
+      { name: '처녀자리', end: [9, 22] }, { name: '천칭자리', end: [10, 23] },
+      { name: '전갈자리', end: [11, 22] }, { name: '궁수자리', end: [12, 21] },
     ]
     for (const sign of signs) {
       if (month < sign.end[0] || (month === sign.end[0] && day <= sign.end[1])) return sign.name
     }
-    return '♑ 염소자리'
+    return '염소자리'
   }
 
   // AI 운세 (Gemini 직접 호출)
@@ -93,20 +95,20 @@ export default function FortunePage() {
   const birthParts = birthDate ? birthDate.split('-').map(Number) : [0, 0, 0]
 
   return (
-    <div className="min-h-[100dvh] bg-[#FFF9F5] flex flex-col">
+    <div className="min-h-[100dvh] bg-[var(--color-page-bg)] flex flex-col">
       <PageHeader title="운세 · 바이오리듬" showBack />
 
       <div className="max-w-lg mx-auto w-full px-5 pt-4 pb-28 space-y-3 w-full">
         {/* 탭 */}
         <div className="flex gap-1.5">
           {[
-            { key: 'biorhythm' as const, label: '🔮 바이오리듬' },
-            { key: 'zodiac' as const, label: '🐉 띠 · 별자리' },
-            { key: 'fortune' as const, label: '🎴 오늘의 운세' },
+            { key: 'biorhythm' as const, label: '바이오리듬', icon: <CrystalBallIcon className="w-3.5 h-3.5 inline mr-0.5" /> },
+            { key: 'zodiac' as const, label: '띠 · 별자리', icon: <DragonIcon className="w-3.5 h-3.5 inline mr-0.5" /> },
+            { key: 'fortune' as const, label: '오늘의 운세', icon: <CardIcon className="w-3.5 h-3.5 inline mr-0.5" /> },
           ].map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
               className={`flex-1 py-2 rounded-xl text-[13px] font-semibold ${tab === t.key ? 'bg-[var(--color-primary)] text-white' : 'bg-white text-[#6B6966] border border-[#E8E4DF]'}`}>
-              {t.label}
+              {t.icon}{t.label}
             </button>
           ))}
         </div>
@@ -116,13 +118,13 @@ export default function FortunePage() {
           <div className="bg-white rounded-xl border border-[#E8E4DF] p-4">
             <p className="text-[14px] font-bold text-[#1A1918] mb-3">오늘의 바이오리듬</p>
             {[
-              { label: '신체', value: bio.physical, color: '#D08068', emoji: '💪' },
-              { label: '감정', value: bio.emotional, color: 'var(--color-primary)', emoji: '💚' },
-              { label: '지성', value: bio.intellectual, color: '#4A90D9', emoji: '🧠' },
+              { label: '신체', value: bio.physical, color: '#D08068' },
+              { label: '감정', value: bio.emotional, color: 'var(--color-primary)' },
+              { label: '지성', value: bio.intellectual, color: '#4A90D9' },
             ].map(b => (
               <div key={b.label} className="mb-3 last:mb-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-[14px] text-[#1A1918]">{b.emoji} {b.label}</span>
+                  <span className="text-[14px] text-[#1A1918]">{b.label}</span>
                   <span className="text-[14px] font-bold" style={{ color: b.color }}>{Math.round(b.value)}%</span>
                 </div>
                 <div className="w-full h-2 bg-[#E8E4DF] rounded-full relative">
@@ -137,9 +139,9 @@ export default function FortunePage() {
               </div>
             ))}
             <p className="text-[14px] text-[#6B6966] mt-2 text-center">
-              {bio.physical > 50 && bio.emotional > 50 ? '🌟 오늘 컨디션 최고!' :
-               bio.emotional < -30 ? '🫂 감정 기복이 있을 수 있어요. 쉬어가세요' :
-               '💚 도담하게 보내세요'}
+              {bio.physical > 50 && bio.emotional > 50 ? '오늘 컨디션 최고!' :
+               bio.emotional < -30 ? '감정 기복이 있을 수 있어요. 쉬어가세요' :
+               '도담하게 보내세요'}
             </p>
           </div>
         )}
@@ -150,8 +152,7 @@ export default function FortunePage() {
             {/* 엄마 */}
             <div className="bg-gradient-to-br from-white to-[#FFF8F3] rounded-xl border border-[#FFDDC8]/50 p-4 text-center">
               <p className="text-[13px] font-bold text-[#1A1918] mb-2">엄마의 띠 · 별자리</p>
-              <p className="text-3xl mb-1">{getZodiacAnimal(birthParts[0]).split(' ')[0]}</p>
-              <p className="text-[14px] font-semibold text-[#1A1918]">{getZodiacAnimal(birthParts[0])}</p>
+              <p className="text-[16px] font-bold mb-1">{getZodiacAnimal(birthParts[0])}띠</p>
               <p className="text-[13px] text-[#6B6966] mt-1">{getConstellation(birthParts[1], birthParts[2])}</p>
             </div>
 
@@ -161,8 +162,7 @@ export default function FortunePage() {
               return (
                 <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)]/50 p-4 text-center">
                   <p className="text-[13px] font-bold text-[#1A1918] mb-2">아이 예상 띠 · 별자리</p>
-                  <p className="text-3xl mb-1">{getZodiacAnimal(due.getFullYear()).split(' ')[0]}</p>
-                  <p className="text-[14px] font-semibold text-[#1A1918]">{getZodiacAnimal(due.getFullYear())}</p>
+                  <p className="text-[16px] font-bold mb-1">{getZodiacAnimal(due.getFullYear())}띠</p>
                   <p className="text-[13px] text-[#6B6966] mt-1">{getConstellation(due.getMonth() + 1, due.getDate())}</p>
                   <p className="text-[14px] text-[#9E9A95] mt-2">출산 예정일 기준</p>
                 </div>
@@ -184,12 +184,12 @@ export default function FortunePage() {
                     <p className="text-[14px] text-[#6B6966] leading-relaxed">{fortuneResult.starFortune}</p>
                   </div>
                 )}
-                <p className="text-[13px] text-[#9E9A95] text-center">재미로만 봐주세요 😊</p>
+                <p className="text-[13px] text-[#9E9A95] text-center">재미로만 봐주세요</p>
               </div>
             ) : (
               <button onClick={fetchFortune} disabled={loading}
                 className="w-full py-3 bg-[var(--color-primary)] text-white text-[13px] font-semibold rounded-xl active:opacity-80 disabled:opacity-50">
-                {loading ? '운세 보는 중...' : '🔮 띠 · 별자리 운세 보기'}
+                {loading ? '운세 보는 중...' : '띠 · 별자리 운세 보기'}
               </button>
             )}
           </div>
@@ -202,14 +202,14 @@ export default function FortunePage() {
               <>
                 {/* 전체 운세 */}
                 <div className="bg-gradient-to-br from-[#FFF8F3] to-[#F0F9F4] rounded-xl border border-[#FFDDC8]/50 p-4">
-                  <p className="text-[14px] font-bold text-[#1A1918] mb-2">🎴 오늘의 운세</p>
+                  <p className="text-[14px] font-bold text-[#1A1918] mb-2 flex items-center gap-1"><CardIcon className="w-4 h-4" /> 오늘의 운세</p>
                   <p className="text-[13px] text-[#1A1918] leading-relaxed">{fortuneResult.todayLuck}</p>
                 </div>
 
                 {/* 아이 메시지 */}
                 {fortuneResult.babyMessage && (
                   <div className="bg-[#FFF8F3] rounded-xl border border-[#FFDDC8]/30 p-4 text-center">
-                    <p className="text-[20px] mb-1">💌</p>
+                    <span className="block mb-1"><EnvelopeIcon className="w-5 h-5 mx-auto text-[#D08068]" /></span>
                     <p className="text-[13px] text-[#1A1918] italic leading-relaxed">"{fortuneResult.babyMessage}"</p>
                     <p className="text-[14px] text-[#6B6966] mt-1">아이가 전하는 말</p>
                   </div>
@@ -237,19 +237,19 @@ export default function FortunePage() {
                 <div className="bg-white rounded-xl border border-[#E8E4DF] p-4 space-y-2.5">
                   {fortuneResult.loveLuck && (
                     <div className="flex items-start gap-2">
-                      <span className="text-sm shrink-0">💕</span>
+                      <HeartIcon className="w-4 h-4 shrink-0 text-[#D08068]" />
                       <div><p className="text-[13px] font-semibold text-[#1A1918]">사랑/가족운</p><p className="text-[13px] text-[#6B6966]">{fortuneResult.loveLuck}</p></div>
                     </div>
                   )}
                   {fortuneResult.healthLuck && (
                     <div className="flex items-start gap-2">
-                      <span className="text-sm shrink-0">💚</span>
+                      <HeartIcon className="w-4 h-4 shrink-0 text-[var(--color-primary)]" />
                       <div><p className="text-[13px] font-semibold text-[#1A1918]">건강운</p><p className="text-[13px] text-[#6B6966]">{fortuneResult.healthLuck}</p></div>
                     </div>
                   )}
                   {fortuneResult.moneyLuck && (
                     <div className="flex items-start gap-2">
-                      <span className="text-sm shrink-0">💰</span>
+                      <StarIcon className="w-4 h-4 shrink-0 text-[#C4A35A]" />
                       <div><p className="text-[13px] font-semibold text-[#1A1918]">재물운</p><p className="text-[13px] text-[#6B6966]">{fortuneResult.moneyLuck}</p></div>
                     </div>
                   )}
@@ -257,31 +257,34 @@ export default function FortunePage() {
 
                 {/* 행운 아이템 */}
                 <div className="grid grid-cols-2 gap-2">
-                  {fortuneResult.luckyColor && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 색</p><p className="text-[13px] font-bold text-[#1A1918]">🎨 {fortuneResult.luckyColor}</p></div>}
-                  {fortuneResult.luckyFood && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 음식</p><p className="text-[13px] font-bold text-[#1A1918]">🍽️ {fortuneResult.luckyFood}</p></div>}
-                  {fortuneResult.luckyNumber && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 숫자</p><p className="text-[13px] font-bold text-[#1A1918]">🔢 {fortuneResult.luckyNumber}</p></div>}
-                  {fortuneResult.luckyTime && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 시간</p><p className="text-[13px] font-bold text-[#1A1918]">⏰ {fortuneResult.luckyTime}</p></div>}
+                  {fortuneResult.luckyColor && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 색</p><p className="text-[13px] font-bold text-[#1A1918]">{fortuneResult.luckyColor}</p></div>}
+                  {fortuneResult.luckyFood && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 음식</p><p className="text-[13px] font-bold text-[#1A1918]">{fortuneResult.luckyFood}</p></div>}
+                  {fortuneResult.luckyNumber && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 숫자</p><p className="text-[13px] font-bold text-[#1A1918]">{fortuneResult.luckyNumber}</p></div>}
+                  {fortuneResult.luckyTime && <div className="bg-white rounded-xl border border-[#E8E4DF] p-3 text-center"><p className="text-[13px] text-[#6B6966]">행운의 시간</p><p className="text-[13px] font-bold text-[#1A1918]">{fortuneResult.luckyTime}</p></div>}
                 </div>
 
                 {/* 주간 조언 + 피할 것 */}
                 <div className="bg-white rounded-xl border border-[#E8E4DF] p-4 space-y-2">
-                  {fortuneResult.weekAdvice && <p className="text-[13px] text-[var(--color-primary)]">💡 이번 주: {fortuneResult.weekAdvice}</p>}
-                  {fortuneResult.avoidToday && <p className="text-[13px] text-[#D08068]">⚠️ 오늘 피할 것: {fortuneResult.avoidToday}</p>}
+                  {fortuneResult.weekAdvice && <p className="text-[13px] text-[var(--color-primary)] flex items-start gap-1"><LightbulbIcon className="w-3.5 h-3.5 shrink-0 mt-0.5" /> 이번 주: {fortuneResult.weekAdvice}</p>}
+                  {fortuneResult.avoidToday && <p className="text-[13px] text-[#D08068] flex items-start gap-1"><AlertIcon className="w-3.5 h-3.5 shrink-0 mt-0.5" /> 오늘 피할 것: {fortuneResult.avoidToday}</p>}
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <p className="text-[13px] text-[#9E9A95]">재미로만 봐주세요 😊</p>
-                  <button onClick={() => { localStorage.removeItem(`dodam_fortune_${new Date().toISOString().split('T')[0]}_${birthDate}`); setFortuneResult(null); fetchFortune() }} className="text-[14px] text-[var(--color-primary)]">다시 보기 🔄</button>
+                  <p className="text-[13px] text-[#9E9A95]">재미로만 봐주세요</p>
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => shareFortune(fortuneResult.todayLuck || '')} className="text-[12px] text-[var(--color-primary)] font-semibold">카톡 공유</button>
+                    <button onClick={() => { localStorage.removeItem(`dodam_fortune_${new Date().toISOString().split('T')[0]}_${birthDate}`); setFortuneResult(null); fetchFortune() }} className="text-[14px] text-[var(--color-primary)] flex items-center gap-1">다시 보기 <RefreshIcon className="w-3.5 h-3.5" /></button>
+                  </div>
                 </div>
               </>
             ) : (
               <div className="bg-white rounded-xl border border-[#E8E4DF] p-5 text-center">
-                <p className="text-3xl mb-2">🎴</p>
+                <span className="block mb-2"><CardIcon className="w-8 h-8 mx-auto text-[var(--color-primary)]" /></span>
                 <p className="text-[14px] font-bold text-[#1A1918] mb-1">오늘의 운세</p>
                 <p className="text-[14px] text-[#6B6966] mb-4">띠·별자리·사주 기반 AI 운세를 봐드려요</p>
                 <button onClick={fetchFortune} disabled={loading || !birthDate}
                   className="px-6 py-2.5 bg-[var(--color-primary)] text-white text-[13px] font-semibold rounded-xl active:opacity-80 disabled:opacity-50">
-                  {loading ? '운세 보는 중...' : '오늘의 운세 보기 🎴'}
+                  {loading ? '운세 보는 중...' : '오늘의 운세 보기'}
                 </button>
               </div>
             )}
