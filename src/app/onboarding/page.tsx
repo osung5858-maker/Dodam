@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { HeartIcon, PregnantIcon, BabyIcon } from '@/components/ui/Icons'
+import ModeTutorial from '@/components/onboarding/ModeTutorial'
 import Image from 'next/image'
 type Mode = 'preparing' | 'pregnant' | 'parenting'
 
@@ -61,15 +62,34 @@ export default function OnboardingPage() {
     }
   }
 
+  const [tutorialMode, setTutorialMode] = useState<Mode | null>(null)
+
   const handleModeSelect = (mode: Mode) => {
     localStorage.setItem('dodam_mode', mode)
-    if (mode === 'preparing') {
-      router.push('/preparing')
-    } else if (mode === 'pregnant') {
-      router.push('/pregnant')
+    // 튜토리얼을 처음 한 번만
+    const tutorialDone = localStorage.getItem(`dodam_tutorial_${mode}`)
+    if (!tutorialDone) {
+      setTutorialMode(mode)
     } else {
-      router.push('/settings/children/add')
+      navigateToMode(mode)
     }
+  }
+
+  const navigateToMode = (mode: Mode) => {
+    if (mode === 'preparing') router.push('/preparing')
+    else if (mode === 'pregnant') router.push('/pregnant')
+    else router.push('/settings/children/add')
+  }
+
+  const handleTutorialComplete = () => {
+    if (!tutorialMode) return
+    localStorage.setItem(`dodam_tutorial_${tutorialMode}`, '1')
+    navigateToMode(tutorialMode)
+  }
+
+  // 튜토리얼 진행 중
+  if (tutorialMode) {
+    return <ModeTutorial mode={tutorialMode} onComplete={handleTutorialComplete} />
   }
 
   if (checkingAuth) {

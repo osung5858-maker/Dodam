@@ -9,6 +9,7 @@ import BabyIllust from '@/components/pregnant/BabyIllust'
 import { SparkleIcon, PenIcon, StethoscopeIcon, ClipboardIcon, SyringeIcon, HospitalIcon, ShieldIcon, CheckCircleIcon, ActivityIcon, PregnantIcon, WarningIcon, BabyIcon, HeartFilledIcon, ExternalLinkIcon, WaterGlassIcon, WalkIcon, VitaminIcon, StretchIcon, MoodHappyIcon, MoodCalmIcon, MoodAnxiousIcon, MoodSickIcon, MoodTiredIcon } from '@/components/ui/Icons'
 import IllustVideo from '@/components/ui/IllustVideo'
 import AIMealCard from '@/components/ai-cards/AIMealCard'
+import SpotlightGuide from '@/components/onboarding/SpotlightGuide'
 
 const HospitalGuide = dynamic(() => import('@/components/pregnant/HospitalGuide'), {
   loading: () => <div className="h-32 bg-[#F0EDE8] rounded-xl animate-pulse" />,
@@ -553,12 +554,20 @@ function haptic() { if (navigator.vibrate) navigator.vibrate(20) }
 export default function PregnantPage() {
   const [toast, setToast] = useState<string | null>(null)
   const showToast = (msg: string) => { setToast(msg); haptic(); setTimeout(() => setToast(null), 2000) }
+  const [showGuide, setShowGuide] = useState(false)
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   useEffect(() => {
     createClient().auth.getUser().then(({ data }: any) => {
       setAvatarUrl(data.user?.user_metadata?.avatar_url || null)
     })
+  }, [])
+
+  useEffect(() => {
+    if (!localStorage.getItem('dodam_guide_pregnant')) {
+      const t = setTimeout(() => setShowGuide(true), 1000)
+      return () => clearTimeout(t)
+    }
   }, [])
 
   const [dueDate, setDueDate] = useState<string>(() => {
@@ -840,7 +849,7 @@ export default function PregnantPage() {
         )}
 
         {/* ━━━ 1. AI 히어로 + 태아 ━━━ */}
-        <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)] p-4">
+        <div data-guide="fetal-card" className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)] p-4">
           {/* 태아 비주얼 — 감성 */}
           <div className="text-center mb-3">
             <div className="mx-auto mb-1">
@@ -908,7 +917,7 @@ export default function PregnantPage() {
           <p className="text-[14px] font-bold text-[#1A1918] mb-3">오늘 기록</p>
 
           {/* 감정 */}
-          <div className="mb-3">
+          <div data-guide="mood" className="mb-3">
             <p className="text-[14px] font-semibold text-[#6B6966] mb-1.5">오늘 기분</p>
             <div className="flex gap-1.5">
               {MOODS.map(m => (
@@ -936,7 +945,7 @@ export default function PregnantPage() {
               { id: 'stretch', Icon: StretchIcon, label: '스트레칭', desc: '5분 혈액순환' },
             ]
             return (
-              <div className="grid grid-cols-4 gap-1.5 mb-3">
+              <div data-guide="daily-check" className="grid grid-cols-4 gap-1.5 mb-3">
                 {items.map(it => {
                   const done = saved[it.id]
                   return (
@@ -1216,6 +1225,8 @@ export default function PregnantPage() {
           {toast}
         </div>
       )}
+
+      {showGuide && <SpotlightGuide mode="pregnant" onComplete={() => { localStorage.setItem('dodam_guide_pregnant', '1'); setShowGuide(false) }} />}
     </div>
   )
 }

@@ -51,16 +51,7 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-white">
-      {/* 헤더 */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#F0EDE8]">
-        <div className="flex items-center justify-between h-14 lg:h-16 px-5 lg:px-8 max-w-2xl mx-auto">
-          <button onClick={() => router.back()} className="text-[14px] text-[#6B6966]">닫기</button>
-          <h1 className="text-[15px] lg:text-[17px] font-bold text-[#1A1918]">의견 보내기</h1>
-          <div className="w-8" />
-        </div>
-      </header>
-
+    <div className="bg-white pb-24">
       <div className="max-w-2xl mx-auto px-5 lg:px-8 py-8 lg:py-12">
         {/* 인트로 */}
         <div className="mb-8 lg:mb-10">
@@ -68,25 +59,25 @@ export default function FeedbackPage() {
             어떤 이야기를 들려주실 건가요?
           </h2>
           <p className="text-[14px] lg:text-[16px] text-[#6B6966]">
-            보내주신 의견은 osung5858@gmail.com으로 전달돼요
+            소중한 의견을 들려주세요
           </p>
         </div>
 
         {/* 프리셋 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 lg:gap-3 mb-8 lg:mb-10">
+        <div className="flex flex-wrap gap-2 mb-8 lg:mb-10">
           {PRESETS.map(p => (
             <button
               key={p.label}
               onClick={() => setPreset(prev => prev === p.label ? '' : p.label)}
-              className="p-3 lg:p-4 rounded-2xl border-2 text-left transition-all active:scale-[0.97]"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full border text-[13px] font-medium transition-all active:scale-[0.97]"
               style={{
-                borderColor: preset === p.label ? '#E8937A' : '#F0EDE8',
+                borderColor: preset === p.label ? '#E8937A' : '#E8E4DF',
                 backgroundColor: preset === p.label ? '#FFF5F2' : '#FAFAF8',
+                color: preset === p.label ? '#D47B62' : '#6B6966',
               }}
             >
-              <span className="text-[20px] lg:text-[24px] block mb-1.5">{p.emoji}</span>
-              <span className="text-[13px] lg:text-[15px] font-bold text-[#1A1918] block">{p.label}</span>
-              <span className="text-[11px] lg:text-[13px] text-[#9E9A95]">{p.desc}</span>
+              <span>{p.emoji}</span>
+              <span>{p.label}</span>
             </button>
           ))}
         </div>

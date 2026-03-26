@@ -1,18 +1,17 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'life.dodam.android',
+  appId: 'app.dodam.care',
   appName: '도담',
-  webDir: 'public', // 서버 모드에서는 사용 안 함, 플레이스홀더
+  webDir: 'out',
   server: {
-    // Vercel 배포 URL을 직접 로드 (SSR + API 모두 동작)
-    url: 'https://www.dodam.life',
+    url: 'https://dodam.app',
     androidScheme: 'https',
   },
   plugins: {
     SplashScreen: {
       launchAutoHide: true,
-      launchShowDuration: 1500,
+      launchShowDuration: 2000,
       backgroundColor: '#FFF9F5',
       showSpinner: false,
     },
@@ -28,6 +27,11 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: false,
     backgroundColor: '#FFF9F5',
+  },
+  ios: {
+    backgroundColor: '#FFF9F5',
+    contentInset: 'automatic',
+    preferredContentMode: 'mobile',
   },
 }
 

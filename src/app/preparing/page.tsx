@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { shareAIAdvice, shareProgress, sharePartnerNudge } from '@/lib/kakao/share'
 import { SparkleIcon, PenIcon } from '@/components/ui/Icons'
 import AIMealCard from '@/components/ai-cards/AIMealCard'
+import SpotlightGuide from '@/components/onboarding/SpotlightGuide'
 
 function addDays(date: Date, days: number): Date {
   const d = new Date(date); d.setDate(d.getDate() + days); return d
@@ -225,12 +226,20 @@ function PreparingMealCard({ phase }: { phase: string }) {
 export default function PreparingPage() {
   const [toast, setToast] = useState<string | null>(null)
   const showToast = (msg: string) => { setToast(msg); haptic(); setTimeout(() => setToast(null), 2000) }
+  const [showGuide, setShowGuide] = useState(false)
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   useEffect(() => {
     createClient().auth.getUser().then(({ data }: any) => {
       setAvatarUrl(data.user?.user_metadata?.avatar_url || null)
     })
+  }, [])
+
+  useEffect(() => {
+    if (!localStorage.getItem('dodam_guide_preparing')) {
+      const t = setTimeout(() => setShowGuide(true), 1000)
+      return () => clearTimeout(t)
+    }
   }, [])
 
   const [lastPeriod, setLastPeriod] = useState<string>(() => {
@@ -504,7 +513,7 @@ export default function PreparingPage() {
 
     return (
       <div className="min-h-[100dvh] bg-white">
-        <div className="max-w-xs mx-auto pt-12 pb-20 px-6">
+        <div data-guide="cycle-setup" className="max-w-xs mx-auto pt-12 pb-20 px-6">
           <h1 className="text-[22px] font-bold text-[#1A1918] mb-1">기본 정보</h1>
           <p className="text-[13px] text-[#6B6966] mb-6">맞춤 조언을 위해 필요해요</p>
 
@@ -579,7 +588,7 @@ export default function PreparingPage() {
 
         {/* ━━━ 1. AI 히어로 — CTA 형태 ━━━ */}
         {cycle && (
-          <div className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)] p-4">
+          <div data-guide="ai-briefing" className="bg-gradient-to-br from-white to-[#F0F9F4] rounded-xl border border-[var(--color-accent-bg)] p-4">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <SparkleIcon className="w-4 h-4 text-[#C4913E]" />
@@ -664,7 +673,7 @@ export default function PreparingPage() {
           <p className="text-[14px] font-bold text-[#1A1918] mb-3">오늘 할 일</p>
 
           {/* 영양제 — 탭할 때마다 1회씩 채워짐 (최대 4회) */}
-          <div className="grid grid-cols-4 gap-1.5 mb-3">
+          <div data-guide="supplements" className="grid grid-cols-4 gap-1.5 mb-3">
             {[
               { key: 'folic', name: '엽산' },
               { key: 'vitd', name: '비타민D' },
@@ -782,6 +791,8 @@ export default function PreparingPage() {
           {toast}
         </div>
       )}
+
+      {showGuide && <SpotlightGuide mode="preparing" onComplete={() => { localStorage.setItem('dodam_guide_preparing', '1'); setShowGuide(false) }} />}
     </div>
   )
 }

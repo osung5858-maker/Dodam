@@ -12,6 +12,7 @@ import { decrypt } from '@/lib/security/crypto'
 import { createClient } from '@/lib/supabase/client'
 import { shareTodayRecord } from '@/lib/kakao/share-parenting'
 import AIMealCard from '@/components/ai-cards/AIMealCard'
+import SpotlightGuide from '@/components/onboarding/SpotlightGuide'
 import { useOfflineSync } from '@/hooks/useOfflineSync'
 import { savePendingEvent } from '@/lib/offline/db'
 import type { CareEvent, EventType, Child } from '@/types'
@@ -71,6 +72,7 @@ export default function HomePage() {
   const [tempSheetOpen, setTempSheetOpen] = useState(false)
   const [pendingEventId, setPendingEventId] = useState<string | null>(null)
   const { isOnline, pendingCount, syncing } = useOfflineSync()
+  const [showGuide, setShowGuide] = useState(false)
 
   const router = useRouter()
   const supabase = createClient()
@@ -127,6 +129,14 @@ export default function HomePage() {
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [child]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 스팟라이트 가이드
+  useEffect(() => {
+    if (!localStorage.getItem('dodam_guide_parenting')) {
+      const t = setTimeout(() => setShowGuide(true), 1000)
+      return () => clearTimeout(t)
+    }
+  }, [])
 
   // 기록 핸들러
   const handleRecord = useCallback(async (type: EventType) => {
@@ -434,6 +444,7 @@ export default function HomePage() {
         <div className="max-w-lg mx-auto w-full pt-4 pb-44 px-5 space-y-3">
 
           {/* ━━━ 1. AI 히어로 ━━━ */}
+          <div data-guide="ai-card">
           <AiCareCard
             childName={child?.name || '아이'}
             ageMonths={ageMonths}
@@ -443,6 +454,7 @@ export default function HomePage() {
             todayPoopCount={todayPoopCount}
             onShare={() => shareTodayRecord(child?.name || '아이', ageMonths, todayFeedCount, todaySleepCount, todayPoopCount)}
           />
+          </div>
 
           {/* ━━━ 하루 요약 바 ━━━ */}
           {dailySummary && (() => {
@@ -561,6 +573,8 @@ export default function HomePage() {
       <FeedSheet open={feedSheetOpen} onClose={() => { setFeedSheetOpen(false); handleFeedSelect(null) }} onSelect={handleFeedSelect} />
       <PoopSheet open={poopSheetOpen} onClose={() => { setPoopSheetOpen(false); handlePoopSelect(null) }} onSelect={handlePoopSelect} />
       <TempSheet open={tempSheetOpen} onClose={() => setTempSheetOpen(false)} onSubmit={handleTempSubmit} />
+
+      {showGuide && <SpotlightGuide mode="parenting" onComplete={() => { localStorage.setItem('dodam_guide_parenting', '1'); setShowGuide(false) }} />}
     </div>
   )
 }

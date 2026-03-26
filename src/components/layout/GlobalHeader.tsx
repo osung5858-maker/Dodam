@@ -101,6 +101,7 @@ export default function GlobalHeader() {
           {/* 좌측: 아이 프로필 사진 + 이름/정보 */}
           <div className="flex items-center gap-2.5">
             <button
+              data-guide="profile"
               onClick={() => setShowAvatarPicker(true)}
               className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-[#F0EDE8] active:scale-95 transition-transform ring-2 ring-[var(--color-primary)]/20"
             >

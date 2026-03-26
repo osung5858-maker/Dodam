@@ -509,70 +509,76 @@ export default function BottomNav() {
         <div className="flex items-center h-[62px] rounded-[36px] bg-white/95 backdrop-blur-lg border border-[#E8E4DF]/60 p-1" style={{ boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
           {mode === 'preparing' || mode === 'pregnant' ? (
             tabs.map((tab) => (
-              <NavTab key={tab.href} tab={tab} pathname={pathname} />
+              <NavTab key={tab.href} tab={tab} pathname={pathname} data-guide={{ '/town': 'nav-town', '/record': 'nav-record', '/more': 'nav-more' }[tab.href]} />
             ))
           ) : (
             <>
               {tabs.slice(0, 2).map((tab) => (
-                <NavTab key={tab.href} tab={tab} pathname={pathname} />
+                <NavTab key={tab.href} tab={tab} pathname={pathname} data-guide={{ '/town': 'nav-town', '/record': 'nav-record', '/more': 'nav-more' }[tab.href]} />
               ))}
 
-              {/* 중앙 FAB (물방울 — pill 위로 돌출) */}
-              <div className="flex-1 flex items-center justify-center relative">
-                {activeSession ? (
-                  <button
-                    onClick={endSession}
-                    className="absolute -top-14 flex flex-col items-center justify-center transition-transform duration-200 active:scale-95"
-                  >
-                    <div
-                      className="w-[66px] h-[66px] rounded-full flex flex-col items-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.3)]"
-                      style={{
-                        background: activeSession.color,
-                        animation: 'fabSessionPulse 2s ease-in-out infinite',
-                      }}
-                    >
-                      <span className="text-white text-[15px] font-bold tabular-nums leading-tight">
-                        {formatElapsed(elapsed)}
-                      </span>
-                      <span className="text-white/90 text-[9px] font-semibold leading-tight">종료</span>
-                    </div>
-                    <span className="text-[10px] mt-0.5 font-medium whitespace-nowrap" style={{ color: activeSession.color }}>
-                      {activeSession.label}
-                    </span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setFabOpen((v) => !v)}
-                    className={`absolute -top-12 flex flex-col items-center justify-center transition-transform duration-200 ${fabOpen ? 'scale-95' : ''}`}
-                  >
-                    {fabOpen ? (
-                      <div className="w-[62px] h-[62px] rounded-full flex items-center justify-center active:scale-90 transition-all duration-200 bg-[#212124] shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
-                        <XIcon className="w-7 h-7 text-white" />
-                      </div>
-                    ) : (
-                      <div className="relative">
-                        {/* 호흡 글로우 링 */}
-                        <div className="absolute inset-[-6px] rounded-full" style={{ animation: 'fabGlow 3s ease-in-out infinite', background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 70%)', opacity: 0.15 }} />
-                        {/* 물방울 이미지 */}
-                        <img src="/fab.png" alt="" className="w-[62px] h-[62px] active:scale-90 transition-all duration-200" style={{ filter: 'drop-shadow(0 4px 12px var(--color-fab-shadow))', animation: 'fabBreathe 3s ease-in-out infinite' }} />
-                        {/* 반짝임 점 */}
-                        <div className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-white" style={{ animation: 'fabSparkle 2.5s ease-in-out infinite', boxShadow: '0 0 4px rgba(255,255,255,0.8)' }} />
-                      </div>
-                    )}
-                    <span className={`text-[10px] mt-0.5 font-medium ${fabOpen ? 'text-[#212124]' : 'text-[var(--color-primary)]'}`}>
-                      기록
-                    </span>
-                  </button>
-                )}
-              </div>
+              {/* FAB 영역 스페이서 */}
+              <div className="flex-1" />
 
               {tabs.slice(2).map((tab) => (
-                <NavTab key={tab.href} tab={tab} pathname={pathname} />
+                <NavTab key={tab.href} tab={tab} pathname={pathname} data-guide={{ '/town': 'nav-town', '/record': 'nav-record', '/more': 'nav-more' }[tab.href]} />
               ))}
             </>
           )}
         </div>
       </nav>
+
+      {/* FAB 버튼 — nav 외부 독립 배치 (모바일 터치 안정성) */}
+      {mode !== 'preparing' && mode !== 'pregnant' && (
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-[68] pointer-events-none pt-3 pr-5 pb-[max(20px,env(safe-area-inset-bottom))] pl-5">
+          <div className="h-[62px] flex items-center justify-center">
+            <div data-guide="fab" className="relative pointer-events-auto">
+              {activeSession ? (
+                <button
+                  onClick={endSession}
+                  className="absolute -top-14 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center transition-transform duration-200 active:scale-95"
+                >
+                  <div
+                    className="w-[66px] h-[66px] rounded-full flex flex-col items-center justify-center shadow-[0_6px_24px_rgba(0,0,0,0.3)]"
+                    style={{
+                      background: activeSession.color,
+                      animation: 'fabSessionPulse 2s ease-in-out infinite',
+                    }}
+                  >
+                    <span className="text-white text-[15px] font-bold tabular-nums leading-tight">
+                      {formatElapsed(elapsed)}
+                    </span>
+                    <span className="text-white/90 text-[9px] font-semibold leading-tight">종료</span>
+                  </div>
+                  <span className="text-[10px] mt-0.5 font-medium whitespace-nowrap" style={{ color: activeSession.color }}>
+                    {activeSession.label}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setFabOpen((v) => !v)}
+                  className={`absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center justify-center transition-transform duration-200 ${fabOpen ? 'scale-95' : ''}`}
+                >
+                  {fabOpen ? (
+                    <div className="w-[62px] h-[62px] rounded-full flex items-center justify-center active:scale-90 transition-all duration-200 bg-[#212124] shadow-[0_6px_20px_rgba(0,0,0,0.35)]">
+                      <XIcon className="w-7 h-7 text-white" />
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <div className="absolute inset-[-6px] rounded-full" style={{ animation: 'fabGlow 3s ease-in-out infinite', background: 'radial-gradient(circle, var(--color-primary) 0%, transparent 70%)', opacity: 0.15 }} />
+                      <img src="/fab.png" alt="" className="w-[62px] h-[62px] active:scale-90 transition-all duration-200" style={{ filter: 'drop-shadow(0 4px 12px var(--color-fab-shadow))', animation: 'fabBreathe 3s ease-in-out infinite' }} />
+                      <div className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-white" style={{ animation: 'fabSparkle 2.5s ease-in-out infinite', boxShadow: '0 0 4px rgba(255,255,255,0.8)' }} />
+                    </div>
+                  )}
+                  <span className={`text-[10px] mt-0.5 font-medium ${fabOpen ? 'text-[#212124]' : 'text-[var(--color-primary)]'}`}>
+                    기록
+                  </span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 애니메이션 keyframes */}
       <style jsx global>{`
@@ -643,7 +649,7 @@ function RecordGrid({ onRecord }: { onRecord: (type: string, extra?: Record<stri
   )
 }
 
-function NavTab({ tab, pathname }: { tab: Tab; pathname: string | null }) {
+function NavTab({ tab, pathname, 'data-guide': dataGuide }: { tab: Tab; pathname: string | null; 'data-guide'?: string }) {
   const isActive = tab.href === '/'
     ? pathname === '/'
     : pathname?.startsWith(tab.href)
@@ -652,6 +658,7 @@ function NavTab({ tab, pathname }: { tab: Tab; pathname: string | null }) {
   return (
     <Link
       href={tab.href}
+      data-guide={dataGuide}
       className={`flex-1 flex flex-col items-center justify-center gap-1 h-full rounded-[26px] transition-all ${
         isActive ? 'bg-[var(--color-primary)]' : ''
       }`}
