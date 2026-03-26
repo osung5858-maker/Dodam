@@ -79,12 +79,10 @@ export const metadata: Metadata = {
     canonical: 'https://dodam.app',
   },
   verification: {
-    // google: 'GOOGLE_SITE_VERIFICATION_CODE',
-    // naver: 'NAVER_SITE_VERIFICATION_CODE',
+    google: '',
   },
   other: {
-    'naver-site-verification': '',
-    'google-adsense-account': '',
+    'google-adsense-account': 'ca-pub-7884114322521157',
   },
 }
 

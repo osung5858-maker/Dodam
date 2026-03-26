@@ -81,14 +81,41 @@ export default function AIMealCard({ mode, value, phase }: Props) {
     setLoading(false)
   }
 
-  // 식당 찾기 — 메뉴명을 검색어로 지도 페이지에 전달
+  // 식당 찾기 — 메뉴명에서 외식 가능한 음식 카테고리 추출
   const getRestaurantQuery = () => {
-    if (!meal) return ''
-    // 점심 메뉴를 기본 검색어로 (가장 외식하기 좋은 끼니)
-    const menu = meal.lunch?.menu || meal.dinner?.menu || meal.breakfast?.menu || ''
-    // "시금치 달걀죽" → "시금치" 첫 단어만 추출 (너무 구체적이면 검색 안 됨)
-    const keyword = menu.split(/[·,\s]/)[0].replace(/[()]/g, '').trim()
-    return keyword || '맛집'
+    if (!meal) return '맛집'
+    const allMenus = [meal.lunch?.menu, meal.dinner?.menu, meal.breakfast?.menu].filter(Boolean).join(' ')
+    const lower = allMenus.toLowerCase()
+
+    // 메뉴 → 외식 검색 키워드 매핑 (구체적 → 일반적 순서)
+    const map: [RegExp, string][] = [
+      [/죽|미음/, '죽집'],
+      [/국수|칼국수|잔치국수/, '국수'],
+      [/비빔밥|돌솥/, '비빔밥'],
+      [/찌개|된장|김치찌개|순두부/, '찌개'],
+      [/불고기|갈비|고기/, '한식 고기'],
+      [/생선|고등어|연어|삼치/, '생선구이'],
+      [/두부|순두부/, '순두부'],
+      [/카레|짜장/, '중식'],
+      [/파스타|리조또/, '파스타'],
+      [/샐러드|보울/, '샐러드'],
+      [/우동|라멘|소바/, '일식'],
+      [/떡볶이|분식/, '분식'],
+      [/빵|토스트|샌드위치/, '베이커리'],
+      [/닭|치킨|삼계탕/, '닭요리'],
+      [/돈까스|돈카츠/, '돈까스'],
+      [/쌀밥|한식|나물|반찬/, '한식'],
+      [/이유식|퓨레/, '아기 식당'],
+    ]
+
+    for (const [pattern, keyword] of map) {
+      if (pattern.test(lower)) return keyword
+    }
+
+    // 매칭 안 되면 모드별 기본 검색어
+    if (mode === 'parenting') return '아이 동반 식당'
+    if (mode === 'pregnant') return '임산부 맛집'
+    return '건강식'
   }
 
   if (!meal && !loading) {
